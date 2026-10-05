@@ -40,20 +40,61 @@ To run `translations:validate` locally, `frontend-i18n` must be on `PATH`. It is
 
 `.github/workflows/i18n-validation.yml` calls the reusable validation workflow from `i18n-tooling` at an immutable commit and passes the same plan through `validation-config`. Its source-catalog lint is scoped to `src/Messages.js`, the canonical descriptor file used by FormatJS extraction; a broad scan currently flags existing imported/dynamic descriptors and inline messages. Keep new translatable messages in the central map. Expanding lint to all source files requires migrating those patterns first. ICU syntax failures are aggregated with message IDs, pattern-relative line/column locations, and readable parser diagnostics. Keep the workflow ref pinned to a reviewed SHA rather than a moving branch, and bump it when the plan needs a newer `validate-project` feature.
 
+## ICU authoring and linting
+
+The pilot exposed two risks: downloaded Phrase catalogs with broken FormatJS rich-text tags (`UNCLOSED_TAG`), and placeholders confined to an English `one` branch disappearing in target locales.
+
+### Authoring
+
+- Keep selector branches in one complete, translator-contextual message; do not assemble translated sentence fragments in code. Use `plural` and `selectordinal` for number forms and `select` for keyword alternatives, and include `other` in every selector. See the [ICU MessageFormat guide](https://unicode-org.github.io/icu/userguide/format_parse/messages/) and [FormatJS ICU syntax](https://formatjs.github.io/docs/core-concepts/icu-syntax/).
+- Do not use `one` as a synonym for `count === 1`. `one` is a locale-specific CLDR category: zh-CN, ja, and ko have only `other`, French `one` also covers 0 and 1.5, and Russian `one` covers 21. Content valid only for exactly one entity, such as a `{name}` placeholder, belongs in an exact `=1` branch; keep `one`/`other` branches grammatical. See [CLDR plural rules](https://cldr.unicode.org/index/cldr-spec/plural-rules).
+- Print counts with `#` inside their plural or `{count, number}` elsewhere. A plain `{count}` renders raw digits, while French expects `1 234 567`.
+- Prefer tag-free `defaultMessage` when markup wraps a named placeholder: pass a React node such as `<b>{name}</b>` as `values.name`. This is not equivalent when a tag wraps translated words or ICU `#`; `values` replaces named arguments, not localized substrings. To emphasize a count, pass a separate locale-formatted `{countLabel}` and keep `{count}` numeric for plural selection. Do not split a sentence just to remove tags.
+
+  Example for an entity name shown only when count is exactly one:
+
+  ```js
+  defaultMessage:
+    '{count, plural, =1 {{name} service account} one {# service account} other {# service accounts}} will be removed from {group} group.',
+  ```
+
+  ```tsx
+  <FormattedMessage
+    {...messages.removeServiceAccountsText}
+    values={{
+      count: accountsCount,
+      name: <b>{firstServiceAccountName}</b>,
+      group: <b>{group?.name ?? ''}</b>,
+    }}
+  />
+  ```
+
+### Lint and validation
+
+- Keep `npm run translations` and `npm run translations:validate` in the workflow. The pinned [`i18n-tooling` catalog pipeline](https://github.com/RedHatInsights/i18n-tooling/blob/9b9141a3a537f28627c00005d983f67daf78ff2e/packages/i18n-pipeline/README.md) parses ICU, checks catalog IDs and named arguments, verifies generated files, and warns about source plural semantics: `plural-category-only-arguments` (a placeholder only under `one` or another category), `unused-plural-category` (for example `zero` in English), and `unformatted-count-argument`. Warnings do not fail validation; in GitHub Actions they appear as annotations.
+- The reusable source lint is scoped to `src/Messages.js` by [`i18n-validation.yml`](../../.github/workflows/i18n-validation.yml); keep that scope until imported, dynamic, and inline message patterns are migrated. Besides `i18n/no-missing-default-catalog-entry`, it runs [FormatJS lint rules](https://github.com/RedHatInsights/i18n-tooling/blob/9b9141a3a537f28627c00005d983f67daf78ff2e/scripts/eslint-source.config.mjs). Errors: `no-invalid-icu`, `enforce-plural-rules` (`other` required), `no-missing-icu-plural-one-placeholders`, and `no-offset`. Warnings: `blocklist-elements` (inline tags), `prefer-full-sentence`, `prefer-pound-in-plural`, `no-complex-selectors` (limit 20), and `no-multiple-plurals`.
+- Every delivered translation is checked against its source by `validate-project` and Phrase reconciliation. A translation that drops an exact `=N` branch fails. Warnings cover a dropped count in `other`, plural categories the target locale never selects, Korean particles (이/가, 은/는, 을/를, 과/와, (으)로) directly after a runtime value, and French regular spaces before `: ; ! ? »`. Reconciliation lists warnings in the locale PR description.
+- None of these checks exercise Phrase's importer. For changed Phrase-bound messages with tags or selectors, inspect a real Phrase import/export with the project's subfilter settings and run `npm run translations:validate` on the export. Keep `removeServiceAccountsText` in the pilot regression check.
+
 ## Phrase pilot setup
 
 `i18n-tooling` provides a generic schema and reusable workflows; the Phrase project and credentials belong to this consumer repository. `.github/i18n/phrase-tms.json` is configured for the RBAC UI project, its `eu` region, and the approved target-locale mappings. Keep Phrase and repository locale identifiers distinct: for example, Phrase `zh_cn` maps to repository locale `zh-CN`.
 
-1. `.github/i18n/phrase-tms.json` sets `sourceCatalog.useProjectFileImportSettings: true`, so each job uses the Phrase project's existing file-import settings directly. Configure the project settings for `fileFormat: "json"` with **Parse ICU messages** (`json.icuSubFilter: true`), translation of FormatJS `defaultMessage`, and `description` retained as context. This avoids creating a separate import-settings record. The pilot targets only `zh_cn` first so ICU import can be verified before submitting the other locales. See [Phrase JSON TMS settings](https://support.phrase.com/hc/en-us/articles/5709604147100--JSON-JavaScript-Object-Notation-TMS) and the [Create Job API](https://developers.phrase.com/en/api/tms/v1/job/create-job).
+1. `.github/i18n/phrase-tms.json` sets `sourceCatalog.useProjectFileImportSettings: true`, so each job uses the Phrase project's existing file-import settings directly. Configure the project settings for `fileFormat: "json"` with **Parse ICU messages** (`json.icuSubFilter: true`), **Use HTML subfilter** (`json.htmlSubFilter: true`), translation of FormatJS `defaultMessage`, and `description` retained as context. This avoids creating a separate import-settings record. The pilot targets only `zh_cn` first so ICU import can be verified before submitting the other locales. See [Phrase JSON TMS settings](https://support.phrase.com/hc/en-us/articles/5709604147100--JSON-JavaScript-Object-Notation-TMS) and the [Create Job API](https://developers.phrase.com/en/api/tms/v1/job/create-job).
 
-   **Inline-tag caveat:** Phrase TMS JSON skips ICU parsing for segments containing inline elements. `removeServiceAccountsText` combines ICU plural syntax with FormatJS `<b>` tags. Test this exact segment with the selected settings; HTML subfilter or regex-to-tag conversion may protect tags but does not guarantee ICU parsing for that segment. The Phrase Strings Connector CDATA option does not apply to this direct JSON upload.
+   **HTML subfilter:** Phrase imports HTML tags in JSON values as protected tags, so translators and machine translation cannot rewrite them. Without it, FormatJS tags such as `<b>` are plain segment text. On export, the subfilter converts `&` and `<` in text to `&amp;` and `&lt;`; FormatJS renders those entities literally, so keep literal `&` and `<` out of Phrase-bound messages (there are none today). Phrase also documents that ICU parsing is skipped for segments containing inline elements; it does not say whether subfilter tags count. Evidence so far:
+   - Attempt 3 ([reconcile run 37008354483](https://github.com/petrsimon/insights-rbac-ui/actions/runs/37008354483)) ran with the HTML subfilter off and failed with `UNCLOSED_TAG` in five messages. Four of them (`removeMemberText`, `removeMembersText`, `removeRoleModalText`, `removeRolesModalText`) contain no ICU selector, which points to unprotected tags rather than an ICU interaction. Attempt 2's job settings differed only in `htmlSubFilter`, which was on, and it had no tag failures.
+   - An isolated project with both subfilters on round-tripped six RBAC-style ICU/HTML patterns (tags outside and inside ICU branches, exact `=1`, nested content, static translated text) through machine-translated `zh_cn` and `fr` exports. Every output parsed as FormatJS, and argument, tag, and `#` structure matched in branches present in both catalogs. zh-CN kept only `other` and dropped `{name}` from the source `one` branch; French exported `one`, `many`, and `other`. This sample does not prove how Phrase segments every message.
+
+   The `[HCC UI]` template has both subfilters on, but template changes do not update existing projects. The live RBAC project was switched to `htmlSubFilter: true` on 2026-10-05 for attempt 4 (Phrase job `iz0HMZmpkENPgaaxQCp4s5`). Updating project import settings through the API replaces the whole settings object, so send back the complete current settings with only the intended change. The Phrase Strings Connector CDATA option does not apply to this direct JSON upload.
+
 2. Keep the project UID, region, locale mappings, and output paths in `.github/i18n/phrase-tms.json`; never put credentials there. Store Phrase credentials only in the protected `phrase-pilot` GitHub Actions environment. Prefer `PHRASE_SERVICE_ACCOUNT_CLIENT_ID` and `PHRASE_SERVICE_ACCOUNT_CLIENT_SECRET`; use `PHRASE_PLATFORM_API_TOKEN` only for an approved pilot. Do not use `secrets: inherit`.
 3. Before pushing a pilot marker, configure the protected `phrase-pilot` environment with credentials, allow the test branch, and require approval for live runs. The Phrase submit/reconcile callers are temporarily guarded to that branch, and submit's `base-ref` targets it.
 4. GitHub only permits `workflow_dispatch` when the caller exists on the default branch. During this pilot, the callers have temporary branch-scoped `push` triggers for distinct markers: `.github/i18n/phrase-submit.pilot` and `.github/i18n/phrase-reconcile.pilot`. Change a marker's content to a unique value and push on the pilot branch to trigger its corresponding workflow; the markers are separate so submitting cannot accidentally trigger reconciliation. No schedule is configured. Once a catalog-validation failure is stored as `validation-failed`, correct the segment in the existing Phrase job and rerun reconciliation; it re-exports and validates the same job without creating a new batch. Older completed batches store validation failures as `failed` and need a one-time state migration to `validation-failed` before in-place retry. Use `retry-failed: true` on submit for a failed Phrase job/import or when you explicitly want a fresh attempt; only failed locales are resubmitted and successful locale PRs are preserved.
-5. Review locale PRs normally. They are not auto-merged. `GITHUB_TOKEN`-created PR checks may need maintainer approval. The PR build regenerates `src/locales/data.json` from the new locale file.
+5. Review locale PRs normally. They are not auto-merged. `GITHUB_TOKEN`-created PR checks may need maintainer approval. The locale PR adds only the target catalog, so `translations:validate` reports `src/locales/data.json` as out of date until `npm run translations:datafile` is run and committed on that PR.
 6. Before merging, remove both pilot push triggers and marker files in the same change, restore both guards and submit's `base-ref` to `master` (see workflow FIXME comments), and restrict the environment back to `master`. Once the callers are on the default branch, use manual dispatch instead.
 
-All three callers pin `i18n-tooling` at `42ea8130bdaa694a0302d071ca2336533e12a95d`, which includes detailed ICU syntax diagnostics and in-place retries for completed batches with catalog-validation failures. The submit/reconcile branch guards and submit `base-ref` are temporary pilot settings; restore them to `master` after testing. Reconcile and locale PR validation use the consumer repository's normal permissions and checks.
+All three callers pin `i18n-tooling` at `9b9141a3a537f28627c00005d983f67daf78ff2e`, which adds the ICU source lint and translation checks above to detailed ICU syntax diagnostics and in-place retries for completed batches with catalog-validation failures. The submit/reconcile branch guards and submit `base-ref` are temporary pilot settings; restore them to `master` after testing. Reconcile and locale PR validation use the consumer repository's normal permissions and checks.
 
 ## Runtime locale support
 
