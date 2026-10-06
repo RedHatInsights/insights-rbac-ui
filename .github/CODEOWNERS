@@ -2,6 +2,7 @@
 *                               @RedHatInsights/experience-ui-committers
 
 # Structural / architectural gatekeeping — broad blast radius
+/AGENTS.md                      @riccardo-forina @jjaquish
 /.github/                       @riccardo-forina @jjaquish
 /.storybook/                    @riccardo-forina @jjaquish
 /.husky/                        @riccardo-forina @jjaquish
