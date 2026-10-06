@@ -67,9 +67,9 @@ export const Default: Story = {
       expect(checkboxes[0]).not.toBeChecked();
       expect(checkboxes[1]).not.toBeChecked();
 
-      // Save button should be disabled (no emails entered)
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      // Invite button should be disabled (no emails entered)
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       // Cancel button should be enabled
       const cancelButton = body.getByRole('button', { name: /cancel/i });
@@ -90,17 +90,17 @@ export const EnterValidEmails: Story = {
       const emailInput = body.getByRole('textbox');
       expect(emailInput).toBeInTheDocument();
 
-      // Save button should initially be disabled
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      // Invite button should initially be disabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       // Enter valid email addresses
       await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
       expect(emailInput).toHaveValue('user1@example.com, user2@example.com');
 
-      // Save button should now be enabled
+      // Invite button should now be enabled
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
     });
   },
@@ -117,16 +117,16 @@ export const EnterInvalidEmails: Story = {
       // Email text area
       const emailInput = body.getByRole('textbox');
 
-      // Save button should initially be disabled
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      // Invite button should initially be disabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       // Enter invalid text (not emails)
       await userEvent.type(emailInput, 'not an email, also not valid');
       expect(emailInput).toHaveValue('not an email, also not valid');
 
-      // Save button should still be disabled (no valid emails)
-      expect(saveButton).toBeDisabled();
+      // Invite button should still be disabled (no valid emails)
+      expect(inviteButton).toBeDisabled();
     });
   },
 };
@@ -212,10 +212,10 @@ export const SaveButtonEnabledWithValidEmails: Story = {
       await userEvent.click(adminCheckbox);
       expect(adminCheckbox).toBeChecked();
 
-      // Verify save button is enabled
-      const saveButton = body.getByRole('button', { name: /save/i });
+      // Verify invite button is enabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
     });
   },
@@ -229,15 +229,15 @@ export const MixedValidInvalidEmails: Story = {
     const body = within(document.body);
 
     await step('Enter mixed emails and verify save enabled', async () => {
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       const emailInput = body.getByRole('textbox');
       await userEvent.type(emailInput, 'valid@example.com, not-an-email, another.valid@test.org, @invalid');
 
-      // Save button should be enabled (valid emails were found)
+      // Invite button should be enabled (valid emails were found)
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
     });
   },
@@ -260,10 +260,10 @@ export const AdminCheckboxUncheckedByDefault: Story = {
       const emailInput = body.getByRole('textbox');
       await userEvent.type(emailInput, 'user@example.com');
 
-      // Save button should be enabled
-      const saveButton = body.getByRole('button', { name: /save/i });
+      // Invite button should be enabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
     });
   },
