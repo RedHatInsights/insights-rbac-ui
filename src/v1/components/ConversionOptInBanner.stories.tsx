@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { ConversionOptInBanner, type ConversionOptInBannerProps } from './ConversionOptInBanner';
+import messages from '../../Messages';
 
 const meta: Meta<ConversionOptInBannerProps> = {
   component: ConversionOptInBanner,
@@ -38,16 +39,16 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.findByText('Elevate your infrastructure with workspace-based access management')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Get started now')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Learn more about the benefits', { exact: false })).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(messages.conversionBannerAdminTitle.defaultMessage)).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(messages.conversionBannerAdminGetStarted.defaultMessage)).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false })).resolves.toBeInTheDocument();
   },
 };
 
 export const OnGetStartedCallback: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const getStartedLink = await canvas.findByText('Get started now');
+    const getStartedLink = await canvas.findByText(messages.conversionBannerAdminGetStarted.defaultMessage);
     await userEvent.click(getStartedLink);
     await expect(args.onGetStarted).toHaveBeenCalledTimes(1);
   },
@@ -56,7 +57,7 @@ export const OnGetStartedCallback: Story = {
 export const LearnMoreLink: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const learnMoreLink = await canvas.findByText('Learn more about the benefits', { exact: false });
+    const learnMoreLink = await canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false });
     const anchor = learnMoreLink.closest('a');
     await expect(anchor).toHaveAttribute(
       'href',

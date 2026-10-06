@@ -6,6 +6,7 @@ import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.han
 import { MemoryRouter } from 'react-router-dom';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { ApiErrorBoundary } from './ApiErrorBoundary';
+import messages from '../../../Messages';
 import { useGroupsQuery } from '../../data/queries/groups';
 
 // ============================================================================
@@ -269,11 +270,7 @@ export const Visual403State: Story = {
             serviceName="Users"
             bodyText={
               <FormattedMessage
-                id={'contactOrgAdmin'}
-                defaultMessage={
-                  'Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.'
-                }
-                description={'Contact organization administrator message for not authorized state'}
+                {...messages.contactOrgAdmin}
                 values={{
                   link: (
                     <AppLink to="/" linkBasename="/iam">

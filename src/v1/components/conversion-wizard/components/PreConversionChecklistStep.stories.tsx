@@ -8,6 +8,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import { useIntl } from 'react-intl';
 import { PreConversionChecklistStep } from './PreConversionChecklistStep';
 import { requiredCheckboxValidator } from '../validators';
+import messages from '../../../../Messages';
 
 const mapperExtension = {
   PreConversionChecklistStep,
@@ -29,11 +30,7 @@ const WrapperComponent = () => {
       {
         name: 'checkbox-reviewed-config',
         component: componentTypes.CHECKBOX,
-        label: intl.formatMessage({
-          id: 'conversionWizardChecklistReviewedConfig',
-          defaultMessage: 'I have reviewed the current user and group configuration and understand what will change',
-          description: 'Pre-conversion checklist item 1',
-        }),
+        label: intl.formatMessage(messages.conversionWizardChecklistReviewedConfig),
         validate: [
           {
             type: 'required-checkbox',
@@ -44,11 +41,7 @@ const WrapperComponent = () => {
       {
         name: 'checkbox-understand-permanent',
         component: componentTypes.CHECKBOX,
-        label: intl.formatMessage({
-          id: 'conversionWizardChecklistUnderstandPermanent',
-          defaultMessage: 'I understand that conversion is permanent and cannot be reversed',
-          description: 'Pre-conversion checklist item 2',
-        }),
+        label: intl.formatMessage(messages.conversionWizardChecklistUnderstandPermanent),
         validate: [
           {
             type: 'required-checkbox',
@@ -59,11 +52,7 @@ const WrapperComponent = () => {
       {
         name: 'checkbox-complete-post-conversion',
         component: componentTypes.CHECKBOX,
-        label: intl.formatMessage({
-          id: 'conversionWizardChecklistCompletePostConversion',
-          defaultMessage: 'I will complete post-conversion organization tasks within one week',
-          description: 'Pre-conversion checklist item 3',
-        }),
+        label: intl.formatMessage(messages.conversionWizardChecklistCompletePostConversion),
         validate: [
           {
             type: 'required-checkbox',
@@ -74,11 +63,7 @@ const WrapperComponent = () => {
       {
         name: 'checkbox-understand-remediation',
         component: componentTypes.CHECKBOX,
-        label: intl.formatMessage({
-          id: 'conversionWizardChecklistUnderstandRemediation',
-          defaultMessage: 'I understand that all existing legacy remediation plans will be deleted',
-          description: 'Pre-conversion checklist item 4',
-        }),
+        label: intl.formatMessage(messages.conversionWizardChecklistUnderstandRemediation),
         validate: [
           {
             type: 'required-checkbox',

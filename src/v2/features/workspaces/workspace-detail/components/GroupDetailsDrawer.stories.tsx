@@ -9,6 +9,7 @@ import {
   groupMembersLoadingHandlers,
 } from '../../../../../shared/data/mocks/groupMembers.handlers';
 
+import messages from '../../../../../Messages';
 import { GROUP_ADMIN_DEFAULT, GROUP_SYSTEM_DEFAULT } from '../../../../../shared/data/mocks/seed';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
@@ -37,10 +38,10 @@ const mockUsers: Member[] = [
   },
 ];
 
-const ALL_USERS_EMPTY_TITLE = 'All users';
-const ALL_USERS_EMPTY_BODY = 'All users in this organization are members of this group.';
-const ALL_ORG_ADMINS_EMPTY_TITLE = 'All org admins';
-const ALL_ORG_ADMINS_EMPTY_BODY = 'All organization administrators in this organization are members of this group.';
+const ALL_USERS_EMPTY_TITLE = messages.allUsers.defaultMessage;
+const ALL_USERS_EMPTY_BODY = messages.allUsersAreMembers.defaultMessage;
+const ALL_ORG_ADMINS_EMPTY_TITLE = messages.allOrgAdmins.defaultMessage;
+const ALL_ORG_ADMINS_EMPTY_BODY = messages.allOrgAdminsAreMembers.defaultMessage;
 
 const mockGroup: WorkspaceGroupRow = {
   id: 'group-1',
