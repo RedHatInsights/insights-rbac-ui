@@ -239,7 +239,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspac
         subtitle={intl.formatMessage(messages.workspacesSubtitle)}
         linkProps={{
           label: intl.formatMessage(messages.workspacesLearnMore),
-          href: 'https://docs.redhat.com/en/documentation/red_hat_insights/1-latest/html/viewing_and_managing_system_inventory/deploying-insights-with-rhca_user-access',
+          href: 'https://docs.redhat.com/en/documentation/red_hat_lightspeed/1-latest/html-single/registering_rhel_systems_and_configuring_client_tools_with_red_hat_lightspeed/index',
           isExternal: true,
         }}
       />
