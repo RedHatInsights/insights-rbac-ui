@@ -61,14 +61,15 @@ export const Default: Story = {
       const emailInput = body.getByRole('textbox');
       expect(emailInput).toBeInTheDocument();
 
-      // Admin checkbox should be present and unchecked
-      const adminCheckbox = body.getByRole('checkbox');
-      expect(adminCheckbox).toBeInTheDocument();
-      expect(adminCheckbox).not.toBeChecked();
+      // Both checkboxes should be present and unchecked (admin + manage support cases)
+      const checkboxes = body.getAllByRole('checkbox');
+      expect(checkboxes).toHaveLength(2);
+      expect(checkboxes[0]).not.toBeChecked();
+      expect(checkboxes[1]).not.toBeChecked();
 
-      // Save button should be disabled (no emails entered)
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      // Invite button should be disabled (no emails entered)
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       // Cancel button should be enabled
       const cancelButton = body.getByRole('button', { name: /cancel/i });
@@ -89,17 +90,17 @@ export const EnterValidEmails: Story = {
       const emailInput = body.getByRole('textbox');
       expect(emailInput).toBeInTheDocument();
 
-      // Save button should initially be disabled
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      // Invite button should initially be disabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       // Enter valid email addresses
       await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
       expect(emailInput).toHaveValue('user1@example.com, user2@example.com');
 
-      // Save button should now be enabled
+      // Invite button should now be enabled
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
     });
   },
@@ -116,16 +117,16 @@ export const EnterInvalidEmails: Story = {
       // Email text area
       const emailInput = body.getByRole('textbox');
 
-      // Save button should initially be disabled
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      // Invite button should initially be disabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       // Enter invalid text (not emails)
       await userEvent.type(emailInput, 'not an email, also not valid');
       expect(emailInput).toHaveValue('not an email, also not valid');
 
-      // Save button should still be disabled (no valid emails)
-      expect(saveButton).toBeDisabled();
+      // Invite button should still be disabled (no valid emails)
+      expect(inviteButton).toBeDisabled();
     });
   },
 };
@@ -138,8 +139,9 @@ export const ToggleAdminCheckbox: Story = {
     const body = within(document.body);
 
     await step('Toggle admin checkbox', async () => {
-      // Find and verify admin checkbox
-      const adminCheckbox = body.getByRole('checkbox');
+      // Find and verify admin checkbox (first checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      const adminCheckbox = checkboxes[0];
       expect(adminCheckbox).not.toBeChecked();
 
       // Click to check
@@ -204,15 +206,16 @@ export const SaveButtonEnabledWithValidEmails: Story = {
       const emailInput = body.getByRole('textbox');
       await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
 
-      // Check admin checkbox
-      const adminCheckbox = body.getByRole('checkbox');
+      // Check admin checkbox (first checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      const adminCheckbox = checkboxes[0];
       await userEvent.click(adminCheckbox);
       expect(adminCheckbox).toBeChecked();
 
-      // Verify save button is enabled
-      const saveButton = body.getByRole('button', { name: /save/i });
+      // Verify invite button is enabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
     });
   },
@@ -226,15 +229,15 @@ export const MixedValidInvalidEmails: Story = {
     const body = within(document.body);
 
     await step('Enter mixed emails and verify save enabled', async () => {
-      const saveButton = body.getByRole('button', { name: /save/i });
-      expect(saveButton).toBeDisabled();
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
+      expect(inviteButton).toBeDisabled();
 
       const emailInput = body.getByRole('textbox');
       await userEvent.type(emailInput, 'valid@example.com, not-an-email, another.valid@test.org, @invalid');
 
-      // Save button should be enabled (valid emails were found)
+      // Invite button should be enabled (valid emails were found)
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
     });
   },
@@ -248,19 +251,95 @@ export const AdminCheckboxUncheckedByDefault: Story = {
     const body = within(document.body);
 
     await step('Verify admin unchecked and save enabled with valid email', async () => {
-      // Admin checkbox should be unchecked by default
-      const adminCheckbox = body.getByRole('checkbox');
+      // Admin checkbox should be unchecked by default (first checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      const adminCheckbox = checkboxes[0];
       expect(adminCheckbox).not.toBeChecked();
 
       // Enter valid email
       const emailInput = body.getByRole('textbox');
       await userEvent.type(emailInput, 'user@example.com');
 
-      // Save button should be enabled
-      const saveButton = body.getByRole('button', { name: /save/i });
+      // Invite button should be enabled
+      const inviteButton = body.getByRole('button', { name: /invite new users/i });
       await waitFor(() => {
-        expect(saveButton).toBeEnabled();
+        expect(inviteButton).toBeEnabled();
       });
+    });
+  },
+};
+
+/**
+ * Toggle manage support cases checkbox
+ */
+export const ToggleManageSupportCases: Story = {
+  play: async ({ step }) => {
+    const body = within(document.body);
+
+    await step('Toggle manage support cases checkbox', async () => {
+      // Find manage support cases checkbox (second checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      expect(checkboxes).toHaveLength(2);
+      const supportCasesCheckbox = checkboxes[1];
+      expect(supportCasesCheckbox).not.toBeChecked();
+
+      // Click to check
+      await userEvent.click(supportCasesCheckbox);
+      expect(supportCasesCheckbox).toBeChecked();
+
+      // Click to uncheck
+      await userEvent.click(supportCasesCheckbox);
+      expect(supportCasesCheckbox).not.toBeChecked();
+    });
+  },
+};
+
+/**
+ * Expand manage support cases description section
+ */
+export const ExpandSupportCasesDescription: Story = {
+  play: async ({ step }) => {
+    const body = within(document.body);
+
+    await step('Expand support cases description', async () => {
+      // Find the expandable toggle button for manage support cases
+      const expandToggle = body.getByRole('button', { name: /manage support cases/i });
+      expect(expandToggle).toBeInTheDocument();
+
+      // Click to expand
+      await userEvent.click(expandToggle);
+
+      // Description should be visible after expansion
+      await waitFor(() => {
+        expect(body.queryByText(/create, view, and manage support cases/i)).toBeInTheDocument();
+      });
+    });
+  },
+};
+
+/**
+ * ITLess mode - Manage Support Cases checkbox is hidden
+ */
+export const ITLessHidesSupportCases: Story = {
+  parameters: {
+    featureFlags: {
+      'platform.rbac.itless': true,
+    },
+  },
+  play: async ({ step }) => {
+    const body = within(document.body);
+
+    await step('Verify only admin checkbox visible in ITLess mode', async () => {
+      // Modal should be visible
+      const modal = await body.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
+
+      // Only admin checkbox should be present (support cases hidden in ITLess)
+      const checkboxes = body.getAllByRole('checkbox');
+      expect(checkboxes).toHaveLength(1);
+
+      // Manage Support Cases text should not be present
+      expect(body.queryByText(/manage support cases/i)).not.toBeInTheDocument();
     });
   },
 };

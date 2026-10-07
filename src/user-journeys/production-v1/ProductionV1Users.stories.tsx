@@ -232,11 +232,12 @@ export const InviteUsersJourney: Story = {
       handlers: [
         ...accountManagementHandlers({
           onInvite: (request: Request, body: unknown) => {
-            const b = body as { emails?: string[]; roles?: string[] };
+            const b = body as { emails?: string[]; roles?: string[]; portal_manage_cases?: boolean };
             inviteUsersSpy({
               url: request.url,
               emails: b.emails,
               roles: b.roles,
+              portal_manage_cases: b.portal_manage_cases,
             });
           },
         }),
@@ -286,13 +287,21 @@ export const InviteUsersJourney: Story = {
       );
     });
 
-    await step('Check org admin and submit', async () => {
+    await step('Check org admin and manage support cases, then submit', async () => {
       const modal = await waitForModal();
       await waitFor(() => {
         expect(modal.queryByRole('checkbox', { name: /organization administrators/i })).toBeInTheDocument();
       });
       const orgAdminCheckbox = modal.getByRole('checkbox', { name: /organization administrators/i });
       await user.click(orgAdminCheckbox);
+
+      // Also check manage support cases checkbox
+      await waitFor(() => {
+        expect(modal.queryByRole('checkbox', { name: /manage support cases/i })).toBeInTheDocument();
+      });
+      const supportCasesCheckbox = modal.getByRole('checkbox', { name: /manage support cases/i });
+      await user.click(supportCasesCheckbox);
+
       const submitButton = await modal.findByRole('button', { name: /invite new users/i });
       await waitFor(() => expect(submitButton).toBeEnabled());
       await user.click(submitButton);
@@ -302,7 +311,7 @@ export const InviteUsersJourney: Story = {
       await verifySuccessNotification();
     });
 
-    await step('Verify invite API called', async () => {
+    await step('Verify invite API called with org admin and portal_manage_cases', async () => {
       await waitFor(
         () => {
           expect(inviteUsersSpy).toHaveBeenCalled();
@@ -316,6 +325,7 @@ export const InviteUsersJourney: Story = {
       expect(spyCall.emails).toContain('newuser1@example.com');
       expect(spyCall.emails).toContain('newuser2@example.com');
       expect(spyCall.roles).toContain('organization_administrator');
+      expect(spyCall.portal_manage_cases).toBe(true);
     });
   },
 };
