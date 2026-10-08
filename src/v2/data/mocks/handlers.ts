@@ -56,7 +56,7 @@ export function createV2Handlers(db: V2MockDb, spies: V2HandlerSpies = {}) {
     }),
     ...createPermissionsHandlers(db.permissions.all()),
     ...createServiceAccountsHandlers(db.serviceAccounts.all()),
-    ...createAccountManagementHandlers(spies.accountManagement),
+    ...createAccountManagementHandlers({ ...spies.accountManagement, users: db.users, userPermissions: db.userPermissions }),
     ...auditHandlers(),
     ...createCostHandlers(),
     ...staticAssetsHandlers(),

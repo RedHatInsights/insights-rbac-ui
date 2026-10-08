@@ -11,6 +11,7 @@ import {
   DEFAULT_PERMISSIONS,
   DEFAULT_SERVICE_ACCOUNTS,
   DEFAULT_USERS,
+  DEFAULT_USER_PERMISSIONS,
   GROUP_ENGINEERING,
   GROUP_PLATFORM_ADMINS,
   GROUP_SUPPORT_TEAM,
@@ -201,5 +202,6 @@ export function defaultV2Seed(): V2Seed {
     groupMembers: Object.entries(DEFAULT_GROUP_MEMBERS),
     groupServiceAccounts: Object.entries(DEFAULT_GROUP_SERVICE_ACCOUNTS),
     groupRoles: Object.entries(DEFAULT_GROUP_ROLES),
+    userPermissions: Object.entries(DEFAULT_USER_PERMISSIONS),
   };
 }

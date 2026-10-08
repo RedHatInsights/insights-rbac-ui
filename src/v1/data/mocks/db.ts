@@ -28,6 +28,7 @@ export interface V1MockDb {
   groupMembers: ResettableMap<string, Principal[]>;
   groupServiceAccounts: ResettableMap<string, ServiceAccount[]>;
   groupRoles: ResettableMap<string, RoleOut[]>;
+  userPermissions: ResettableMap<string, string[]>;
   reset(): void;
   /** Resolves when all collections have finished repopulating after reset (for test isolation) */
   ready: Promise<void>;
@@ -42,6 +43,7 @@ export interface V1Seed {
   groupMembers?: Iterable<[string, Principal[]]>;
   groupServiceAccounts?: Iterable<[string, ServiceAccount[]]>;
   groupRoles?: Iterable<[string, RoleOut[]]>;
+  userPermissions?: Iterable<[string, string[]]>;
 }
 
 export function createV1MockDb(seed: V1Seed = {}): V1MockDb {
@@ -53,6 +55,7 @@ export function createV1MockDb(seed: V1Seed = {}): V1MockDb {
   const groupMembers = createResettableMap<string, Principal[]>(seed.groupMembers ?? []);
   const groupServiceAccounts = createResettableMap<string, ServiceAccount[]>(seed.groupServiceAccounts ?? []);
   const groupRoles = createResettableMap<string, RoleOut[]>(seed.groupRoles ?? []);
+  const userPermissions = createResettableMap<string, string[]>(seed.userPermissions ?? []);
 
   const db: V1MockDb = {
     groups,
@@ -63,6 +66,7 @@ export function createV1MockDb(seed: V1Seed = {}): V1MockDb {
     groupMembers,
     groupServiceAccounts,
     groupRoles,
+    userPermissions,
     ready: Promise.all([groups.ready, users.ready, roles.ready, permissions.ready, serviceAccounts.ready]).then(() => {}),
     reset() {
       groups.reset();
@@ -73,6 +77,7 @@ export function createV1MockDb(seed: V1Seed = {}): V1MockDb {
       groupMembers.reset();
       groupServiceAccounts.reset();
       groupRoles.reset();
+      userPermissions.reset();
       db.ready = Promise.all([groups.ready, users.ready, roles.ready, permissions.ready, serviceAccounts.ready]).then(() => {});
     },
   };

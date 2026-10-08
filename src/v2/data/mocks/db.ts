@@ -35,6 +35,7 @@ export interface V2MockDb {
   groupRoles: ResettableMap<string, RoleOut[]>;
   roleBindings: ResettableMap<string, RoleBindingsRoleBindingBySubject[]>;
   rolePermissions: ResettableMap<string, V2Permission[]>;
+  userPermissions: ResettableMap<string, string[]>;
   reset(): void;
   /** Resolves when all collections have finished repopulating after reset (for test isolation) */
   ready: Promise<void>;
@@ -52,6 +53,7 @@ export interface V2Seed {
   groupRoles?: Iterable<[string, RoleOut[]]>;
   roleBindings?: Iterable<[string, RoleBindingsRoleBindingBySubject[]]>;
   rolePermissions?: Iterable<[string, V2Permission[]]>;
+  userPermissions?: Iterable<[string, string[]]>;
 }
 
 export function createV2MockDb(seed: V2Seed = {}): V2MockDb {
@@ -66,6 +68,7 @@ export function createV2MockDb(seed: V2Seed = {}): V2MockDb {
   const groupRoles = createResettableMap<string, RoleOut[]>(seed.groupRoles ?? []);
   const roleBindings = createResettableMap<string, RoleBindingsRoleBindingBySubject[]>(seed.roleBindings ?? []);
   const rolePermissions = createResettableMap<string, V2Permission[]>(seed.rolePermissions ?? []);
+  const userPermissions = createResettableMap<string, string[]>(seed.userPermissions ?? []);
 
   const db: V2MockDb = {
     groups,
@@ -79,6 +82,7 @@ export function createV2MockDb(seed: V2Seed = {}): V2MockDb {
     groupRoles,
     roleBindings,
     rolePermissions,
+    userPermissions,
     ready: Promise.all([groups.ready, users.ready, roles.ready, workspaces.ready, permissions.ready, serviceAccounts.ready]).then(() => {}),
     reset() {
       groups.reset();
@@ -92,6 +96,7 @@ export function createV2MockDb(seed: V2Seed = {}): V2MockDb {
       groupRoles.reset();
       roleBindings.reset();
       rolePermissions.reset();
+      userPermissions.reset();
       db.ready = Promise.all([groups.ready, users.ready, roles.ready, workspaces.ready, permissions.ready, serviceAccounts.ready]).then(() => {});
     },
   };

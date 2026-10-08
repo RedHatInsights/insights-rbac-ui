@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { type User, useUsersQuery } from '../../../../../shared/data/queries/users';
 import { defaultSettings } from '../../../../../shared/helpers/pagination';
-import { type SortableColumnId, standardColumns } from './components/useUsersTableConfig';
+import { type SortableColumnId, allColumns } from './components/useUsersTableConfig';
 
 export interface UsersFilters {
   username: string;
@@ -27,7 +27,7 @@ export interface UseUsersReturn {
   userAccessAdministrator: boolean;
 
   // Table state from useTableState
-  tableState: ReturnType<typeof useTableState<typeof standardColumns, User, SortableColumnId, never>>;
+  tableState: ReturnType<typeof useTableState<typeof allColumns, User, SortableColumnId, never>>;
 
   // Convenience accessors for backwards compatibility
   filters: UsersFilters;
@@ -54,8 +54,8 @@ export const useUsers = (options: UseUsersOptions = {}): UseUsersReturn => {
   const [focusedUser, setFocusedUser] = useState<User | null>(null);
 
   // useTableState handles ALL table state with URL synchronization
-  const tableState = useTableState<typeof standardColumns, User, SortableColumnId>({
-    columns: standardColumns,
+  const tableState = useTableState<typeof allColumns, User, SortableColumnId>({
+    columns: allColumns,
     sortableColumns: ['username'] as const,
     initialSort: { column: 'username', direction: 'asc' },
     initialPerPage: defaultSettings.limit,
