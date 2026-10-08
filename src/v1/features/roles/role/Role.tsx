@@ -111,7 +111,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   }
 
   // Helper to convert getBackRoute result to string
-  const routeToString = (route: { pathname: string; search: string }) => `${route.pathname}${route.search}`;
+  const routeToString = (route: { pathname: string; search: string }) => `${route.pathname}${route.search ? `?${route.search}` : ''}`;
 
   const breadcrumbsList = (): Breadcrumb[] => [
     groupId
