@@ -1,8 +1,9 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { MemoryRouter } from 'react-router-dom';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { RolePermissions } from './RolePermissions';
+import { confirmDestructiveModal } from '../../../../../test-utils/interactionHelpers';
 
 const meta: Meta<typeof RolePermissions> = {
   title: 'Features/Roles/Role/Components/RolePermissions',
@@ -75,6 +76,54 @@ export const Default: Story = {
     onFiltersChange: fn(),
     currentFilters: { applications: [], resources: [], operations: [] },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+    const user = userEvent.setup();
+
+    // Add permissions is a plain toolbar button — not collapsed behind an overflow menu
+    expect(await canvas.findByRole('button', { name: /add permissions/i })).toBeEnabled();
+
+    // The kebab is always present, and always has content — never an empty menu
+    await user.click(await canvas.findByLabelText(/bulk actions/i));
+
+    // Remove is offered but inert until rows are selected
+    expect(await body.findByRole('menuitem', { name: /remove/i })).toBeDisabled();
+  },
+};
+
+/**
+ * Regression coverage for RHCLOUD-52068: the toolbar kebab rendered empty because the
+ * only toolbar action was pinned, so its overflow entry was hidden above the breakpoint
+ * while the kebab toggle itself always rendered. The kebab must always carry the bulk
+ * "Remove" action, which activates once rows are selected.
+ */
+export const BulkRemovePermissions: Story = {
+  args: {
+    ...Default.args,
+    onRemovePermissions: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+    const user = userEvent.setup();
+
+    await canvas.findByRole('button', { name: /add permissions/i });
+
+    await user.click(await canvas.findByLabelText('Select row 0'));
+    await user.click(await canvas.findByLabelText('Select row 1'));
+
+    const kebabToggle = await canvas.findByLabelText(/bulk actions/i);
+    await user.click(kebabToggle);
+
+    await user.click(await body.findByRole('menuitem', { name: /remove/i }));
+
+    await confirmDestructiveModal(user, { buttonText: /remove permissions/i });
+
+    await waitFor(() =>
+      expect(args.onRemovePermissions).toHaveBeenCalledWith([{ uuid: mockPermissions[0].uuid }, { uuid: mockPermissions[1].uuid }]),
+    );
+  },
 };
 
 export const Loading: Story = {
@@ -89,6 +138,15 @@ export const SystemRole: Story = {
     ...Default.args,
     cantAddPermissions: true,
     isSystemRole: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // System roles can't be modified: the button stays visible but disabled, and
+    // without selection there is no bulk kebab at all
+    expect(await canvas.findByRole('button', { name: /add permissions/i })).toHaveAttribute('aria-disabled', 'true');
+    expect(canvas.queryByLabelText(/bulk actions/i)).not.toBeInTheDocument();
+    expect(canvas.queryByLabelText('Select row 0')).not.toBeInTheDocument();
   },
 };
 
