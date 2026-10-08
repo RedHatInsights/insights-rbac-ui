@@ -1,0 +1,23 @@
+diff --git a/node_modules/@redhat-cloud-services/frontend-components-config-utilities/feo/spec/frontend-crd.schema.json b/node_modules/@redhat-cloud-services/frontend-components-config-utilities/feo/spec/frontend-crd.schema.json
+--- a/node_modules/@redhat-cloud-services/frontend-components-config-utilities/feo/spec/frontend-crd.schema.json
++++ b/node_modules/@redhat-cloud-services/frontend-components-config-utilities/feo/spec/frontend-crd.schema.json
+@@ -729,6 +729,19 @@
+                 "feoConfigEnabled": {
+                     "type": "boolean"
+                 },
++                "locales": {
++                    "type": "object",
++                    "description": "Generated translations keyed by locale and stable message ID",
++                    "propertyNames": {
++                        "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
++                    },
++                    "additionalProperties": {
++                        "type": "object",
++                        "additionalProperties": {
++                            "type": "string"
++                        }
++                    }
++                },
+                 "akamaiCacheBustDisable": {
+                     "type": "boolean"
+                 },
