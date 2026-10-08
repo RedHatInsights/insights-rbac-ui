@@ -9,14 +9,16 @@
     "directory": ".github/i18n-state/batches"
   },
   "sourceCatalog": {
-    "path": "deploy/locales/translation-template.json",
+    "path": "deploy/locales/insights-rbac-ui-feo-frontend-en.json",
+    "filename": "insights-rbac-ui-feo-frontend-en.json",
     "adapter": "formatjs-json",
     "locale": "en",
     "useProjectFileImportSettings": true
   },
   "targetAdapter": "formatjs-json",
   "frontendTemplate": {
-    "path": "deploy/frontend.yaml"
+    "path": "deploy/frontend.yaml",
+    "generateSourceCatalog": true
   },
   "targetLocales": [
     {

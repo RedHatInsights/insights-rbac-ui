@@ -2,6 +2,11 @@ name: Submit FEO catalog to Phrase (POC)
 
 on:
   workflow_dispatch:
+  # Pilot-only trigger: a deliberate marker commit on this branch starts submission.
+  push:
+    branches: [RHCLOUD-52058]
+    paths:
+      - .github/i18n/feo-phrase-submit.pilot
 
 permissions: {}
 
@@ -9,7 +14,7 @@ jobs:
   submit:
     # POC: do not submit jobs from arbitrary refs.
     if: github.ref == 'refs/heads/RHCLOUD-52058'
-    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-submit.yml@RHCLOUD-52058-phrase-handoff
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-submit.yml@eccc7252f04ba304d01c4a1690e018036c781d3e
     with:
       config-path: .github/i18n/feo-phrase-tms.json
       environment: phrase-pilot

@@ -46,10 +46,10 @@ jobs:
         working-directory: i18n-tooling-source
       - run: npm run build --workspace @redhat-cloud-services/i18n-pipeline
         working-directory: i18n-tooling-source
-      - name: Verify extracted English catalog
-        run: node i18n-tooling-source/packages/i18n-pipeline/dist/cli.js feo extract --template deploy/frontend.yaml --output deploy/locales/translation-template.json --check
+      - name: Generate English catalog from Frontend YAML
+        run: node i18n-tooling-source/packages/i18n-pipeline/dist/cli.js feo extract --template deploy/frontend.yaml --output "$RUNNER_TEMP/insights-rbac-ui-feo-frontend-en.json"
       - name: Verify inlined zh-CN catalog
-        run: node i18n-tooling-source/packages/i18n-pipeline/dist/cli.js feo inline --template deploy/frontend.yaml --source deploy/locales/translation-template.json --target deploy/locales/zh-CN.json --locale zh-CN --check
+        run: node i18n-tooling-source/packages/i18n-pipeline/dist/cli.js feo inline --template deploy/frontend.yaml --source "$RUNNER_TEMP/insights-rbac-ui-feo-frontend-en.json" --target deploy/locales/zh-CN.json --locale zh-CN --check
 
   build:
     runs-on: ubuntu-24.04

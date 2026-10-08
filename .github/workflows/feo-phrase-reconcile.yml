@@ -2,13 +2,18 @@ name: Reconcile FEO Phrase translations (POC)
 
 on:
   workflow_dispatch:
+  # Pilot-only trigger: a separate marker commit checks completed zh-CN jobs.
+  push:
+    branches: [RHCLOUD-52058]
+    paths:
+      - .github/i18n/feo-phrase-reconcile.pilot
 
 permissions: {}
 
 jobs:
   reconcile:
     if: github.ref == 'refs/heads/RHCLOUD-52058'
-    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-reconcile.yml@RHCLOUD-52058-phrase-handoff
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-reconcile.yml@eccc7252f04ba304d01c4a1690e018036c781d3e
     with:
       config-path: .github/i18n/feo-phrase-tms.json
       environment: phrase-pilot
