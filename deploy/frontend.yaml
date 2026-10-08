@@ -357,6 +357,14 @@ objects:
             module: ./Iam
             routes:
               - pathname: /iam
+      locales:
+        zh-CN:
+          bundleSegments.iam.module-rbac-ui.navItems.overview.title: 概览
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview.title: 概览
+          module.defaultDocumentTitle: 用户访问 | 身份与访问管理
+          searchEntries.rbac-roles.alt_title: 角色|角色列表|RBAC|IAM|用户访问
+          searchEntries.rbac-roles.title: 角色
+          serviceTiles.iam.iam.users.title: 用户
 
 parameters:
   - name: ENV_NAME

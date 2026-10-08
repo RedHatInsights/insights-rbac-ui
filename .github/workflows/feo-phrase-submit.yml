@@ -1,0 +1,20 @@
+name: Submit FEO catalog to Phrase (POC)
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  submit:
+    # POC: do not submit jobs from arbitrary refs.
+    if: github.ref == 'refs/heads/RHCLOUD-52058'
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-submit.yml@RHCLOUD-52058-phrase-handoff
+    with:
+      config-path: .github/i18n/feo-phrase-tms.json
+      environment: phrase-pilot
+    secrets:
+      PHRASE_PLATFORM_API_TOKEN: ${{ secrets.PHRASE_PLATFORM_API_TOKEN }}
+    permissions:
+      contents: write
+      pull-requests: write

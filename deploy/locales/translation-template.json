@@ -1,0 +1,274 @@
+{
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log.title": {
+    "defaultMessage": "Audit Log",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles.title": {
+    "defaultMessage": "Roles",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups.title": {
+    "defaultMessage": "Users and Groups",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces.title": {
+    "defaultMessage": "Workspaces",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.access-management.title": {
+    "defaultMessage": "Access Management",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.access-management"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.my-access.title": {
+    "defaultMessage": "My Access",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.my-access"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.my-user-access.title": {
+    "defaultMessage": "My User Access",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.my-user-access"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access.title": {
+    "defaultMessage": "Organization-Wide Access",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.organization-management.title": {
+    "defaultMessage": "Organization Management",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.organization-management"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.overview.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.overview"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.overview.title": {
+    "defaultMessage": "Overview",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.overview"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups.title": {
+    "defaultMessage": "Groups",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles.title": {
+    "defaultMessage": "Roles",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview.title": {
+    "defaultMessage": "Overview",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users.title": {
+    "defaultMessage": "Users",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.title": {
+    "defaultMessage": "User Access",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.user-access"
+  },
+  "module.defaultDocumentTitle": {
+    "defaultMessage": "User Access | Identity & Access Management",
+    "description": "defaultDocumentTitle of module"
+  },
+  "searchEntries.rbac-access-management.alt_title": {
+    "defaultMessage": "access management|IAM|user access|RBAC|roles|workspaces",
+    "description": "alt_title of searchEntries.rbac-access-management"
+  },
+  "searchEntries.rbac-access-management.description": {
+    "defaultMessage": "Manage users, groups, roles, and workspaces (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-access-management"
+  },
+  "searchEntries.rbac-access-management.title": {
+    "defaultMessage": "Access Management",
+    "description": "title of searchEntries.rbac-access-management"
+  },
+  "searchEntries.rbac-groups-v2.alt_title": {
+    "defaultMessage": "group|groups|IAM|user access|RBAC",
+    "description": "alt_title of searchEntries.rbac-groups-v2"
+  },
+  "searchEntries.rbac-groups-v2.description": {
+    "defaultMessage": "Manage groups and their role assignments (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-groups-v2"
+  },
+  "searchEntries.rbac-groups-v2.title": {
+    "defaultMessage": "Groups",
+    "description": "title of searchEntries.rbac-groups-v2"
+  },
+  "searchEntries.rbac-groups.alt_title": {
+    "defaultMessage": "group|groups|IAM|user access|RBAC",
+    "description": "alt_title of searchEntries.rbac-groups"
+  },
+  "searchEntries.rbac-groups.description": {
+    "defaultMessage": "Manage groups and their role assignments (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-groups"
+  },
+  "searchEntries.rbac-groups.title": {
+    "defaultMessage": "Groups",
+    "description": "title of searchEntries.rbac-groups"
+  },
+  "searchEntries.rbac-my-access-v2.alt_title": {
+    "defaultMessage": "my access|my permissions|IAM|RBAC|user access",
+    "description": "alt_title of searchEntries.rbac-my-access-v2"
+  },
+  "searchEntries.rbac-my-access-v2.description": {
+    "defaultMessage": "View your current permissions and access (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-my-access-v2"
+  },
+  "searchEntries.rbac-my-access-v2.title": {
+    "defaultMessage": "My Access",
+    "description": "title of searchEntries.rbac-my-access-v2"
+  },
+  "searchEntries.rbac-my-access.alt_title": {
+    "defaultMessage": "my access|my permissions|IAM|RBAC|user access",
+    "description": "alt_title of searchEntries.rbac-my-access"
+  },
+  "searchEntries.rbac-my-access.description": {
+    "defaultMessage": "View your current permissions and access (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-my-access"
+  },
+  "searchEntries.rbac-my-access.title": {
+    "defaultMessage": "My User Access",
+    "description": "title of searchEntries.rbac-my-access"
+  },
+  "searchEntries.rbac-org-admin-v2.alt_title": {
+    "defaultMessage": "org administrator|IAM|user access",
+    "description": "alt_title of searchEntries.rbac-org-admin-v2"
+  },
+  "searchEntries.rbac-org-admin-v2.description": {
+    "defaultMessage": "Manage your organization's administrator users (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-org-admin-v2"
+  },
+  "searchEntries.rbac-org-admin-v2.title": {
+    "defaultMessage": "Org Admins",
+    "description": "title of searchEntries.rbac-org-admin-v2"
+  },
+  "searchEntries.rbac-org-admin.alt_title": {
+    "defaultMessage": "org administrator|IAM|user access",
+    "description": "alt_title of searchEntries.rbac-org-admin"
+  },
+  "searchEntries.rbac-org-admin.description": {
+    "defaultMessage": "Manage your organization's administrator users (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-org-admin"
+  },
+  "searchEntries.rbac-org-admin.title": {
+    "defaultMessage": "Org Admins",
+    "description": "title of searchEntries.rbac-org-admin"
+  },
+  "searchEntries.rbac-roles-v2.alt_title": {
+    "defaultMessage": "role|roles|RBAC|IAM|user access",
+    "description": "alt_title of searchEntries.rbac-roles-v2"
+  },
+  "searchEntries.rbac-roles-v2.description": {
+    "defaultMessage": "View and manage custom roles for your organization (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-roles-v2"
+  },
+  "searchEntries.rbac-roles-v2.title": {
+    "defaultMessage": "Roles",
+    "description": "title of searchEntries.rbac-roles-v2"
+  },
+  "searchEntries.rbac-roles.alt_title": {
+    "defaultMessage": "role|roles|RBAC|IAM|user access",
+    "description": "alt_title of searchEntries.rbac-roles"
+  },
+  "searchEntries.rbac-roles.description": {
+    "defaultMessage": "View and manage custom roles for your organization (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-roles"
+  },
+  "searchEntries.rbac-roles.title": {
+    "defaultMessage": "Roles",
+    "description": "title of searchEntries.rbac-roles"
+  },
+  "searchEntries.rbac-users-v2.alt_title": {
+    "defaultMessage": "user|users|IAM|user access|RBAC",
+    "description": "alt_title of searchEntries.rbac-users-v2"
+  },
+  "searchEntries.rbac-users-v2.description": {
+    "defaultMessage": "Manage users and their role-based access (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-users-v2"
+  },
+  "searchEntries.rbac-users-v2.title": {
+    "defaultMessage": "Users",
+    "description": "title of searchEntries.rbac-users-v2"
+  },
+  "searchEntries.rbac-users.alt_title": {
+    "defaultMessage": "user|users|IAM|user access|RBAC",
+    "description": "alt_title of searchEntries.rbac-users"
+  },
+  "searchEntries.rbac-users.description": {
+    "defaultMessage": "Manage users and their role-based access (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-users"
+  },
+  "searchEntries.rbac-users.title": {
+    "defaultMessage": "Users",
+    "description": "title of searchEntries.rbac-users"
+  },
+  "searchEntries.rbac-workspaces-v2.alt_title": {
+    "defaultMessage": "workspace|workspaces|IAM|user access|RBAC",
+    "description": "alt_title of searchEntries.rbac-workspaces-v2"
+  },
+  "searchEntries.rbac-workspaces-v2.description": {
+    "defaultMessage": "Organize systems with workspaces for granular user access (Identity & Access Management).",
+    "description": "description of searchEntries.rbac-workspaces-v2"
+  },
+  "searchEntries.rbac-workspaces-v2.title": {
+    "defaultMessage": "Workspaces",
+    "description": "title of searchEntries.rbac-workspaces-v2"
+  },
+  "serviceTiles.iam.iam.groups-v2.title": {
+    "defaultMessage": "Groups",
+    "description": "title of serviceTiles.iam.iam.groups-v2"
+  },
+  "serviceTiles.iam.iam.groups.title": {
+    "defaultMessage": "Groups",
+    "description": "title of serviceTiles.iam.iam.groups"
+  },
+  "serviceTiles.iam.iam.users-v2.description": {
+    "defaultMessage": "Manage your organization's role-based access control (RBAC) to services.",
+    "description": "description of serviceTiles.iam.iam.users-v2"
+  },
+  "serviceTiles.iam.iam.users-v2.title": {
+    "defaultMessage": "Users",
+    "description": "title of serviceTiles.iam.iam.users-v2"
+  },
+  "serviceTiles.iam.iam.users.description": {
+    "defaultMessage": "Manage your organization's role-based access control (RBAC) to services.",
+    "description": "description of serviceTiles.iam.iam.users"
+  },
+  "serviceTiles.iam.iam.users.title": {
+    "defaultMessage": "Users",
+    "description": "title of serviceTiles.iam.iam.users"
+  }
+}
