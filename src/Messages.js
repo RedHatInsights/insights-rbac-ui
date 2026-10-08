@@ -1602,11 +1602,6 @@ export default defineMessages({
     description: 'View Default Groups link',
     defaultMessage: 'View your default groups',
   },
-  recommendedContentTitle: {
-    id: 'recommendedContentTitle',
-    description: 'Recommended Content title',
-    defaultMessage: 'Recommended content',
-  },
   recommendedContentItem1: {
     id: 'recommendedContentItem1',
     description: 'Recommended content',
@@ -1756,7 +1751,7 @@ export default defineMessages({
     id: 'removeServiceAccountsText',
     description: 'Remove service accounts description',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.',
+      '{count, plural, =1 {<b>{name}</b> service account} one {<b>#</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.',
   },
   remove: {
     id: 'remove',
@@ -3166,7 +3161,8 @@ export default defineMessages({
   deleteUserGroupModalBody: {
     id: 'deleteUserGroupModalBody',
     description: 'Modal body text for delete user group',
-    defaultMessage: 'Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.',
+    defaultMessage:
+      'Deleting {count, plural, =1 {the <b>{name}</b> user group} one {# user group} other {# user groups}} will impact user access configuration.',
   },
   addToUserGroup: {
     id: 'addToUserGroup',
@@ -3227,7 +3223,7 @@ export default defineMessages({
     id: 'deleteCustomRoleModalBody',
     description: 'Modal body text for deleting custom role',
     defaultMessage:
-      'Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization',
+      'Deleting {count, plural, =1 {the <b>{name}</b> role} one {# role} other {# roles}} may remove access to certain user groups in your organization.',
   },
   deleteRoleConfirm: {
     id: 'deleteRoleConfirm',
@@ -3268,7 +3264,7 @@ export default defineMessages({
     id: 'deleteWorkspaceModalBody',
     description: 'Modal body text for deleting a workspace',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
+      '{count, plural, =1 {<b>{name}</b> workspace and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} one {<b># workspace</b> and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} other {<b># workspaces</b> and all their data will be permanently deleted. All access granted to user groups via these workspaces will be removed.}}',
   },
   workspaceNotEmptyWarning: {
     id: 'workspaceNotEmptyWarning',

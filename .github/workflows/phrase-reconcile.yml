@@ -1,0 +1,28 @@
+name: Reconcile Phrase translations
+
+on:
+  workflow_dispatch:
+  # TEMPORARY POC TRIGGER — DROP THIS COMMIT BEFORE MERGE. workflow_dispatch needs
+  # this caller on the default branch; change this separate marker only when ready
+  # to reconcile completed Phrase jobs on RHCLOUD-51618.
+  push:
+    branches:
+      - RHCLOUD-51618
+    paths:
+      - .github/i18n/phrase-reconcile.pilot
+
+permissions: {}
+
+jobs:
+  reconcile:
+    # TEMPORARY POC GUARD — restore to master before merge.
+    if: github.ref == 'refs/heads/RHCLOUD-51618'
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-reconcile.yml@9b9141a3a537f28627c00005d983f67daf78ff2e
+    with:
+      config-path: .github/i18n/phrase-tms.json
+      environment: phrase-pilot
+    secrets:
+      PHRASE_PLATFORM_API_TOKEN: ${{ secrets.PHRASE_PLATFORM_API_TOKEN }}
+    permissions:
+      contents: write
+      pull-requests: write
