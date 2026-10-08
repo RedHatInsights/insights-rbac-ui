@@ -126,8 +126,8 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const [schema, setSchema] = useState<Schema | undefined>();
 
   useEffect(() => {
-    setSchema(schemaBuilder(enableWorkspacesNameChange));
-  }, [enableWorkspacesNameChange]);
+    setSchema(schemaBuilder(enableWorkspacesNameChange, intl));
+  }, [enableWorkspacesNameChange, intl]);
 
   const onClose = () =>
     navigate({

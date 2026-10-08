@@ -17,25 +17,25 @@
  * Providers included:
  * - QueryClientProvider (react-query)
  * - ServiceProvider (axios instance)
- * - IntlProvider (i18n)
+ * - IntlMessagesProvider (loads the selected locale catalog)
  *
  * Note: Requires a Router in the parent tree (provided by Chrome at runtime).
  */
 
 import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { IntlProvider } from 'react-intl';
 import { createStandaloneQueryClient } from '../shared/components/QueryClientSetup';
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
 import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
-import messages from '../locales/data.json';
+import { locale } from '../locales/locale';
+import { IntlMessagesProvider } from '../shared/i18n/IntlMessagesProvider';
 import {
   CreateWorkspaceWizard as CreateWorkspaceWizardInner,
   CreateWorkspaceWizardProps,
 } from '../v2/features/workspaces/create-workspace/CreateWorkspaceWizard';
 
-export const locale = 'en';
+export { locale };
 
 // Create a standalone query client for the module
 const moduleQueryClient = createStandaloneQueryClient();
@@ -54,13 +54,13 @@ const moduleServices: AppServices = {
 
 const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = (props) => {
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlMessagesProvider locale={locale}>
       <ServiceProvider value={moduleServices}>
         <QueryClientProvider client={moduleQueryClient}>
           <CreateWorkspaceWizardInner {...props} />
         </QueryClientProvider>
       </ServiceProvider>
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };
 

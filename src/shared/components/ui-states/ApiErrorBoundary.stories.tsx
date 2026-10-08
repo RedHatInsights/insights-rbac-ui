@@ -5,10 +5,8 @@ import { DEFAULT_GROUPS } from '../../data/mocks/seed';
 import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.handlers';
 import { MemoryRouter } from 'react-router-dom';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { IntlProvider } from 'react-intl';
-import messages from '../../../locales/data.json';
-import { locale } from '../../../locales/locale';
 import { ApiErrorBoundary } from './ApiErrorBoundary';
+import messages from '../../../Messages';
 import { useGroupsQuery } from '../../data/queries/groups';
 
 // ============================================================================
@@ -258,35 +256,33 @@ export const Visual403State: Story = {
     // Direct render of the 403 error component for visual testing
     const UnauthorizedAccess = require('@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess').default;
     const { FormattedMessage } = require('react-intl');
-    const messagesModule = require('../../../Messages').default;
+
     const { AppLink } = require('../navigation/AppLink');
 
     return (
-      <IntlProvider locale={locale} messages={messages[locale]}>
-        <MemoryRouter>
-          <div style={{ padding: '20px' }}>
-            <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>
-              This shows the 403 error state component directly for visual verification.
-            </Alert>
-            <UnauthorizedAccess
-              data-codemods
-              serviceName="Users"
-              bodyText={
-                <FormattedMessage
-                  {...messagesModule.contactOrgAdmin}
-                  values={{
-                    link: (
-                      <AppLink to="/" linkBasename="/iam">
-                        My User Access
-                      </AppLink>
-                    ),
-                  }}
-                />
-              }
-            />
-          </div>
-        </MemoryRouter>
-      </IntlProvider>
+      <MemoryRouter>
+        <div style={{ padding: '20px' }}>
+          <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>
+            This shows the 403 error state component directly for visual verification.
+          </Alert>
+          <UnauthorizedAccess
+            data-codemods
+            serviceName="Users"
+            bodyText={
+              <FormattedMessage
+                {...messages.contactOrgAdmin}
+                values={{
+                  link: (
+                    <AppLink to="/" linkBasename="/iam">
+                      My User Access
+                    </AppLink>
+                  ),
+                }}
+              />
+            }
+          />
+        </div>
+      </MemoryRouter>
     );
   },
 };
@@ -306,21 +302,19 @@ export const Visual500State: Story = {
     const UnavailableContent = require('@patternfly/react-component-groups/dist/dynamic/UnavailableContent').default;
 
     return (
-      <IntlProvider locale={locale} messages={messages[locale]}>
-        <MemoryRouter>
-          <div style={{ padding: '20px' }}>
-            <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>
-              This shows the 500 error state component directly for visual verification.
-            </Alert>
-            <UnavailableContent
-              data-codemods
-              headingLevel="h1"
-              titleText="Groups is temporarily unavailable"
-              bodyText="We're working to restore service. Please try again later."
-            />
-          </div>
-        </MemoryRouter>
-      </IntlProvider>
+      <MemoryRouter>
+        <div style={{ padding: '20px' }}>
+          <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>
+            This shows the 500 error state component directly for visual verification.
+          </Alert>
+          <UnavailableContent
+            data-codemods
+            headingLevel="h1"
+            titleText="Groups is temporarily unavailable"
+            bodyText="We're working to restore service. Please try again later."
+          />
+        </div>
+      </MemoryRouter>
     );
   },
 };

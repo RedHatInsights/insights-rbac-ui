@@ -11,9 +11,10 @@ import { PanelHeader } from '@patternfly/react-core/dist/dynamic/components/Pane
 import { PanelMain } from '@patternfly/react-core/dist/dynamic/components/Panel';
 import { PanelMainBody } from '@patternfly/react-core/dist/dynamic/components/Panel';
 import ArrowRightIcon from '@patternfly/react-icons/dist/js/icons/arrow-right-icon';
-import Messages from '../../../../../Messages';
+
 import React from 'react';
 import { useIntl } from 'react-intl';
+import messages from '../../../../../Messages';
 
 interface AssetsCardsProps {
   workspaceName: string;
@@ -35,7 +36,7 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
 
   return (
     <Panel>
-      <PanelHeader>{intl.formatMessage(Messages.assetManagementOverview)}</PanelHeader>
+      <PanelHeader>{intl.formatMessage(messages.assetManagementOverview)}</PanelHeader>
       <PanelMain>
         <PanelMainBody>
           <Gallery hasGutter minWidths={AssetsCardsWidths}>
@@ -43,11 +44,11 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
               <CardHeader>
                 <Brand src={InsightsIcon} alt="Insights logo" widths={AssetsCardsIconWidths} />
               </CardHeader>
-              <CardTitle>{intl.formatMessage(Messages.assetManagementInsights)}</CardTitle>
-              <CardBody>{intl.formatMessage(Messages.assetManagementInsightsOverview)}</CardBody>
+              <CardTitle>{intl.formatMessage(messages.assetManagementInsights)}</CardTitle>
+              <CardBody>{intl.formatMessage(messages.assetManagementInsightsOverview)}</CardBody>
               <CardFooter>
                 <Button variant="link" component="a" href={InsightsNavURL} icon={<ArrowRightIcon />} iconPosition="end" isInline>
-                  {intl.formatMessage(Messages.assetManagementInsightsNav)}
+                  {intl.formatMessage(messages.assetManagementInsightsNav)}
                 </Button>
               </CardFooter>
             </Card>

@@ -5,7 +5,6 @@ import { clearAndType } from '../../../../../test-utils/interactionHelpers';
 import { InlineWorkspacePicker } from './InlineWorkspacePicker';
 import { type TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import { BrowserRouter } from 'react-router-dom';
-import { IntlProvider } from 'react-intl';
 import { workspacesErrorHandlers, workspacesHandlers, workspacesLoadingHandlers } from '../../../../data/mocks/workspaces.handlers';
 
 const pickerWorkspaces = [
@@ -82,9 +81,7 @@ const meta: Meta<typeof InlineWorkspacePicker> = {
   decorators: [
     (Story) => (
       <BrowserRouter>
-        <IntlProvider locale="en" messages={{}}>
-          <Story />
-        </IntlProvider>
+        <Story />
       </BrowserRouter>
     ),
   ],

@@ -4,7 +4,7 @@
  * These stories document the WorkspaceSelector federated module as consumed by
  * external teams. This is the primary documentation offered to peers.
  *
- * The module is fully self-contained: it bundles IntlProvider, AccessCheck.Provider,
+ * The module is fully self-contained: it bundles IntlMessagesProvider, AccessCheck.Provider,
  * ServiceProvider, and QueryClientProvider so consumers only need AsyncComponent.
  */
 
@@ -164,7 +164,7 @@ import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
 
 | Provider | Purpose |
 |----------|---------|
-| **IntlProvider** | Internationalization (react-intl) |
+| **IntlMessagesProvider** | Loads the selected locale catalog for react-intl |
 | **AccessCheck.Provider** | Kessel permission resolution (6 workspace relations) |
 | **ServiceProvider** | Axios instance for RBAC API |
 | **QueryClientProvider** | React Query data fetching & caching |

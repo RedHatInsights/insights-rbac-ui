@@ -1,14 +1,9 @@
 import { groupsApi } from '../../../shared/data/api/groups';
 import { debounce } from '../../../shared/utilities/debounce';
-import { createIntl, createIntlCache } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 import messages from '../../../Messages';
-import providerMessages from '../../../locales/data.json';
-import { locale } from '../../../locales/locale';
 
-export const asyncValidator = async (groupName: string, idKey: string, id?: string): Promise<void> => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages as unknown as Record<string, string> }, cache);
-
+export const asyncValidator = async (groupName: string, idKey: string, intl: IntlShape, id?: string): Promise<void> => {
   if (!groupName) {
     return undefined;
   }
@@ -38,6 +33,8 @@ export const asyncValidator = async (groupName: string, idKey: string, id?: stri
   return undefined;
 };
 
-export const debouncedAsyncValidator = debounce((value: string, idKey: string, id?: string) => asyncValidator(value, idKey, id), 250, {
-  onlyResolvesLast: false,
-});
+export const debouncedAsyncValidator = debounce(
+  (value: string, idKey: string, intl: IntlShape, id?: string) => asyncValidator(value, idKey, intl, id),
+  250,
+  { onlyResolvesLast: false },
+);

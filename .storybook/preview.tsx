@@ -3,8 +3,10 @@ import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
 import '@redhat-cloud-services/hcc-storybook-hub/css/storybook.css';
 import React, { useContext } from 'react';
+import { type IntlConfig } from 'react-intl';
 import { createPortal } from 'react-dom';
-import { IntlProvider } from 'react-intl';
+import { IntlMessagesProvider, preloadLocaleMessages } from '../src/shared/i18n/IntlMessagesProvider';
+import { type LocaleMessages, loadLocaleMessages } from '../src/shared/i18n/localeCatalogs';
 import { QueryClientSetup } from '../src/shared/components/QueryClientSetup';
 import {
   type FeatureFlagsConfig,
@@ -19,11 +21,28 @@ import type { Environment } from '@redhat-cloud-services/hcc-storybook-hub';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import { ServiceProvider, createBrowserServices } from '../src/shared/services';
 import type { AddNotificationFn } from '../src/shared/entry/browser';
 import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
+
+// Storybook-only locale switcher (toolbar "Locale" or story-level `globals: { locale }`).
+// Each option loads its own catalog; the partial zh-CN demo relies on descriptor defaultMessage fallbacks.
+const storyCatalogLoaders: Record<string, () => Promise<LocaleMessages>> = {
+  [locale]: () => loadLocaleMessages(locale),
+  'zh-CN': async () => (await import('./locales/zh-CN.demo.json')).default,
+};
+
+const loadStoryCatalog = (selectedLocale: string): Promise<LocaleMessages> => storyCatalogLoaders[selectedLocale]?.() ?? loadLocaleMessages(locale);
+
+const resolveStoryLocale = (selectedLocale: unknown): string =>
+  typeof selectedLocale === 'string' && Object.hasOwn(storyCatalogLoaders, selectedLocale) ? selectedLocale : locale;
+
+const handleStoryIntlError: NonNullable<IntlConfig['onError']> = (error) => {
+  if (error.code !== 'MISSING_TRANSLATION') {
+    console.error(error);
+  }
+};
 
 // Wrapper that provides all providers for component stories (non-journey)
 // This must be inside NotificationsProvider, StorybookMockProvider, and FeatureFlagsProvider
@@ -85,8 +104,32 @@ const preview: Preview = {
     // NOTE: Kessel access checks use workspacePermissions (all 5 relations → workspace ID arrays)
     // e.g., workspacePermissions: { view: ['ws-1'], edit: ['ws-1'], delete: [], create: ['ws-1'], move: [] }
   },
+  globalTypes: {
+    locale: {
+      description: 'UI locale for component stories',
+      toolbar: {
+        title: 'Locale',
+        icon: 'globe',
+        items: [
+          { value: 'en', title: 'English' },
+          { value: 'zh-CN', title: '简体中文 (demo)' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: {
+    locale,
+  },
+  loaders: [
+    ...(hccPreviewDefaults.loaders ?? []),
+    async ({ globals, parameters }) => {
+      const storyLocale = parameters.noWrapping ? locale : resolveStoryLocale(globals.locale);
+      await preloadLocaleMessages(storyLocale, loadStoryCatalog);
+    },
+  ],
   decorators: [
-    (Story, { parameters, args }) => {
+    (Story, { parameters, args, globals }) => {
       // Derive mock state from story args/parameters
       // Support both legacy object format (parameters.permissions.orgAdmin) and direct params
       const legacyPermissions = typeof parameters.permissions === 'object' && !Array.isArray(parameters.permissions) ? parameters.permissions : {};
@@ -180,6 +223,7 @@ const preview: Preview = {
       }
 
       // Component stories get full provider wrapping (QueryClient, ServiceProvider, etc.)
+      const storyLocale = resolveStoryLocale(globals.locale);
       return (
         <StorybookMockProvider
           environment={environment}
@@ -191,13 +235,17 @@ const preview: Preview = {
           userIdentity={userIdentity}
         >
           <FeatureFlagsProvider value={featureFlags}>
-            <IntlProvider locale={locale} messages={messages[locale]}>
+            <IntlMessagesProvider
+              locale={storyLocale}
+              loadMessages={loadStoryCatalog}
+              onError={storyLocale === 'zh-CN' ? handleStoryIntlError : undefined}
+            >
               <NotificationsProvider>
                 <ComponentProviders>
                   <Story />
                 </ComponentProviders>
               </NotificationsProvider>
-            </IntlProvider>
+            </IntlMessagesProvider>
           </FeatureFlagsProvider>
         </StorybookMockProvider>
       );

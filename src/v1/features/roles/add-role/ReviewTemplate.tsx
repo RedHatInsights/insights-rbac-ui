@@ -20,10 +20,10 @@ const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
   const { getState } = useFormApi();
   useEffect(() => {
     setWizardError?.(undefined);
-    asyncValidator(getState().values['role-name'])
+    asyncValidator(getState().values['role-name'], intl)
       .then(() => setWizardError?.(false))
       .catch(() => setWizardError?.(true));
-  }, []);
+  }, [intl]);
 
   if (typeof error === 'undefined' || submitting) {
     return (

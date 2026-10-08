@@ -63,7 +63,7 @@ const [isOpen, setIsOpen] = useState(false);
 
 - **QueryClientProvider** - react-query for data fetching
 - **ServiceProvider** - axios instance for API calls
-- **IntlProvider** - internationalization
+- **IntlMessagesProvider** - loads the selected locale catalog
 
 **Requires:** A Router in the parent tree (provided by Chrome at runtime).
 

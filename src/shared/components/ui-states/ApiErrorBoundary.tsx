@@ -67,7 +67,7 @@ interface ApiErrorBoundaryProps {
  * Must be used within:
  * - ApiErrorProvider (for error state)
  * - Router (for useLocation)
- * - IntlProvider (for messages)
+ * - IntlMessagesProvider (for the selected locale catalog)
  *
  * Usage:
  * ```tsx

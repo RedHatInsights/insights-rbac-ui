@@ -28,7 +28,7 @@ export const ActivateToggle: React.FC<ActivateToggleProps> = ({ user, onToggle, 
       isChecked={user.is_active}
       isDisabled={user.external_source_id + '' === accountId}
       onChange={(e, value) => onToggle(value, user)}
-      label={intl.formatMessage(messages['usersAndUserGroupsActive'])}
+      label={intl.formatMessage(messages.usersAndUserGroupsActive)}
     />
   ) : (
     <></>

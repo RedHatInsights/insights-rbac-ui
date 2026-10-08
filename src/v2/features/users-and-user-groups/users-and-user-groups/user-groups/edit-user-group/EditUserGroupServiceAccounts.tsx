@@ -2,13 +2,14 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core/dist/dynamic/components/ToggleGroup';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
-import Messages from '../../../../../../Messages';
+
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { type ServiceAccount, useServiceAccountsQuery } from '../../../../../../shared/data/queries/serviceAccounts';
 import type { TableState } from './EditUserGroupTableState';
+import messages from '../../../../../../Messages';
 
 interface EditGroupServiceAccountsTableProps {
   onChange: (serviceAccountDiff: TableState) => void;
@@ -47,11 +48,11 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(Messages.name), sortable: true },
-      clientId: { label: intl.formatMessage(Messages.clientId) },
-      owner: { label: intl.formatMessage(Messages.owner) },
-      timeCreated: { label: intl.formatMessage(Messages.timeCreated) },
-      description: { label: intl.formatMessage(Messages.description) },
+      name: { label: intl.formatMessage(messages.name), sortable: true },
+      clientId: { label: intl.formatMessage(messages.clientId) },
+      owner: { label: intl.formatMessage(messages.owner) },
+      timeCreated: { label: intl.formatMessage(messages.timeCreated) },
+      description: { label: intl.formatMessage(messages.description) },
     }),
     [intl],
   );
@@ -72,8 +73,8 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
       {
         type: 'text',
         id: 'name',
-        label: intl.formatMessage(Messages.name),
-        placeholder: intl.formatMessage(Messages.filterByKey, { key: intl.formatMessage(Messages.name) }),
+        label: intl.formatMessage(messages.name),
+        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.name) }),
       },
     ],
     [intl],
@@ -191,14 +192,14 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
         <>
           <ToggleGroup aria-label="Toggle between all service accounts and selected service accounts">
             <ToggleGroupItem
-              text={intl.formatMessage(Messages.all)}
+              text={intl.formatMessage(messages.all)}
               buttonId={TOGGLE_ALL}
               isSelected={selectedToggle === TOGGLE_ALL}
               onChange={handleToggleClick}
             />
             <span ref={selectedToggleRef}>
               <ToggleGroupItem
-                text={`${intl.formatMessage(Messages.selected)} (${selectedCount})`}
+                text={`${intl.formatMessage(messages.selected)} (${selectedCount})`}
                 buttonId={TOGGLE_SELECTED}
                 isSelected={selectedToggle === TOGGLE_SELECTED}
                 onChange={handleToggleClick}
@@ -206,7 +207,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
               />
             </span>
           </ToggleGroup>
-          {selectedCount === 0 && <Tooltip content={intl.formatMessage(Messages.selectAtLeastOneRowToFilter)} triggerRef={selectedToggleRef} />}
+          {selectedCount === 0 && <Tooltip content={intl.formatMessage(messages.selectAtLeastOneRowToFilter)} triggerRef={selectedToggleRef} />}
         </>
       }
       variant="compact"

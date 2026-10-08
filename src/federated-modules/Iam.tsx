@@ -13,7 +13,7 @@
  * ```
  *
  * Providers included:
- * - IntlProvider (i18n)
+ * - IntlMessagesProvider (loads the selected locale catalog)
  * - AccessCheck.Provider (Kessel)
  * - NotificationsProvider (toast notifications)
  * - ApiErrorProvider (error state management)

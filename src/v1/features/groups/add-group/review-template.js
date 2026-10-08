@@ -28,10 +28,10 @@ const ReviewTemplate = ({ formFields }) => {
   useEffect(() => {
     setWizardError(undefined);
     const groupName = getState().values['group-name'];
-    asyncValidator(groupName, 'uuid')
+    asyncValidator(groupName, 'uuid', intl)
       .then(() => setWizardError(false))
       .catch(() => setWizardError(true));
-  }, []);
+  }, [intl]);
 
   if (typeof error === 'undefined' || (submittingGroup && !submittingServiceAccounts)) {
     return (

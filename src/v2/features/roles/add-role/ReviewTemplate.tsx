@@ -22,10 +22,10 @@ const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
     setWizardError?.(undefined);
     const roleType = getState().values['role-type'];
     const roleName = roleType === 'create' ? getState().values['role-name'] : getState().values['role-copy-name'];
-    asyncValidator(roleName as string)
+    asyncValidator(roleName as string, intl)
       .then(() => setWizardError?.(false))
       .catch(() => setWizardError?.(true));
-  }, []);
+  }, [intl]);
 
   if (typeof error === 'undefined' || submitting) {
     return (

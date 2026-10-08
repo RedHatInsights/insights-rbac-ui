@@ -1607,11 +1607,6 @@ export default defineMessages({
     description: 'View Default Groups link',
     defaultMessage: 'View your default groups',
   },
-  recommendedContentTitle: {
-    id: 'recommendedContentTitle',
-    description: 'Recommended Content title',
-    defaultMessage: 'Recommended content',
-  },
   recommendedContentItem1: {
     id: 'recommendedContentItem1',
     description: 'Recommended content',
@@ -2482,12 +2477,12 @@ export default defineMessages({
   },
   inventoryGroupsAccessDescription: {
     id: 'inventoryGroupsAccessDescription',
-    descriptioin: 'Description for adding correct group permissions to role.',
+    description: 'Instructions for the role wizard access step',
     defaultMessage: "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   workspacesAccessDescription: {
     id: 'workspacesAccessDescription',
-    descriptioin: 'Description for adding correct workspaces permissions to role.',
+    description: 'Instructions for the role wizard access step',
     defaultMessage: "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   createRole: {
@@ -3191,7 +3186,7 @@ export default defineMessages({
   removeFromUserGroupWarningDescription: {
     id: 'removeFromUserGroupWarningDescription',
     description: 'Warning description when removing user from groups',
-    defaultMessage: 'The selected {plural} will lose all access granted through the selected groups.',
+    defaultMessage: 'The selected {numUsers, plural, one {user} other {users}} will lose all access granted through the selected groups.',
   },
   usersToRemove: {
     id: 'usersToRemove',
@@ -4099,5 +4094,55 @@ export default defineMessages({
     id: 'conversionWizardChecklistPopoverButtonAriaLabel',
     description: 'Aria label for checklist information button',
     defaultMessage: 'More info for checklist',
+  },
+  auditLogColumnAction: {
+    id: 'auditLogColumnAction',
+    description: 'Audit log action column header',
+    defaultMessage: 'Action',
+  },
+  auditLogColumnDate: {
+    id: 'auditLogColumnDate',
+    description: 'Audit log date column header',
+    defaultMessage: 'Date',
+  },
+  auditLogColumnDescription: {
+    id: 'auditLogColumnDescription',
+    description: 'Audit log description column header',
+    defaultMessage: 'Description',
+  },
+  auditLogColumnRequester: {
+    id: 'auditLogColumnRequester',
+    description: 'Audit log requester column header',
+    defaultMessage: 'Requester',
+  },
+  auditLogColumnResource: {
+    id: 'auditLogColumnResource',
+    description: 'Audit log resource column header',
+    defaultMessage: 'Resource',
+  },
+  auditLogTableAriaLabel: {
+    id: 'auditLogTableAriaLabel',
+    description: 'Accessible label for the audit log table',
+    defaultMessage: 'Audit log entries',
+  },
+  workspaceSelectorDisabledTooltip: {
+    id: 'workspaceSelectorDisabledTooltip',
+    description: 'Tooltip shown on disabled workspace tree items when the user lacks the required permission',
+    defaultMessage: 'You do not have {permission} permission on this workspace',
+  },
+  workspaceTreeViewError: {
+    id: 'workspaceTreeViewError',
+    description: 'Error loading workspaces in tree view',
+    defaultMessage: 'Failed to load workspaces',
+  },
+  workspaceTreeViewNoSearchResults: {
+    id: 'workspaceTreeViewNoSearchResults',
+    description: 'Message when no workspaces match search',
+    defaultMessage: 'No workspaces match your search.',
+  },
+  workspaceTreeViewNoWorkspaces: {
+    id: 'workspaceTreeViewNoWorkspaces',
+    description: 'Message when no workspaces are available',
+    defaultMessage: 'No workspaces to show.',
   },
 });

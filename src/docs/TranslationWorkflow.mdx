@@ -1,0 +1,59 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Translation Workflow" />
+
+# Translation Workflow
+
+RBAC UI stores FormatJS descriptors in `src/Messages.js`, with the generated source catalog in `locales/translation-template.json` and compiled runtime catalogs in `src/locales/<locale>.json` (currently `en.json`). Do not edit generated catalogs by hand.
+
+## Author messages
+
+Keep all FormatJS descriptors in `src/Messages.js`. Give each a stable `id`, English `defaultMessage`, and translator-facing `description`; do not declare descriptors beside their use.
+
+The central file uses `defineMessages`, which FormatJS extracts. Components import its default `messages` object and reference descriptors:
+
+```tsx
+// src/Messages.js
+import { defineMessages } from 'react-intl';
+
+export default defineMessages({
+  adminRole: { id: 'adminRole', defaultMessage: 'Admin', description: 'Admin role label' },
+  viewerRole: { id: 'viewerRole', defaultMessage: 'Viewer', description: 'Viewer role label' },
+});
+
+// Component (relative import path varies)
+import messages from 'src/Messages';
+intl.formatMessage(isAdmin ? messages.adminRole : messages.viewerRole);
+```
+
+When branches differ only by count or a value, prefer one ICU message (`{count, plural, one {…} other {…}}`, `{kind, select, …}`) instead of a ternary. Never pass English words such as `'user'`/`'users'` as message values. Reused and feature-specific copy both live in the central store; keep descriptors for the same ID consistent across all uses, and use distinct IDs when copy must differ.
+
+## ESLint
+
+ESLint checks application JS/TS descriptors, excluding stories and tests:
+
+- `formatjs/enforce-description`, `formatjs/enforce-default-message`, and `formatjs/enforce-placeholders` require literal context and matching `values`.
+- `formatjs/no-literal-string-in-jsx` warns on hardcoded JSX text in product UI, excluding CLI and user-journey scaffolding. Existing warnings are translation debt; do not add new ones.
+
+## Generate catalogs
+
+After adding or changing descriptors:
+
+```bash
+npm run translations
+npm run lint
+```
+
+`npm run translations` extracts descriptors from application JS/TS (sourced from `src/Messages.js`) into `locales/translation-template.json` and compiles the English runtime catalog to `src/locales/en.json`. `translations:prepare` compiles the checked-in English source catalog before `npm start`, `npm run start:no-proxy`, and `npm run build`. When a translated catalog is available, compile it to its own `src/locales/<locale>.json` file; do not merge it with English at runtime.
+
+| Path                                | Role                                                 |
+| ----------------------------------- | ---------------------------------------------------- |
+| `locales/translation-template.json` | Generated English descriptors and translator context |
+| `src/locales/en.json`               | Compiled English runtime messages                    |
+| `src/locales/<locale>.json`         | Compiled runtime messages for each added language    |
+
+## Runtime locale support
+
+`src/locales/locale.ts` currently selects `en`. `IntlMessagesProvider` uses the dynamic imports registered in `src/shared/i18n/localeCatalogs.ts`, so the selected runtime locale loads as its own bundle instead of eagerly importing every catalog. To add a production locale, add its compiled catalog, register its locale in `supportedLocales` and `localeCatalogLoaders`, and connect the app's locale selection to that locale. Missing translated IDs fall back to the descriptor's English `defaultMessage`; runtime catalogs are not merged.
+
+The Storybook **Locale** toolbar uses the same provider with a separate loader. Its partial `zh-CN` demo lives in `.storybook/locales/zh-CN.demo.json`, outside production catalogs, and is loaded only when selected. It exercises ICU messages and descriptor-default fallbacks without claiming that a production Chinese catalog exists.

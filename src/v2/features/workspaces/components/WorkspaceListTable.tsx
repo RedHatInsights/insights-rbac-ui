@@ -79,12 +79,7 @@ const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ 
         <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
           <EmptyState headingLevel="h4" icon={SearchIcon} titleText={titleText}>
             <EmptyStateBody>
-              <FormattedMessage
-                {...messages['workspaceEmptyStateSubtitle']}
-                values={{
-                  br: <br />,
-                }}
-              />
+              <FormattedMessage {...messages.workspaceEmptyStateSubtitle} />
             </EmptyStateBody>
           </EmptyState>
         </td>

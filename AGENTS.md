@@ -40,7 +40,7 @@ All detailed documentation is in `src/docs/`. Read the relevant doc before writi
 4. Route-level features (modals tied to routes, new pages) require user-journey Storybook stories with `fn()` spies on real API endpoints.
 5. No hand-rolled pagination, sort, filter, or selection state. Use `useTableState`.
 6. Shared component changes (`src/shared/components/`) require blast-radius analysis of all consumers before merging.
-7. When modifying a message in `src/Messages.js`, grep for all consumers and verify the new copy is appropriate for each usage context. Messages are shared resources — a single key may be rendered in admin views, non-admin views, or different feature versions, each with different user capabilities.
+7. FormatJS descriptors live in `src/Messages.js` and are imported through its default `messages` export; do not inline descriptors or create a separate shared message store. When changing a descriptor, grep for every use of its ID and verify the copy fits each context. Keep descriptors for the same ID consistent across V1 and V2, and use distinct IDs when copy must differ (see `src/docs/TranslationWorkflow.mdx`).
 8. Use `clearAllFilters()` from `useTableState` — never manually reset individual filter keys.
 9. Storybook test imports: `import { userEvent, within, expect, fn, waitFor } from 'storybook/test'` (no `@` prefix).
 10. PatternFly imports: dynamic paths (`/dist/dynamic/`). Icons: absolute paths (`/dist/js/icons/`). Never global imports.
@@ -121,6 +121,7 @@ e2e-testing:               E2ETesting.mdx
 architecture:              Architecture.mdx
 data-fetching-migration:   ReduxToTanstackQuery.mdx
 v1-v2-boundary:            V1V2Boundary.mdx
+translation-workflow:      TranslationWorkflow.mdx
 module-federation:         ModuleFederation.mdx
 federated-module-spike:    FederatedModuleSpike.mdx
 data-layer-di:             DataLayerDI.mdx
@@ -135,6 +136,7 @@ contributing:              .github/pull_request_template.md
 ```text
 src/
 ├── Iam.tsx                           # App shell — renders IamV1 or IamV2
+├── Messages.js                       # Central FormatJS descriptors; default export is messages
 ├── v1/                               # User Access (V1)
 │   ├── IamV1.tsx                     # V1 app entry
 │   ├── Routing.tsx                   # V1 routes (declarative JSX, guard() layout routes)
@@ -172,6 +174,9 @@ src/
 │   └── utilities/
 │       └── pathnames.ts              # V2-specific URL paths
 ├── shared/                           # Code shared between V1 and V2
+│   ├── i18n/
+│   │   ├── IntlMessagesProvider.tsx   # Loads selected locale catalog for react-intl
+│   │   └── localeCatalogs.ts          # Dynamic imports for compiled runtime catalogs
 │   ├── components/                   # TableView is from @redhat-cloud-services/frontend-components/TableView
 │   ├── hooks/
 │   │   ├── useIdentity.ts            # Chrome-only identity (orgAdmin, identity, ready) — shared primitive
@@ -195,7 +200,9 @@ src/
 │           └── accountManagement.handlers.ts # accountManagementHandlers(), etc.
 ├── docs/                             # Documentation (MDX)
 ├── user-journeys/                    # End-to-end journey stories
-└── Messages.js                       # i18n message definitions
+└── locales/
+    ├── locale.ts                    # Active locale (currently en)
+    └── en.json                       # Compiled English runtime catalog
 
 eslint-rules/
 ├── (in experience-ui-governance)      # require-use-table-state rule

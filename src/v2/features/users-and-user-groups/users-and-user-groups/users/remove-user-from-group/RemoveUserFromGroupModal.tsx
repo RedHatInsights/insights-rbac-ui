@@ -126,9 +126,7 @@ export const RemoveUserFromGroupModal: React.FunctionComponent<RemoveUserFromGro
         <FormattedMessage
           {...messages.removeFromUserGroupWarningDescription}
           values={{
-            b: (text) => <b>{text}</b>,
             numUsers: selectedUsers.length,
-            plural: selectedUsers.length > 1 ? 'users' : 'user',
           }}
         />
       </Alert>

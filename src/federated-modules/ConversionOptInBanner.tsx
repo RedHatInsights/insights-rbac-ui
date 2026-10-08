@@ -15,21 +15,21 @@
  * ```
  *
  * Providers included:
- * - IntlProvider (i18n)
+ * - IntlMessagesProvider (loads the selected locale catalog)
  */
 
 import React from 'react';
-import { IntlProvider } from 'react-intl';
-import messages from '../locales/data.json';
+import { locale } from '../locales/locale';
+import { IntlMessagesProvider } from '../shared/i18n/IntlMessagesProvider';
 import { ConversionOptInBanner as ConversionOptInBannerInner, ConversionOptInBannerProps } from '../v1/components/ConversionOptInBanner';
 
-export const locale = 'en';
+export { locale };
 
 const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = (props) => {
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlMessagesProvider locale={locale}>
       <ConversionOptInBannerInner {...props} />
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };
 

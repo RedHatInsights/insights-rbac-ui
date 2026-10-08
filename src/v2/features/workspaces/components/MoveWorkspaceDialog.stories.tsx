@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MoveWorkspaceDialog } from './MoveWorkspaceDialog';
 import { BrowserRouter } from 'react-router-dom';
-import { IntlProvider } from 'react-intl';
 import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -80,11 +79,9 @@ const ModalWrapper = ({ ...storyArgs }: React.ComponentProps<typeof MoveWorkspac
 
 const withProviders = (Story: StoryFn) => (
   <BrowserRouter>
-    <IntlProvider locale="en" messages={{}}>
-      <div style={{ height: '600px' }}>
-        <Story />
-      </div>
-    </IntlProvider>
+    <div style={{ height: '600px' }}>
+      <Story />
+    </div>
   </BrowserRouter>
 );
 

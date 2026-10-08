@@ -258,6 +258,22 @@ export const CancelOperation: Story = {
   },
 };
 
+export const PartialChineseCatalogFallback: Story = {
+  ...Default,
+  globals: { locale: 'zh-CN' },
+  tags: ['locale-catalog'],
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('Verify descriptor default fallback in the details step', async () => {
+      await openWizardDialog(user, canvas);
+      const wizard = await findWizardDialog();
+      await expect(wizard.findByRole('textbox', { name: /workspace name/i })).resolves.toBeInTheDocument();
+    });
+  },
+};
+
 export const FormValidation: Story = {
   args: {
     afterSubmit: fn(),

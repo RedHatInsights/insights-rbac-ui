@@ -81,11 +81,15 @@ export const AuditLog: React.FC = () => {
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      date: { label: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }) },
+      date: { label: intl.formatMessage(messages.auditLogColumnDate) },
       requester: { label: intl.formatMessage(messages.requester) },
-      action: { label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }) },
-      resource: { label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
-      description: { label: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
+      action: { label: intl.formatMessage(messages.auditLogColumnAction) },
+      resource: {
+        label: intl.formatMessage(messages.auditLogColumnResource),
+      },
+      description: {
+        label: intl.formatMessage(messages.auditLogColumnDescription),
+      },
     }),
     [intl],
   );
@@ -156,7 +160,7 @@ export const AuditLog: React.FC = () => {
           error={errorMessage ? new Error(errorMessage) : null}
           emptyStateNoData={emptyStateNoData}
           emptyStateNoResults={emptyStateNoResults}
-          ariaLabel={intl.formatMessage({ id: 'auditLogTableAriaLabel', defaultMessage: 'Audit log entries' })}
+          ariaLabel={intl.formatMessage(messages.auditLogTableAriaLabel)}
           ouiaId="audit-log-table"
           {...tableState}
         />

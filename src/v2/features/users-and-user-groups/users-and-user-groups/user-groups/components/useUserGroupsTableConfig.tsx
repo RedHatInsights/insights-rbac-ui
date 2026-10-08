@@ -46,7 +46,7 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
             </span>
           </Tooltip>
         ) : (
-          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">{intl.formatMessage(messages.usersAndUserGroupsNoDescription)}</div>
         ),
       principalCount: (group) => group.principalCount ?? 0,
       modified: (group) => group.modified ?? '',

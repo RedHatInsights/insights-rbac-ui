@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import Messages from '../../../../Messages';
+
 // eslint-disable-next-line experience-ui/require-use-table-state -- display-only table from props, no server state
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
+import messages from '../../../../Messages';
 
 export interface GroupRow {
   uuid: string;
@@ -24,8 +25,10 @@ export const AssignedUserGroupsTable: React.FunctionComponent<AssignedUserGroups
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      userGroup: { label: intl.formatMessage(Messages.userGroup) },
-      workspaceAssignment: { label: intl.formatMessage(Messages.workspaceAssignment) },
+      userGroup: { label: intl.formatMessage(messages.userGroup) },
+      workspaceAssignment: {
+        label: intl.formatMessage(messages.workspaceAssignment),
+      },
     }),
     [intl],
   );

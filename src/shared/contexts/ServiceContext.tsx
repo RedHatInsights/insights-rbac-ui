@@ -25,14 +25,14 @@ const ServiceContext = createContext<AppServices | null>(null);
 /**
  * Provider component for injecting services at the application root.
  *
- * Must wrap the entire app (including QueryClientProvider and IntlProvider):
+ * Must wrap the entire app, including QueryClientProvider and IntlMessagesProvider:
  *
  * ```tsx
  * <ServiceProvider value={services}>
  *   <QueryClientProvider client={queryClient}>
- *     <IntlProvider locale="en" messages={messages}>
+ *     <IntlMessagesProvider locale={locale}>
  *       <App />
- *     </IntlProvider>
+ *     </IntlMessagesProvider>
  *   </QueryClientProvider>
  * </ServiceProvider>
  * ```

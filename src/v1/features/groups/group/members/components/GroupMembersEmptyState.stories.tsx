@@ -1,6 +1,4 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { IntlProvider } from 'react-intl';
 import { GroupMembersEmptyState } from './GroupMembersEmptyState';
 
 const meta: Meta<typeof GroupMembersEmptyState> = {
@@ -39,13 +37,6 @@ This component is designed to be used with \`TableView\`'s empty state props:
       description: 'Whether there are active filters applied (changes the message)',
     },
   },
-  decorators: [
-    (Story) => (
-      <IntlProvider locale="en">
-        <Story />
-      </IntlProvider>
-    ),
-  ],
   tags: ['autodocs'],
 };
 

@@ -204,7 +204,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
               values={{
                 b: (text) => <b>{text}</b>,
                 count: currentRoles.length,
-                plural: currentRoles.length > 1 ? intl.formatMessage(messages.roles) : intl.formatMessage(messages.role),
                 name: currentRoles[0]?.name,
               }}
             />

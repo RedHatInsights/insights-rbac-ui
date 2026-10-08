@@ -76,7 +76,7 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
     <Modal
       appendTo={getModalContainer()}
       variant={ModalVariant.medium}
-      title={intl.formatMessage(messages['addToUserGroup'])}
+      title={intl.formatMessage(messages.addToUserGroup)}
       isOpen={isOpen}
       onClose={handleCloseModal}
       actions={[
@@ -87,16 +87,16 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
           isDisabled={tableState.selectedRows.length === 0}
           isLoading={addMembersMutation.isPending}
         >
-          {intl.formatMessage(messages['usersAndUserGroupsAdd'])}
+          {intl.formatMessage(messages.usersAndUserGroupsAdd)}
         </Button>,
         <Button key="cancel" variant="link" onClick={handleCloseModal}>
-          {intl.formatMessage(messages['usersAndUserGroupsCancel'])}
+          {intl.formatMessage(messages.usersAndUserGroupsCancel)}
         </Button>,
       ]}
       ouiaId="add-user-group-modal"
     >
       <FormattedMessage
-        {...messages['usersAndUserGroupsAddUserDescription']}
+        {...messages.usersAndUserGroupsAddUserDescription}
         values={{
           b: (text) => <b>{text}</b>,
           numUsers: selectedUsers.length,

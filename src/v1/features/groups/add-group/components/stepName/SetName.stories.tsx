@@ -257,3 +257,9 @@ export const EmptyFormValidation: Story = {
     });
   },
 };
+
+export const PartialChineseCatalogFallback: Story = {
+  ...Default,
+  globals: { locale: 'zh-CN' },
+  tags: ['locale-catalog'],
+};

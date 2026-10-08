@@ -18,4 +18,12 @@ const config = createMainConfig({
 // rbac-ui uses a portal container for modals in Storybook
 config.previewBody = () => '<div id="chrome-app-render-root"></div><div id="storybook-modals"></div>';
 
+// BrowserRouter stories change iframe paths; lazy-loaded Storybook chunks must stay rooted at the static server.
+const hccWebpackFinal = config.webpackFinal;
+config.webpackFinal = async (webpackConfig, options) => {
+  const finalConfig = await hccWebpackFinal(webpackConfig, options);
+  finalConfig.output = { ...finalConfig.output, publicPath: '/' };
+  return finalConfig;
+};
+
 export default config;

@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { IntlProvider } from 'react-intl';
 import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { WorkspacesEmptyState } from './WorkspacesEmptyState';
 
@@ -56,18 +55,16 @@ The component automatically handles:
   },
   decorators: [
     (Story) => (
-      <IntlProvider locale="en">
-        <DataView>
-          <DataViewTable
-            aria-label="Example workspaces table"
-            columns={[{ cell: 'Workspace Name' }, { cell: 'Type' }, { cell: 'Members' }, { cell: 'Actions' }]}
-            rows={[]}
-            bodyStates={{
-              empty: <Story />,
-            }}
-          />
-        </DataView>
-      </IntlProvider>
+      <DataView>
+        <DataViewTable
+          aria-label="Example workspaces table"
+          columns={[{ cell: 'Workspace Name' }, { cell: 'Type' }, { cell: 'Members' }, { cell: 'Actions' }]}
+          rows={[]}
+          bodyStates={{
+            empty: <Story />,
+          }}
+        />
+      </DataView>
     ),
   ],
   tags: ['autodocs'],
