@@ -190,7 +190,7 @@
     "translations:compile": "npx formatjs compile ./locales/translation-template.json --out-file ./src/locales/translations.json",
     "translations:datafile": "node scripts/createDataJson.js",
     "verify": "npm-run-all lint build test test:storybook",
-    "postinstall": "ts-patch install && rm -rf .cache",
+    "postinstall": "patch-package && ts-patch install && rm -rf .cache",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook --excludeTags skip-test --testTimeout=30000",
