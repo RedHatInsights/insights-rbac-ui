@@ -1,15 +1,11 @@
 import { useEffect } from 'react';
 import { debounce } from '../../../../shared/utilities/debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { createIntl, createIntlCache } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 import { rolesApi } from '../../../data/api/roles';
 import messages from '../../../../Messages';
-import providerMessages from '../../../../locales/data.json';
-import { locale } from '../../../../locales/locale';
 
-export const asyncValidator = async (roleName: string): Promise<undefined> => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
+export const asyncValidator = async (intl: IntlShape, roleName: string): Promise<undefined> => {
   if (!roleName) {
     return undefined;
   }
@@ -39,7 +35,9 @@ export const asyncValidator = async (roleName: string): Promise<undefined> => {
   return undefined;
 };
 
-export const debouncedAsyncValidator = debounce(asyncValidator, 250, { onlyResolvesLast: false });
+export const debouncedAsyncValidator = debounce((intl: IntlShape, value: string) => asyncValidator(intl, value), 250, {
+  onlyResolvesLast: false,
+});
 
 interface ValidatorResetProps {
   name: string;

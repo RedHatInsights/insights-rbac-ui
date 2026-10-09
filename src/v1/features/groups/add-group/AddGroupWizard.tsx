@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useIntl } from 'react-intl';
 
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
@@ -36,6 +37,7 @@ interface AddGroupWizardProps {
 }
 
 export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
+  const intl = useIntl();
   const navigate = useAppNavigate();
   const addNotification = useAddNotification();
 
@@ -157,7 +159,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
     navigate(pathnames.groups.link());
   };
 
-  const schema = schemaBuilder(enableServiceAccounts, enableRoles);
+  const schema = schemaBuilder(intl, enableServiceAccounts, enableRoles);
 
   const contextValue = useMemo(
     () => ({

@@ -7,12 +7,10 @@ import CostResourcesTemplate from './CostResourcesTemplate';
 import { ValidatorReset } from './validators';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
-import { createIntl, createIntlCache } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 import messages from '../../../../Messages';
-import { locale } from '../../../../locales/locale';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
-import providerMessages from '../../../../locales/data.json';
 
 interface FormValues {
   'role-type'?: string;
@@ -34,10 +32,7 @@ const validateNextAddRolePermissionStep = (currentStep: string, values: FormValu
   return 'review';
 };
 
-export const schemaBuilder = (_featureFlag: boolean) => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
-
+export const schemaBuilder = (intl: IntlShape, _featureFlag: boolean) => {
   return {
     fields: [
       {

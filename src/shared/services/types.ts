@@ -113,4 +113,12 @@ export interface AppServices {
    * - Storybook: `false` (overridable per story)
    */
   isITLess: boolean;
+
+  /**
+   * User's resolved locale (BCP-47 tag).
+   * - Browser: From Chrome's language API (async, resolved at bootstrap)
+   * - CLI: From env config or `'en'`
+   * - Storybook: From toolbar global, defaults to `'en'`
+   */
+  locale: string;
 }
