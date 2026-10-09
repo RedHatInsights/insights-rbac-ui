@@ -644,7 +644,7 @@ export const SupportCasesToggleIntegration: Story = {
     },
   },
   // Reset before render so a prior rerun's granted permission doesn't leak into
-  // this run's initial GET (which fires on mount, before the play function).
+  // this run's initial bulk search (which fires on mount, before the play function).
   beforeEach: () => {
     supportCasesPermissions.reset();
   },

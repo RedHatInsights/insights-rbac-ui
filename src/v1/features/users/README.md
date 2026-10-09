@@ -17,7 +17,8 @@ Fetching uses `useUsersQuery` from `src/shared/data/queries/users.ts`. Mutations
 - `useInviteUsersMutation` — invite by email
 - `useUpdateUserOrgAdminMutation` — toggle org admin flag
 - `useToggleManageSupportCasesMutation` — toggle `portal_manage_cases` permission (shared)
-- `useAccountUserDetailQuery` — fetch per-user portal permissions from IT Account API (shared)
+- `useAccountUsersPermissionsQuery` — bulk-fetch portal permissions for the whole page in one request (shared)
+- `useAccountUserDetailQuery` — read a single user's cached portal permissions from the IT Account API (shared)
 
 ## Constraints
 
@@ -25,4 +26,4 @@ Fetching uses `useUsersQuery` from `src/shared/data/queries/users.ts`. Mutations
 - Permission model: `orgAdmin` gates all mutations. With common-auth-model enabled, the org admin column is a PatternFly Switch (disabled when the viewer is not an org admin or the target user is inactive). Without the flag, the column shows Yes/No icons.
 - The invite flow uses a different base URL derived from `fetchEnvBaseUrl()`. Do not hardcode `/api/rbac/v1/` for this endpoint — the URL resolves to an empty prefix in test environments.
 - `accountId` type varies by action: some endpoints use `org_id` (number), others use `internal.account_id` (string). Preserve the original source per action — do not standardize.
-- **Manage Support Cases column**: Visible only when `isCommonAuthModel && orgAdmin && !isITLess`. The toggle state is the presence/absence of `portal_manage_cases` in the `permissions` array fetched per-user from `GET /account/v1/accounts/{org_id}/users/{user_id}`. Toggling is a read-modify-write: it adds/removes `portal_manage_cases` from that array and `POST`s the result back to the **same** account/v1 endpoint. The POST body contains only the `permissions` array — not the full user object (sending other fields like `id`/`username`/`roles` is rejected with a 400). `accounts/{X}` is `org_id` from the JWT (not `account_id`). The account API is not available in ITLess/FedRAMP environments — column is hidden.
+- **Manage Support Cases column**: Visible only when `isCommonAuthModel && orgAdmin && !isITLess`. The toggle state is the presence/absence of `portal_manage_cases` in each user's `permissions` array. Permissions for the **whole page** are fetched in a **single** `POST /account/v1/accounts/{org_id}/users/search` (body `{ by: { ids: [...] } }`) — not one GET per row, which would hit the account API rate limit. That bulk query seeds the per-user cache `SupportCasesToggle` reads (cache-only) and the toggle mutation writes. Toggling is a read-modify-write: it adds/removes `portal_manage_cases` from the array and `POST`s the result back to `.../users/{user_id}`. The POST body contains only the `permissions` array — not the full user object (sending other fields like `id`/`username`/`roles` is rejected with a 400). `accounts/{X}` is `org_id` from the JWT (not `account_id`). The account API is not available in ITLess/FedRAMP environments — column is hidden.

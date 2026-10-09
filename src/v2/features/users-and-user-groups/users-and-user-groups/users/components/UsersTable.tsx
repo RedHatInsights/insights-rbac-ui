@@ -76,6 +76,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     authModel,
     orgAdmin,
     isITLess,
+    users,
     focusedUser,
     ouiaId,
     onToggleUserStatus,

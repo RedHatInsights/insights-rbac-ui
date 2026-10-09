@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { fn } from 'storybook/test';
@@ -9,6 +10,17 @@ import {
 } from '../data/mocks/accountManagement.handlers';
 import { createResettableMap } from '../data/mocks/db';
 import { DEFAULT_USER_PERMISSIONS, USER_JANE, USER_JOHN } from '../data/mocks/seed';
+import { useAccountUsersPermissionsQuery } from '../data/queries/users';
+
+/**
+ * Mirrors real usage: list pages bulk-fetch permissions for every row in one request and
+ * seed the per-user cache the toggle reads, threading loading/error down as props. The toggle
+ * itself no longer self-fetches, so these component stories drive it the same way.
+ */
+const SupportCasesToggleHarness: React.FC<React.ComponentProps<typeof SupportCasesToggle>> = (props) => {
+  const { isLoading, isError } = useAccountUsersPermissionsQuery(props.userId ? [props.userId] : []);
+  return <SupportCasesToggle {...props} isPermissionsLoading={isLoading} isPermissionsError={isError} />;
+};
 
 const JOHN_ID = String(USER_JOHN.external_source_id);
 const JANE_ID = String(USER_JANE.external_source_id);
@@ -19,6 +31,7 @@ const toggleOnSpy = fn();
 
 const meta: Meta<typeof SupportCasesToggle> = {
   component: SupportCasesToggle,
+  render: (args) => <SupportCasesToggleHarness {...args} />,
   parameters: {
     environment: 'stage',
     orgAdmin: true,
@@ -194,7 +207,7 @@ export const ToggleOn: Story = {
     },
   },
   // Reset before render so a prior rerun's granted permission doesn't leak into
-  // this run's initial GET (which fires on mount, before the play function).
+  // this run's initial bulk search (which fires on mount, before the play function).
   beforeEach: () => {
     toggleOnPermissions.reset();
     toggleOnSpy.mockClear();
@@ -277,14 +290,14 @@ export const QueryError: Story = {
     docs: {
       description: {
         story:
-          'When the account detail GET fails, the toggle settles into a disabled state (not a stuck spinner) so a click can never POST permissions built from an empty base.',
+          'When the bulk permissions search fails, the toggle settles into a disabled state (not a stuck spinner) so a click can never POST permissions built from an empty base.',
       },
     },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Toggle renders disabled when the account detail query errors', async () => {
+    await step('Toggle renders disabled when the permissions query errors', async () => {
       // Allow the query (with retry) to settle into its error state before asserting.
       const toggle = await canvas.findByRole(
         'switch',

@@ -26,7 +26,7 @@ import { OrgAdminToggle } from './OrgAdminToggle';
 import { ActivateToggle } from './components/ActivateToggle';
 import { SupportCasesToggle } from '../../../shared/components/SupportCasesToggle';
 import pathnames from '../../utilities/pathnames';
-import { useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
+import { useAccountUsersPermissionsQuery, useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
 
 interface UsersListNotSelectableProps {
   userLinks: boolean;
@@ -131,6 +131,15 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   );
   const totalCount = usersData?.totalCount ?? 0;
 
+  // Bulk-fetch support-cases permissions for every row in one request (avoids a per-row N+1).
+  const supportCasesUserIds = useMemo(
+    () => (showSupportCases ? users.map((u) => (u.external_source_id != null ? String(u.external_source_id) : undefined)) : []),
+    [showSupportCases, users],
+  );
+  const { isLoading: isSupportCasesLoading, isError: isSupportCasesError } = useAccountUsersPermissionsQuery(supportCasesUserIds, {
+    enabled: showSupportCases,
+  });
+
   // React Query mutation for changing user status
   const changeUserStatusMutation = useChangeUserStatusMutation();
 
@@ -199,6 +208,8 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
             username={user.username}
             isDisabled={!orgAdmin}
             isActive={user.is_active ?? true}
+            isPermissionsLoading={isSupportCasesLoading}
+            isPermissionsError={isSupportCasesError}
           />
         );
       },
@@ -225,7 +236,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         );
       },
     }),
-    [intl, isCommonAuthModel, orgAdmin, userLinks, currAccountId, handleToggle],
+    [intl, isCommonAuthModel, orgAdmin, userLinks, currAccountId, handleToggle, isSupportCasesLoading, isSupportCasesError],
   );
 
   // Filter configuration

@@ -3,7 +3,7 @@ import type { IntlShape } from 'react-intl';
 import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
-import type { User } from '../../../../../../shared/data/queries/users';
+import { type User, useAccountUsersPermissionsQuery } from '../../../../../../shared/data/queries/users';
 import { SupportCasesToggle } from '../../../../../../shared/components/SupportCasesToggle';
 import messages from '../../../../../../Messages';
 
@@ -50,6 +50,8 @@ interface UseUsersTableConfigOptions {
   authModel: boolean;
   orgAdmin: boolean;
   isITLess: boolean;
+  /** Current page of users — used to bulk-fetch support-cases permissions in one request. */
+  users: User[];
   focusedUser?: User;
   ouiaId: string;
   onToggleUserStatus: (user: User, isActive: boolean) => void;
@@ -68,6 +70,7 @@ export function useUsersTableConfig({
   authModel,
   orgAdmin,
   isITLess,
+  users,
   focusedUser,
   ouiaId,
   onToggleUserStatus,
@@ -81,6 +84,15 @@ export function useUsersTableConfig({
     const order = authModel ? authModelOrder : standardOrder;
     return showSupportCases ? order : order.filter((column) => column !== 'manage_support_cases');
   }, [authModel, showSupportCases]);
+
+  // Bulk-fetch support-cases permissions for every row in one request (avoids a per-row N+1).
+  const supportCasesUserIds = useMemo(
+    () => (showSupportCases ? users.map((u) => (u.external_source_id != null ? String(u.external_source_id) : undefined)) : []),
+    [showSupportCases, users],
+  );
+  const { isLoading: isSupportCasesLoading, isError: isSupportCasesError } = useAccountUsersPermissionsQuery(supportCasesUserIds, {
+    enabled: showSupportCases,
+  });
 
   // Keyed to the full master set — exhaustiveness is enforced here once. The visible `columns`
   // above are always a subset, so every rendered column is guaranteed a config entry.
@@ -131,12 +143,19 @@ export function useUsersTableConfig({
         const userId = user.external_source_id != null ? String(user.external_source_id) : undefined;
         return (
           <span onClick={(e) => e.stopPropagation()} role="presentation">
-            <SupportCasesToggle userId={userId} username={user.username} isDisabled={!orgAdmin} isActive={user.is_active ?? true} />
+            <SupportCasesToggle
+              userId={userId}
+              username={user.username}
+              isDisabled={!orgAdmin}
+              isActive={user.is_active ?? true}
+              isPermissionsLoading={isSupportCasesLoading}
+              isPermissionsError={isSupportCasesError}
+            />
           </span>
         );
       },
     }),
-    [focusedUser, orgAdmin, ouiaId, onToggleUserStatus, onToggleOrgAdmin],
+    [focusedUser, orgAdmin, ouiaId, onToggleUserStatus, onToggleOrgAdmin, isSupportCasesLoading, isSupportCasesError],
   );
 
   const filterConfig: FilterConfig[] = useMemo(
