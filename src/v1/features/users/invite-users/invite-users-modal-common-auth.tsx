@@ -8,6 +8,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import AccordionCheckbox from '../../../../shared/components/expandable-checkbox';
 import InlineError from '../../../../shared/components/ui-states/InlineError';
 import { useCommonAuthModel } from '../../../../capabilities/useCommonAuthModel';
+import { useFedRAMPMode } from '../../../../capabilities/useFedRAMPMode';
 import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
 import { useOutletContext } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
@@ -37,6 +38,7 @@ type SubmitValues = {
 const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
   const { advancedPermissions } = useCommonAuthModel();
+  const isITLess = useFedRAMPMode();
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
   const addNotification = useAddNotification();
 
@@ -128,13 +130,19 @@ const InviteUsers = () => {
               title: intl.formatMessage(messages.inviteUsersFormIsAdminFieldTitle),
               description: intl.formatMessage(messages.inviteUsersFormIsAdminFieldDescription),
             },
-            ...(advancedPermissions
+            // Manage support cases is a shipped field: shown whenever the account API is
+            // available (i.e. not ITLess/FedRAMP), independent of the advanced-permissions flag.
+            ...(!isITLess
               ? [
                   {
                     name: 'manage-support-cases',
-                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
+                    title: intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldTitle),
+                    description: intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldDescription),
                   },
+                ]
+              : []),
+            ...(advancedPermissions
+              ? [
                   {
                     name: 'download-software-updates',
                     title: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldTitle),
@@ -169,7 +177,7 @@ const InviteUsers = () => {
         },
       ],
     }),
-    [responseError],
+    [responseError, advancedPermissions, isITLess],
   );
   return (
     <FormRenderer
