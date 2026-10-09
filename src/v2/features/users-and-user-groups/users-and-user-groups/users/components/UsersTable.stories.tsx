@@ -760,7 +760,7 @@ export const SupportCasesColumn: Story = {
     docs: {
       description: {
         story:
-          'Tests the Manage Support Cases column, visible only for org admins in non-ITLess environments. Each row fetches the permission state from the account API.',
+          'Tests the Manage Support Cases column, visible only for org admins in non-ITLess environments. Permission state for every row is fetched in one bulk search request against the account API.',
       },
     },
     msw: {
@@ -775,7 +775,7 @@ export const SupportCasesColumn: Story = {
     },
   },
   // Reset before render so a prior rerun's granted permission doesn't leak into
-  // this run's initial GET (which fires on mount, before the play function).
+  // this run's initial bulk search (which fires on mount, before the play function).
   beforeEach: () => {
     supportCasesColumnPermissions.reset();
   },

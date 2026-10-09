@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { type UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
 import { type ListPrincipalsParams, type PrincipalPagination, createUsersApi } from '../api/users';
 import { useAppServices } from '../../contexts/ServiceContext';
@@ -429,18 +430,30 @@ export interface AccountUserDetail {
  */
 type AccountUserDetailEnvelope = { body?: AccountUserDetail } & Partial<AccountUserDetail>;
 
+/** Response from POST /account/v1/accounts/{org_id}/users/search; each entry pairs a user with its permissions. */
+interface AccountUsersSearchResponse {
+  body?: Array<{
+    user?: { id?: string | number; username?: string; roles?: string[] };
+    permissions?: string[];
+  }>;
+}
+
 /** The portal permission string for managing support cases */
 export const PORTAL_MANAGE_CASES = 'portal_manage_cases' as const;
 
 export const accountUserKeys = {
   all: ['account-user'] as const,
-  details: () => [...accountUserKeys.all, 'detail'] as const,
-  detail: (userId: string) => [...accountUserKeys.details(), userId] as const,
+  details: (orgId: string) => [...accountUserKeys.all, 'detail', orgId] as const,
+  detail: (orgId: string, userId: string) => [...accountUserKeys.details(orgId), userId] as const,
+  search: (orgId: string, userIds: readonly string[]) => [...accountUserKeys.all, 'search', orgId, userIds] as const,
 };
 
 /**
  * Fetch a single user's account detail from the IT Account API.
  * Returns the user's portal permissions array.
+ *
+ * On list pages the cache is seeded in bulk by `useAccountUsersPermissionsQuery`; pass
+ * `{ enabled: false }` to read cache-only and avoid an N+1 of one GET per row.
  *
  * Skipped in ITLess environments (API not available).
  *
@@ -448,10 +461,11 @@ export const accountUserKeys = {
  */
 export function useAccountUserDetailQuery(userId: string | undefined, options?: QueryOptions) {
   const { getToken, environment, identity, isITLess } = useAppServices();
+  const orgId = identity?.org_id ?? '';
 
   return useQuery(
     {
-      queryKey: accountUserKeys.detail(userId ?? ''),
+      queryKey: accountUserKeys.detail(orgId, userId ?? ''),
       queryFn: async (): Promise<AccountUserDetail> => {
         const token = await getToken();
         const accountId = identity?.org_id ?? null;
@@ -479,9 +493,80 @@ export function useAccountUserDetailQuery(userId: string | undefined, options?: 
       },
       enabled: !isITLess && !!userId && !!identity?.org_id && (options?.enabled ?? true),
       staleTime: 30_000,
-      // This query runs once per table row (one GET per user — an N+1 against the account API).
-      // Cap retries so a down endpoint doesn't multiply into retries × rows before settling into
-      // the error state (which disables the toggle).
+      // Cap retries so a down endpoint doesn't multiply into retries × rows before erroring.
+      retry: 1,
+    },
+    options?.queryClient,
+  );
+}
+
+/**
+ * Fetch portal permissions for many users in ONE request via the account search endpoint,
+ * instead of one GET per row (an N+1 that trips the account API rate limit on large pages).
+ *
+ * Seeds each returned user's detail cache so `SupportCasesToggle` and
+ * `useToggleManageSupportCasesMutation` share one source of truth. Seeding never clobbers an
+ * existing entry, so a later bulk refetch can't flip an optimistic/post-toggle value back.
+ *
+ * Skipped in ITLess environments (API not available).
+ *
+ * @tag api-v1-external - Uses external IT identity provider API
+ */
+export function useAccountUsersPermissionsQuery(userIds: Array<string | undefined>, options?: QueryOptions) {
+  const { getToken, environment, identity, isITLess } = useAppServices();
+  const queryClient = useMutationQueryClient(options?.queryClient);
+  const orgId = identity?.org_id ?? '';
+
+  // Deduped, sorted ids so the query key is order-insensitive.
+  const ids = useMemo(() => Array.from(new Set(userIds.filter((id): id is string => !!id))).sort(), [userIds]);
+
+  return useQuery(
+    {
+      queryKey: accountUserKeys.search(orgId, ids),
+      queryFn: async (): Promise<AccountUserDetail[]> => {
+        const token = await getToken();
+        const accountId = identity?.org_id ?? null;
+
+        if (!accountId) {
+          throw new Error('Missing accountId for account users search query');
+        }
+
+        const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/search`;
+        const response = await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({ by: { ids } }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Account users search failed: ${response.status}`);
+        }
+
+        const json = (await response.json()) as AccountUsersSearchResponse;
+        const summaries = json.body ?? [];
+        const details: AccountUserDetail[] = summaries.map((summary) => ({
+          id: String(summary.user?.id ?? ''),
+          username: summary.user?.username ?? '',
+          roles: summary.user?.roles,
+          permissions: summary.permissions ?? [],
+        }));
+
+        // Seed only when permissions were actually returned — seeding an empty array for a user
+        // whose permissions were omitted would let the toggle clobber their real permissions.
+        summaries.forEach((summary, i) => {
+          const detail = details[i];
+          if (detail.id && Array.isArray(summary.permissions)) {
+            queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(orgId, detail.id), (old) => old ?? detail);
+          }
+        });
+
+        return details;
+      },
+      enabled: !isITLess && ids.length > 0 && !!identity?.org_id && (options?.enabled ?? true),
+      staleTime: 30_000,
       retry: 1,
     },
     options?.queryClient,
@@ -510,6 +595,7 @@ interface ToggleManageSupportCasesParams {
 export function useToggleManageSupportCasesMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
   const { notify, getToken, environment, identity, isITLess } = useAppServices();
+  const orgId = identity?.org_id ?? '';
   const intl = useIntl();
 
   return useMutation({
@@ -526,7 +612,7 @@ export function useToggleManageSupportCasesMutation(options?: MutationOptions) {
       }
 
       // Build the next permissions array from the cached GET (presence = granted).
-      const current = queryClient.getQueryData<AccountUserDetail>(accountUserKeys.detail(userId));
+      const current = queryClient.getQueryData<AccountUserDetail>(accountUserKeys.detail(orgId, userId));
       const basePermissions = current?.permissions ?? [];
       const permissions = grant ? [...new Set([...basePermissions, PORTAL_MANAGE_CASES])] : basePermissions.filter((p) => p !== PORTAL_MANAGE_CASES);
 
@@ -554,9 +640,9 @@ export function useToggleManageSupportCasesMutation(options?: MutationOptions) {
       return updated.permissions ?? permissions;
     },
     onMutate: async ({ userId, grant }) => {
-      await queryClient.cancelQueries({ queryKey: accountUserKeys.detail(userId) });
+      await queryClient.cancelQueries({ queryKey: accountUserKeys.detail(orgId, userId) });
 
-      const previous = queryClient.getQueryData<AccountUserDetail>(accountUserKeys.detail(userId));
+      const previous = queryClient.getQueryData<AccountUserDetail>(accountUserKeys.detail(orgId, userId));
 
       if (previous) {
         const currentPermissions = previous.permissions ?? [];
@@ -564,7 +650,7 @@ export function useToggleManageSupportCasesMutation(options?: MutationOptions) {
           ? [...new Set([...currentPermissions, PORTAL_MANAGE_CASES])]
           : currentPermissions.filter((p) => p !== PORTAL_MANAGE_CASES);
 
-        queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(userId), {
+        queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(orgId, userId), {
           ...previous,
           permissions: updatedPermissions,
         });
@@ -578,12 +664,14 @@ export function useToggleManageSupportCasesMutation(options?: MutationOptions) {
       // read-after-write eventually consistent, so an immediate GET can return the
       // pre-update state and flip the toggle back. The query refetches naturally once
       // stale (staleTime) on the next mount/focus.
-      queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(userId), (old) => (old ? { ...old, permissions: updatedPermissions } : old));
+      queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(orgId, userId), (old) =>
+        old ? { ...old, permissions: updatedPermissions } : old,
+      );
       notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
     },
     onError: (_err, { userId }, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(accountUserKeys.detail(userId), context.previous);
+        queryClient.setQueryData(accountUserKeys.detail(orgId, userId), context.previous);
       }
       notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
     },
