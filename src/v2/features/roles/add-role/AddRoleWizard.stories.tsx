@@ -3,6 +3,9 @@ import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRoleWizard } from './AddRoleWizard';
+import { IntlMessagesProvider } from '../../../../shared/i18n';
+import { messageCatalogs } from '../../../../shared/i18n/messageCatalogs';
+import messageDescriptors from '../../../../Messages';
 import { permissionsHandlers } from '../../../../shared/data/mocks/permissions.handlers';
 import { v2RolesHandlers } from '../../../data/mocks/roles.handlers';
 
@@ -235,6 +238,71 @@ export const NextButtonVisible: Story = {
 
       const nextButton = body.getByRole('button', { name: /next/i });
       expect(nextButton).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Regression (PR review): the wizard schema must rebuild when the async catalog resolves.
+ *
+ * IntlMessagesProvider renders children before the catalog arrives, so the schema is
+ * first built with an English-only intl. When the French catalog lands, the wizard
+ * must rebuild its schema — otherwise it keeps the stale English schema for the whole
+ * session (reproduces the initial-French-load case, not just language switching).
+ */
+export const TranslatedSchemaAfterDelayedCatalog: Story = {
+  beforeEach: () => {
+    const fr: Record<string, string> = {
+      createRole: 'Créer un rôle',
+      createRoleFromScratch: 'Créer un rôle à partir de zéro',
+      copyAnExistingRole: 'Copier un rôle existant',
+    };
+    messageCatalogs.fr = () =>
+      new Promise((resolve) =>
+        setTimeout(
+          () =>
+            resolve({
+              default: Object.fromEntries(
+                Object.entries(messageDescriptors).map(([key, descriptor]) => [
+                  key,
+                  fr[key] ?? (descriptor as { defaultMessage: string }).defaultMessage,
+                ]),
+              ),
+            }),
+          2000,
+        ),
+      );
+  },
+  parameters: {
+    msw: {
+      handlers: createDefaultHandlers(),
+    },
+  },
+  render: () => (
+    <IntlMessagesProvider locale="fr">
+      <AddRoleWizard pagination={{ limit: 20 }} filters={{}} />
+    </IntlMessagesProvider>
+  ),
+  play: async ({ step }) => {
+    await step('Wizard renders the English schema while the catalog is in flight', async () => {
+      const body = within(document.body);
+      await body.findAllByRole('dialog');
+      expect(body.getAllByText(/create a role from scratch/i).length).toBeGreaterThan(0);
+    });
+
+    await step('Schema rebuilds in French once the catalog resolves', async () => {
+      const body = within(document.body);
+      await waitFor(
+        () => {
+          // The radio labels (TypeSelector) and the h1 (CreateRoleStepTemplate)
+          // render from live intl and flip on their own. The wizard header is
+          // owned by the stored schema: it only flips if the schema was rebuilt
+          // with the resolved catalog — that is the regression this story guards.
+          expect(body.queryAllByText(/create a role from scratch|copy an existing role/i)).toHaveLength(0);
+          expect(body.queryAllByText(/^créer un rôle$/i).length).toBeGreaterThanOrEqual(2);
+        },
+        { timeout: 8000 },
+      );
     });
   },
 };

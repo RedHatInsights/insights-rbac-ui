@@ -9,7 +9,8 @@ export default defineConfig({
     environment: 'happy-dom',
 
     // Test patterns - exclude CLI tests (they use their own config)
-    include: ['src/**/*.test.{ts,tsx}'],
+    // .storybook tests cover storybook tooling (e.g. ICU validation of the pseudo-localization catalog)
+    include: ['src/**/*.test.{ts,tsx}', '.storybook/**/*.test.{ts,tsx}'],
     exclude: ['**/node_modules/**', '**/dist/**', 'src/cli/**'],
 
     // Root directory

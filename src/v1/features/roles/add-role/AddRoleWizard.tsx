@@ -125,9 +125,13 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
   const [schema, setSchema] = useState<Schema | undefined>();
 
+  // `intl` is a dependency on purpose: IntlMessagesProvider renders children before
+  // the async catalog resolves, so the schema is first built with an English-only
+  // intl and must be rebuilt when the localized catalog arrives (this happens on
+  // initial non-English load, not only when switching languages).
   useEffect(() => {
-    setSchema(schemaBuilder(enableWorkspacesNameChange));
-  }, [enableWorkspacesNameChange]);
+    setSchema(schemaBuilder(intl, enableWorkspacesNameChange));
+  }, [intl, enableWorkspacesNameChange]);
 
   const onClose = () =>
     navigate({

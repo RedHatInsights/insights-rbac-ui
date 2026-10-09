@@ -60,25 +60,25 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
       {
         type: 'text',
         id: 'requester',
-        label: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }),
+        label: intl.formatMessage(messages.requester),
         placeholder: intl.formatMessage(messages.filterByKey, {
-          key: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }),
+          key: intl.formatMessage(messages.requester),
         }),
       },
       {
         type: 'text',
         id: 'resource',
-        label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }),
+        label: intl.formatMessage(messages.resource),
         placeholder: intl.formatMessage(messages.filterByKey, {
-          key: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }),
+          key: intl.formatMessage(messages.resource),
         }),
       },
       {
         type: 'text',
         id: 'action',
-        label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }),
+        label: intl.formatMessage(messages.action),
         placeholder: intl.formatMessage(messages.filterByKey, {
-          key: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }),
+          key: intl.formatMessage(messages.action),
         }),
       },
     ],
@@ -87,11 +87,11 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      date: { label: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }) },
-      requester: { label: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }) },
-      action: { label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }) },
-      resource: { label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
-      description: { label: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
+      date: { label: intl.formatMessage(messages.date) },
+      requester: { label: intl.formatMessage(messages.requester) },
+      action: { label: intl.formatMessage(messages.action) },
+      resource: { label: intl.formatMessage(messages.resource) },
+      description: { label: intl.formatMessage(messages.description) },
     }),
     [intl],
   );
@@ -170,7 +170,7 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
       error={error ? new Error(error) : null}
       emptyStateNoData={emptyStateNoData}
       emptyStateNoResults={emptyStateNoResults}
-      ariaLabel={intl.formatMessage({ id: 'auditLogTableAriaLabel', defaultMessage: 'Audit log entries' })}
+      ariaLabel={intl.formatMessage(messages.auditLogTableAriaLabel)}
       ouiaId="audit-log-table"
     />
   );

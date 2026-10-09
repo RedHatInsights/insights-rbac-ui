@@ -64,14 +64,7 @@ export const InlineWorkspacePicker: React.FC<InlineWorkspacePickerProps> = ({
   // Default tooltip for permission-based disabling
   const disabledTooltip = useMemo(() => {
     if (!requiredPermission) return undefined;
-    return intl.formatMessage(
-      {
-        id: 'workspaceSelectorDisabledTooltip',
-        description: 'Tooltip shown on disabled workspace tree items when the user lacks the required permission',
-        defaultMessage: 'You do not have {permission} permission on this workspace',
-      },
-      { permission: requiredPermission },
-    );
+    return intl.formatMessage(messages.workspaceSelectorDisabledTooltip, { permission: requiredPermission });
   }, [requiredPermission, intl]);
 
   // Clear selection if it falls into the disabled set after permissions settle

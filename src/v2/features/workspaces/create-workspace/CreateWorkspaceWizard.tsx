@@ -108,7 +108,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
 
   return (
     <FormRenderer
-      schema={schemaBuilder(enableFeatures, existingWorkspaceNames, skipParentStep)}
+      schema={schemaBuilder(intl, enableFeatures, existingWorkspaceNames, skipParentStep)}
       componentMapper={{ ...componentMapper, ...mapperExtension }}
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}

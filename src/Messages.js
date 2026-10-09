@@ -1115,6 +1115,11 @@ export default defineMessages({
     description: 'learn more link',
     defaultMessage: 'Learn more',
   },
+  auditLogTableAriaLabel: {
+    id: 'auditLogTableAriaLabel',
+    description: 'Audit log table aria label',
+    defaultMessage: 'Audit log entries',
+  },
   auditLog: {
     id: 'auditLog',
     description: 'Audit Log page title',
@@ -1446,6 +1451,26 @@ export default defineMessages({
     id: 'workspaceDetailsDescription',
     description: 'Workspace details step description',
     defaultMessage: 'Complete the fields to create a workspace.',
+  },
+  workspaceSelectorDisabledTooltip: {
+    id: 'workspaceSelectorDisabledTooltip',
+    description: 'Tooltip shown on disabled workspace tree items when the user lacks the required permission',
+    defaultMessage: 'You do not have {permission} permission on this workspace',
+  },
+  workspaceTreeViewError: {
+    id: 'workspaceTreeViewError',
+    description: 'Error loading workspaces in tree view',
+    defaultMessage: 'Failed to load workspaces',
+  },
+  workspaceTreeViewNoSearchResults: {
+    id: 'workspaceTreeViewNoSearchResults',
+    description: 'Message when no workspaces match search',
+    defaultMessage: 'No workspaces match your search.',
+  },
+  workspaceTreeViewNoWorkspaces: {
+    id: 'workspaceTreeViewNoWorkspaces',
+    description: 'Message when no workspaces are available',
+    defaultMessage: 'No workspaces to show.',
   },
   workspaceNamingGuidelines: {
     id: 'workspaceNamingGuidelines',

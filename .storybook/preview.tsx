@@ -4,7 +4,6 @@ import '@patternfly/patternfly/patternfly-addons.css';
 import '@redhat-cloud-services/hcc-storybook-hub/css/storybook.css';
 import React, { useContext } from 'react';
 import { createPortal } from 'react-dom';
-import { IntlProvider } from 'react-intl';
 import { QueryClientSetup } from '../src/shared/components/QueryClientSetup';
 import {
   type FeatureFlagsConfig,
@@ -19,16 +18,59 @@ import type { Environment } from '@redhat-cloud-services/hcc-storybook-hub';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import messages from '../src/locales/data.json';
-import { locale } from '../src/locales/locale';
+import { type Mock, sb } from 'storybook/test';
+import { IntlMessagesProvider } from '../src/shared/i18n';
+import { messageCatalogs } from '../src/shared/i18n/messageCatalogs';
+import { useChromeLocale } from '../src/shared/hooks/useChromeLocale';
+import messageDescriptors from '../src/Messages';
+import { pseudoLocalize } from './pseudo';
 import { ServiceProvider, createBrowserServices } from '../src/shared/services';
 import type { AddNotificationFn } from '../src/shared/entry/browser';
 import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
 
+sb.mock(import('../src/shared/i18n/messageCatalogs.ts'));
+sb.mock(import('../src/shared/hooks/useChromeLocale.ts'));
+
+// COVERAGE NOTE (PR review): the Jawa pseudo-locale and the missing-translation
+// markers below cover ONLY descriptors declared in src/Messages.js (enDefaults).
+// Inline defineMessages in feature components — e.g.
+// src/v2/features/workspaces/components/managed-selector/InlineWorkspacePicker.tsx —
+// are NOT covered: they render their English defaultMessage in every locale,
+// including jw. The remaining production inline descriptors are centralized and
+// banned via lint in a follow-up PR, so this gap closes instead of riding with
+// the i18n-tooling adoption.
+
+const enDefaults = Object.fromEntries(Object.entries(messageDescriptors).map(([k, v]) => [k, v.defaultMessage as string]));
+const jawaCatalog = Object.fromEntries(Object.entries(enDefaults).map(([k, v]) => [k, pseudoLocalize(v)]));
+
+function withMissingMarkers(messages: Record<string, string>): Record<string, string> {
+  const allKeys = new Set([...Object.keys(enDefaults), ...Object.keys(messages)]);
+  return new Proxy(messages, {
+    get(target, key: string) {
+      if (key in target) return target[key];
+      if (key in enDefaults) return `\u{1F6A8} UNTRANSLATED \u{1F6A8} ${enDefaults[key]}`;
+      return undefined;
+    },
+    has(_target, key: string) {
+      return allKeys.has(key);
+    },
+    ownKeys() {
+      return [...allKeys];
+    },
+    getOwnPropertyDescriptor(target, key: string) {
+      return {
+        configurable: true,
+        enumerable: true,
+        value: key in target ? target[key] : key in enDefaults ? `\u{1F6A8} UNTRANSLATED \u{1F6A8} ${enDefaults[key]}` : undefined,
+      };
+    },
+  });
+}
+
 // Wrapper that provides all providers for component stories (non-journey)
 // This must be inside NotificationsProvider, StorybookMockProvider, and FeatureFlagsProvider
 // to access useAddNotification, mock state, and feature flags.
-const ComponentProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ComponentProviders: React.FC<{ locale: string; children: React.ReactNode }> = ({ locale, children }) => {
   const addNotification = useAddNotification() as AddNotificationFn;
   const { environment, userIdentity } = useMockState();
   const featureFlags = useContext(FeatureFlagsContext);
@@ -43,6 +85,7 @@ const ComponentProviders: React.FC<{ children: React.ReactNode }> = ({ children 
       ? { org_id: userIdentity.org_id, account_id: userIdentity.internal?.account_id }
       : { org_id: '12345', account_id: '54321' },
     isITLess,
+    locale,
   });
 
   return (
@@ -59,6 +102,35 @@ const ComponentProviders: React.FC<{ children: React.ReactNode }> = ({ children 
 
 const preview: Preview = {
   ...hccPreviewDefaults,
+  globalTypes: {
+    locale: {
+      description: 'Locale',
+      toolbar: {
+        icon: 'globe',
+        items: [
+          { value: 'en', title: 'English' },
+          { value: 'fr', title: 'Français' },
+          { value: 'ko', title: '한국어' },
+          { value: 'zh-CN', title: '中文' },
+          { value: 'ja', title: '日本語' },
+          { value: 'jw', title: 'Utinni! (Jawa)' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: {
+    locale: 'en',
+  },
+  beforeEach: () => {
+    for (const locale of ['fr', 'ko', 'zh-CN', 'ja']) {
+      messageCatalogs[locale] = () =>
+        import(`../messages/${locale}.json`).then((mod: { default: Record<string, string> }) => ({
+          default: withMissingMarkers(mod.default),
+        }));
+    }
+    messageCatalogs.jw = () => Promise.resolve({ default: jawaCatalog });
+  },
   parameters: {
     ...hccPreviewDefaults.parameters,
     options: {
@@ -86,7 +158,9 @@ const preview: Preview = {
     // e.g., workspacePermissions: { view: ['ws-1'], edit: ['ws-1'], delete: [], create: ['ws-1'], move: [] }
   },
   decorators: [
-    (Story, { parameters, args }) => {
+    (Story, { parameters, args, globals }) => {
+      const locale = (globals.locale as string) ?? 'en';
+      (useChromeLocale as Mock).mockReturnValue(locale);
       // Derive mock state from story args/parameters
       // Support both legacy object format (parameters.permissions.orgAdmin) and direct params
       const legacyPermissions = typeof parameters.permissions === 'object' && !Array.isArray(parameters.permissions) ? parameters.permissions : {};
@@ -191,13 +265,13 @@ const preview: Preview = {
           userIdentity={userIdentity}
         >
           <FeatureFlagsProvider value={featureFlags}>
-            <IntlProvider locale={locale} messages={messages[locale]}>
+            <IntlMessagesProvider locale={locale}>
               <NotificationsProvider>
-                <ComponentProviders>
+                <ComponentProviders locale={locale}>
                   <Story />
                 </ComponentProviders>
               </NotificationsProvider>
-            </IntlProvider>
+            </IntlMessagesProvider>
           </FeatureFlagsProvider>
         </StorybookMockProvider>
       );

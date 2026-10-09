@@ -22,19 +22,16 @@
 
 import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { IntlProvider } from 'react-intl';
 import { AccessCheck } from '@project-kessel/react-kessel-access-check';
 import { createStandaloneQueryClient } from '../shared/components/QueryClientSetup';
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
 import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
-import messages from '../locales/data.json';
+import { IntlMessagesProvider } from '../shared/i18n';
 import {
   ManagedWorkspaceSelector,
   ManagedWorkspaceSelectorProps,
 } from '../v2/features/workspaces/components/managed-selector/ManagedWorkspaceSelector';
-
-export const locale = 'en';
 
 // Create a standalone query client for the module
 const moduleQueryClient = createStandaloneQueryClient();
@@ -49,26 +46,28 @@ const moduleServices: AppServices = {
   ssoUrl: '',
   identity: undefined,
   isITLess: false,
+  locale: 'en',
 };
 
 // Kessel access check API configuration (same as Iam.tsx)
 const accessCheckBaseUrl = typeof window !== 'undefined' ? window.location.origin : '';
 const accessCheckApiPath = '/api/kessel/v1beta2';
 
-/** Federated module props - re-exported from internal component */
-export type WorkspaceSelectorProps = ManagedWorkspaceSelectorProps;
+/** Federated module props - extends inner component with locale from host */
+export type WorkspaceSelectorProps = ManagedWorkspaceSelectorProps & { locale?: string };
 
-const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = (props) => {
+const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({ locale = 'en', ...props }) => {
+  const services = { ...moduleServices, locale };
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlMessagesProvider locale={locale}>
       <AccessCheck.Provider baseUrl={accessCheckBaseUrl} apiPath={accessCheckApiPath}>
-        <ServiceProvider value={moduleServices}>
+        <ServiceProvider value={services}>
           <QueryClientProvider client={moduleQueryClient}>
             <ManagedWorkspaceSelector {...props} />
           </QueryClientProvider>
         </ServiceProvider>
       </AccessCheck.Provider>
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
@@ -30,6 +31,7 @@ interface EditGroupModalProps {
  * Component is self-contained with React Query data fetching.
  */
 export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, submitRoute = cancelRoute, group: propGroup, onClose }) => {
+  const intl = useIntl();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
 
@@ -85,7 +87,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
               message: 'Group name must start with alphanumeric character and can contain alphanumeric characters, spaces, hyphens, and underscores',
             },
             // Pass current group UUID to validator to exclude it from "already taken" check
-            (value: string) => debouncedAsyncValidator(value, 'uuid', group?.uuid),
+            (value: string) => debouncedAsyncValidator(intl, value, 'uuid', group?.uuid),
           ],
         },
         {
@@ -98,7 +100,10 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
         },
       ],
     }),
-    [group?.uuid],
+    // `intl` must be a dependency: the async validator closure captures it, and
+    // IntlMessagesProvider resolves the localized catalog after mount — without
+    // this, validation errors render with the stale (English) intl.
+    [group?.uuid, intl],
   );
 
   const onCancel = () => {

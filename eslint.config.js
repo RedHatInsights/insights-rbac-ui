@@ -15,6 +15,7 @@ const { restrictedImportPaths: storyPaths } = experienceUiPlugin.configs.stories
 const { restrictedImportPaths: dataLayerPaths, restrictedImportPatterns: dataLayerPatterns } = experienceUiPlugin.configs['data-layer'];
 const noDirectGetUser = require('./eslint-rules/no-direct-get-user');
 const noCrossVersionImports = require('./eslint-rules/no-cross-version-imports');
+const noInlineMessageDescriptors = require('./eslint-rules/no-inline-message-descriptors');
 
 module.exports = defineConfig(
   fecPlugin,
@@ -44,7 +45,7 @@ module.exports = defineConfig(
     },
   },
   {
-    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    files: ['src/**/*.{js,jsx,ts,tsx}'],
     ignores: ['src/test/**'],
     plugins: {
       'experience-ui': experienceUiPlugin,
@@ -52,6 +53,7 @@ module.exports = defineConfig(
         rules: {
           'no-direct-get-user': noDirectGetUser,
           'no-cross-version-imports': noCrossVersionImports,
+          'no-inline-message-descriptors': noInlineMessageDescriptors,
         },
       },
     },
@@ -151,6 +153,26 @@ module.exports = defineConfig(
           message: 'Do not use window.location.href. Use useExternalLink().navigate() for external navigation.',
         },
       ],
+    },
+  },
+  {
+    // i18n: message descriptors must live in src/Messages.js so that formatjs
+    // extraction, Phrase, and the Storybook translation tooling can see them.
+    // Stories/tests/user journeys build ad-hoc catalogs by design and are exempt.
+    files: ['src/**/*.{js,jsx,ts,tsx}'],
+    ignores: [
+      'src/Messages.js',
+      'src/**/*.stories.{js,jsx,ts,tsx}',
+      'src/**/*.test.{js,jsx,ts,tsx}',
+      'src/**/*.spec.{js,jsx,ts,tsx}',
+      'src/**/__tests__/**',
+      'src/test/**',
+      'src/test-utils/**',
+      'src/user-journeys/**',
+      'src/cli/**',
+    ],
+    rules: {
+      'rbac-local/no-inline-message-descriptors': 'error',
     },
   },
   // V1: ban imports from V2
@@ -283,10 +305,7 @@ module.exports = defineConfig(
       'no-restricted-imports': [
         'error',
         {
-          paths: [
-            ...governancePaths,
-            ...storyPaths,
-          ],
+          paths: [...governancePaths, ...storyPaths],
           patterns: [
             {
               group: [
@@ -473,14 +492,13 @@ module.exports = defineConfig(
       'no-restricted-imports': [
         'error',
         {
-          paths: [
-            ...dataLayerPaths,
-          ],
+          paths: [...dataLayerPaths],
           patterns: [
             ...dataLayerPatterns,
             {
               group: ['**/hooks/usePlatformAuth', '**/hooks/usePlatformEnvironment', '**/hooks/useIdentity'],
-              message: 'Data layer hooks must not import platform hooks directly. Use useAppServices() fields (getToken, environment, identity) from ServiceContext instead.',
+              message:
+                'Data layer hooks must not import platform hooks directly. Use useAppServices() fields (getToken, environment, identity) from ServiceContext instead.',
             },
           ],
         },
