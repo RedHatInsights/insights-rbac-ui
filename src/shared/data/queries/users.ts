@@ -355,7 +355,7 @@ export function useInviteUsersMutation(options?: MutationOptions) {
   const { getToken, environment, identity, isITLess } = useAppServices();
 
   return useMutation({
-    mutationFn: async ({ emails, isAdmin, portal_manage_cases, portal_download, portal_manage_subscriptions }: InviteUsersParams) => {
+    mutationFn: async ({ emails, isAdmin, portal_manage_cases, portal_download }: InviteUsersParams) => {
       const token = await getToken();
       if (!token) {
         throw new Error('Auth token is required for invite users mutation.');
@@ -364,6 +364,13 @@ export function useInviteUsersMutation(options?: MutationOptions) {
       const accountId = identity?.org_id ?? null;
 
       if (accountId && !isITLess) {
+        // The IT Account API models portal permissions as a flat array of permission-code
+        // STRINGS (e.g. ["portal_manage_cases"]), the same shape the GET detail / update-details
+        // endpoints use. Sending them as top-level boolean fields (portal_manage_cases: true)
+        // makes the DTO reject the body with 400 "Failed to read request" — see the matching
+        // note on useToggleManageSupportCasesMutation below.
+        const permissions = [...(portal_manage_cases ? [PORTAL_MANAGE_CASES] : []), ...(portal_download ? ['portal_download'] : [])];
+
         const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/invite`;
         const response = await fetch(url, {
           method: 'POST',
@@ -371,9 +378,7 @@ export function useInviteUsersMutation(options?: MutationOptions) {
             emails,
             localeCode: 'en',
             ...(isAdmin && { roles: ['organization_administrator'] }),
-            ...(portal_manage_cases !== undefined && { portal_manage_cases }),
-            ...(portal_download !== undefined && { portal_download }),
-            ...(portal_manage_subscriptions && { portal_manage_subscriptions }),
+            ...(permissions.length > 0 && { permissions }),
           }),
           headers: {
             'Content-Type': 'application/json',

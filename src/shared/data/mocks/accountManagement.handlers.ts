@@ -85,8 +85,14 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
   return [
     http.post(/api\.access\.(stage\.)?redhat\.com.*\/users\/invite/, async ({ request }) => {
       await delay(networkDelay);
-      const body = await request.json();
+      const body = (await request.json()) as Record<string, unknown>;
       options.onInvite?.(request, body);
+
+      const allowedKeys = new Set(['emails', 'localeCode', 'roles', 'permissions']);
+      const unexpectedKey = Object.keys(body).find((key) => !allowedKeys.has(key));
+      if (unexpectedKey) {
+        return HttpResponse.json({ type: 'about:blank', title: 'Bad Request', status: 400, detail: 'Failed to read request' }, { status: 400 });
+      }
       return HttpResponse.json({ success: true });
     }),
 
@@ -199,6 +205,16 @@ export function accountManagementErrorHandlers(status: number = 500) {
     http.get(/account\/v1\/accounts\/.+\/users\/[^/]+$/, () => HttpResponse.json(body, { status })),
     http.post(/account\/v1\/accounts\/.+\/users\/[^/]+$/, () => HttpResponse.json(body, { status })),
   ];
+}
+
+/**
+ * Only the invite POST fails; every other account endpoint is left to succeeding
+ * handlers. List this BEFORE the success handlers so the failing invite wins while the
+ * users list (and its support-cases column) still loads normally.
+ */
+export function inviteErrorHandlers(status: number = 500) {
+  const body = { error: 'Error' };
+  return [http.post(/api\.access\.(stage\.)?redhat\.com.*\/users\/invite/, () => HttpResponse.json(body, { status }))];
 }
 
 /**

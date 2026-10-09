@@ -31,13 +31,12 @@ export default defineMessages({
   inviteUsersFormManageSupportCasesFieldTitle: {
     id: 'inviteUsersFormManageSupportCasesFieldTitle',
     description: 'Invite users form manage support cases field title',
-    defaultMessage: 'Organization administrators',
+    defaultMessage: 'Manage support cases',
   },
   inviteUsersFormManageSupportCasesFieldDescription: {
     id: 'inviteUsersFormManageSupportCasesFieldDescription',
     description: 'Invite users form manage support cases field description',
-    defaultMessage:
-      'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+    defaultMessage: 'User can create and manage support cases for your organization on the Red Hat Customer Portal.',
   },
   inviteUsersFormDownloadSoftwareUpdatesFieldTitle: {
     id: 'inviteUsersFormDownloadSoftwareUpdatesFieldTitle',
