@@ -8,26 +8,37 @@ interface SupportCasesToggleProps {
   username: string;
   isDisabled?: boolean;
   isActive?: boolean;
+  /** Bulk permissions fetch in progress — show a spinner. */
+  isPermissionsLoading?: boolean;
+  /** Bulk permissions fetch failed — disable the toggle. */
+  isPermissionsError?: boolean;
 }
 
 /**
  * Toggle switch for managing the `portal_manage_cases` permission.
- * Fetches the current permission state from the account API and
- * toggles it via POST on change.
+ * Reads the permission cache-only (the list page bulk-fetches it via `useAccountUsersPermissionsQuery`);
+ * toggling is a read-modify-write POST against the same cache entry.
  *
  * Hidden in ITLess environments (caller is responsible for not rendering).
  * Disabled when the viewer is not an org admin, or the target user is inactive.
  */
-export const SupportCasesToggle: React.FC<SupportCasesToggleProps> = ({ userId, username, isDisabled = false, isActive = true }) => {
-  const { data: accountDetail, isLoading: isQueryLoading, isError } = useAccountUserDetailQuery(userId);
+export const SupportCasesToggle: React.FC<SupportCasesToggleProps> = ({
+  userId,
+  username,
+  isDisabled = false,
+  isActive = true,
+  isPermissionsLoading = false,
+  isPermissionsError = false,
+}) => {
+  const { data: accountDetail } = useAccountUserDetailQuery(userId, { enabled: false });
   const toggleMutation = useToggleManageSupportCasesMutation();
 
   const hasPermission = accountDetail?.permissions?.includes(PORTAL_MANAGE_CASES) ?? false;
 
   // Disable unless we have the account detail to read from: the toggle is a read-modify-write
-  // against the cached permissions array, so acting without it (query errored, or no data yet)
-  // would POST an array built from an empty base and clobber the user's real permissions.
-  const isToggleDisabled = isDisabled || !isActive || !userId || isError || !accountDetail || toggleMutation.isPending;
+  // against the cached permissions array, so acting without it (bulk fetch errored, or no data
+  // yet) would POST an array built from an empty base and clobber the user's real permissions.
+  const isToggleDisabled = isDisabled || !isActive || !userId || isPermissionsError || !accountDetail || toggleMutation.isPending;
 
   const handleChange = (_event: React.FormEvent<HTMLInputElement>, checked: boolean) => {
     if (isToggleDisabled) return;
@@ -38,7 +49,7 @@ export const SupportCasesToggle: React.FC<SupportCasesToggleProps> = ({ userId, 
     toggleMutation.mutate({ userId, grant: checked });
   };
 
-  if (isQueryLoading) {
+  if (isPermissionsLoading) {
     return <Spinner size="md" aria-label={`Loading support cases permission for ${username}`} />;
   }
 

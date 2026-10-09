@@ -53,6 +53,30 @@ interface UpdateUserBody {
   permissions?: string[];
 }
 
+interface SearchUsersBody {
+  by?: { ids?: Array<string | number>; logins?: string[] };
+}
+
+/** Build the POST users/search response: one `{ user, permissions }` entry per requested id. */
+async function buildUsersSearchResponse(options: AccountManagementHandlerOptions, request: Request) {
+  const body = (await request.json().catch(() => ({}))) as SearchUsersBody;
+  const ids = (body.by?.ids ?? []).map((id) => String(id));
+
+  const result = ids.map((id) => {
+    const user = options.users?.all().find((u) => String(u.external_source_id) === id);
+    return {
+      user: {
+        id,
+        username: user?.username ?? `user-${id}`,
+        roles: user?.is_org_admin ? ['organization_administrator'] : [],
+      },
+      permissions: options.userPermissions?.get(id) ?? [],
+    };
+  });
+
+  return HttpResponse.json({ body: result });
+}
+
 /**
  * Apply a POST toggle of the portal_manage_cases permission on the account/v1 endpoint.
  * The write sends the updated `permissions` array; grant/revoke is derived from whether
@@ -88,6 +112,18 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
       const body = await request.json();
       options.onInvite?.(request, body);
       return HttpResponse.json({ success: true });
+    }),
+
+    // Bulk search — must precede the `/users/:userId` handlers, which would match `search` as a userId.
+    ...['https://api.access.stage.redhat.com', 'https://api.access.redhat.com'].map((baseUrl) =>
+      http.post(`${baseUrl}/account/v1/accounts/:accountId/users/search`, async ({ request }) => {
+        await delay(networkDelay);
+        return buildUsersSearchResponse(options, request);
+      }),
+    ),
+    http.post(/account\/v1\/accounts\/[^/]+\/users\/search$/, async ({ request }) => {
+      await delay(networkDelay);
+      return buildUsersSearchResponse(options, request);
     }),
 
     http.post('https://api.access.redhat.com/account/v1/accounts/:accountId/users/:userId/status', async ({ params, request }) => {
@@ -208,7 +244,8 @@ export function accountManagementErrorHandlers(status: number = 500) {
  */
 export function supportCasesTogglePostErrorHandlers(status: number = 500) {
   const body = { error: 'Error' };
-  return [http.post(/account\/v1\/accounts\/[^/]+\/users\/[^/]+$/, () => HttpResponse.json(body, { status }))];
+  // Negative lookahead excludes `/users/search` so only the toggle POST fails, not the bulk fetch.
+  return [http.post(/account\/v1\/accounts\/[^/]+\/users\/(?!search$)[^/]+$/, () => HttpResponse.json(body, { status }))];
 }
 
 /** All account management endpoints delay forever (loading state) */
