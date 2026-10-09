@@ -24,18 +24,15 @@
 
 import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { IntlProvider } from 'react-intl';
 import { createStandaloneQueryClient } from '../shared/components/QueryClientSetup';
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
 import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
-import messages from '../locales/data.json';
+import { IntlMessagesProvider } from '../shared/i18n';
 import {
   CreateWorkspaceWizard as CreateWorkspaceWizardInner,
   CreateWorkspaceWizardProps,
 } from '../v2/features/workspaces/create-workspace/CreateWorkspaceWizard';
-
-export const locale = 'en';
 
 // Create a standalone query client for the module
 const moduleQueryClient = createStandaloneQueryClient();
@@ -50,19 +47,23 @@ const moduleServices: AppServices = {
   ssoUrl: '',
   identity: undefined,
   isITLess: false,
+  locale: 'en',
 };
 
-const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = (props) => {
+type FederatedCreateWorkspaceWizardProps = CreateWorkspaceWizardProps & { locale?: string };
+
+const CreateWorkspaceWizard: React.FunctionComponent<FederatedCreateWorkspaceWizardProps> = ({ locale = 'en', ...props }) => {
+  const services = { ...moduleServices, locale };
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
-      <ServiceProvider value={moduleServices}>
+    <IntlMessagesProvider locale={locale}>
+      <ServiceProvider value={services}>
         <QueryClientProvider client={moduleQueryClient}>
           <CreateWorkspaceWizardInner {...props} />
         </QueryClientProvider>
       </ServiceProvider>
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };
 
 export default CreateWorkspaceWizard;
-export type { CreateWorkspaceWizardProps };
+export type { FederatedCreateWorkspaceWizardProps as CreateWorkspaceWizardProps };

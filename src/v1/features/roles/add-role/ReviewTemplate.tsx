@@ -20,7 +20,7 @@ const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
   const { getState } = useFormApi();
   useEffect(() => {
     setWizardError?.(undefined);
-    asyncValidator(getState().values['role-name'])
+    asyncValidator(intl, getState().values['role-name'])
       .then(() => setWizardError?.(false))
       .catch(() => setWizardError?.(true));
   }, []);

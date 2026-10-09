@@ -19,19 +19,18 @@
  */
 
 import React from 'react';
-import { IntlProvider } from 'react-intl';
-import messages from '../locales/data.json';
+import { IntlMessagesProvider } from '../shared/i18n';
 import { ConversionOptInBanner as ConversionOptInBannerInner, ConversionOptInBannerProps } from '../v1/components/ConversionOptInBanner';
 
-export const locale = 'en';
+type FederatedConversionOptInBannerProps = ConversionOptInBannerProps & { locale?: string };
 
-const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = (props) => {
+const ConversionOptInBanner: React.FC<FederatedConversionOptInBannerProps> = ({ locale = 'en', ...props }) => {
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlMessagesProvider locale={locale}>
       <ConversionOptInBannerInner {...props} />
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };
 
 export default ConversionOptInBanner;
-export type { ConversionOptInBannerProps };
+export type { FederatedConversionOptInBannerProps as ConversionOptInBannerProps };

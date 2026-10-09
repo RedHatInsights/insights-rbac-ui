@@ -3,9 +3,9 @@ const fs = require('fs');
 const { sync: globSync } = require('glob');
 const last = require('lodash/last');
 
-let LANG_DIR = '/src/locales/';
+let LANG_DIR = '/messages/';
 let LANG_PATTERN = '';
-let IGNORED = ['data'];
+let IGNORED = [];
 
 program
   .option('-p, --pattern <value>', 'file pattern')

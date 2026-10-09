@@ -96,6 +96,7 @@ export interface BrowserServicesConfig {
   ssoUrl: string;
   identity: AppIdentity | undefined;
   isITLess: boolean;
+  locale: string;
 }
 
 /**
@@ -125,6 +126,7 @@ export function createBrowserServices(config: BrowserServicesConfig): AppService
     ssoUrl: config.ssoUrl,
     identity: config.identity,
     isITLess: config.isITLess,
+    locale: config.locale,
   };
 }
 

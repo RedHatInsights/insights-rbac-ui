@@ -5,9 +5,7 @@ import { DEFAULT_GROUPS } from '../../data/mocks/seed';
 import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.handlers';
 import { MemoryRouter } from 'react-router-dom';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { IntlProvider } from 'react-intl';
-import messages from '../../../locales/data.json';
-import { locale } from '../../../locales/locale';
+import { IntlMessagesProvider } from '../../i18n';
 import { ApiErrorBoundary } from './ApiErrorBoundary';
 import { useGroupsQuery } from '../../data/queries/groups';
 
@@ -262,7 +260,7 @@ export const Visual403State: Story = {
     const { AppLink } = require('../navigation/AppLink');
 
     return (
-      <IntlProvider locale={locale} messages={messages[locale]}>
+      <IntlMessagesProvider locale="en">
         <MemoryRouter>
           <div style={{ padding: '20px' }}>
             <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>
@@ -286,7 +284,7 @@ export const Visual403State: Story = {
             />
           </div>
         </MemoryRouter>
-      </IntlProvider>
+      </IntlMessagesProvider>
     );
   },
 };
@@ -306,7 +304,7 @@ export const Visual500State: Story = {
     const UnavailableContent = require('@patternfly/react-component-groups/dist/dynamic/UnavailableContent').default;
 
     return (
-      <IntlProvider locale={locale} messages={messages[locale]}>
+      <IntlMessagesProvider locale="en">
         <MemoryRouter>
           <div style={{ padding: '20px' }}>
             <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>
@@ -320,7 +318,7 @@ export const Visual500State: Story = {
             />
           </div>
         </MemoryRouter>
-      </IntlProvider>
+      </IntlMessagesProvider>
     );
   },
 };

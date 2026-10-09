@@ -2,9 +2,7 @@ import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
-import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
-import providerMessages from '../../../../locales/data.json';
-import { locale } from '../../../../locales/locale';
+import { FormattedMessage, type IntlShape } from 'react-intl';
 import messages from '../../../../Messages';
 import InputHelpPopover from '../../../../shared/components/forms/InputHelpPopover';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
@@ -51,10 +49,7 @@ export interface CreateWorkspaceFormValues {
  * @param existingWorkspaceNames - List of existing workspace names for duplicate validation
  * @param skipParentStep - When true, omits the parent selection step (parent is pre-set by caller)
  */
-export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
-
+export const schemaBuilder = (intl: IntlShape, enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
   return {
     fields: [
       {
