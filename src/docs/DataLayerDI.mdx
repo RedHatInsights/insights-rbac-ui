@@ -116,7 +116,7 @@ These imports are **banned in all `src/**/data/queries/**/*.ts` files** via `no-
 Each environment creates its `AppServices` once at the app shell level:
 
 - **Browser:** `src/shared/entry/browser.tsx` → `createBrowserServices(...)` wires Chrome + Unleash values
-- **CLI:** `src/cli/api-client.ts` → `createCliServices(...)` wires cached token + env config
+- **CLI:** `src/cli/api-client.ts` → `createCliServices(...)` wires cached token + env config (locale via `RBAC_LOCALE`)
 - **Storybook:** `.storybook/context-providers.tsx` → mock services with spies
 
 ---

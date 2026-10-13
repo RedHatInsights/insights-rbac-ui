@@ -251,5 +251,8 @@ export function createCliServices(axiosInstance: AxiosInstance): AppServices {
     ssoUrl: '',
     identity: undefined,
     isITLess: false,
+    // Mirrors the AppServices.locale contract (src/shared/services/types.ts):
+    // CLI reads the RBAC_LOCALE env var (BCP-47) and falls back to 'en'.
+    locale: process.env.RBAC_LOCALE ?? 'en',
   };
 }

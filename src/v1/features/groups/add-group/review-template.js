@@ -28,7 +28,7 @@ const ReviewTemplate = ({ formFields }) => {
   useEffect(() => {
     setWizardError(undefined);
     const groupName = getState().values['group-name'];
-    asyncValidator(groupName, 'uuid')
+    asyncValidator(intl, groupName, 'uuid')
       .then(() => setWizardError(false))
       .catch(() => setWizardError(true));
   }, []);

@@ -1,6 +1,7 @@
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import messages from '../../../../../Messages';
 import { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import { WorkspaceTreeView } from './components/WorkspaceTreeView';
 import buildWorkspaceTree from './WorkspaceTreeBuilder';
@@ -99,14 +100,7 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
   // Tooltip message shown on hover over disabled workspace tree items
   const disabledTooltip = React.useMemo(() => {
     if (!requiredPermission) return undefined;
-    return intl.formatMessage(
-      {
-        id: 'workspaceSelectorDisabledTooltip',
-        description: 'Tooltip shown on disabled workspace tree items when the user lacks the required permission',
-        defaultMessage: 'You do not have {permission} permission on this workspace',
-      },
-      { permission: requiredPermission },
-    );
+    return intl.formatMessage(messages.workspaceSelectorDisabledTooltip, { permission: requiredPermission });
   }, [requiredPermission, intl]);
 
   // Build workspace tree from flat list, excluding source workspace if provided

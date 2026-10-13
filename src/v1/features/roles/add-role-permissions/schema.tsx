@@ -2,12 +2,10 @@ import React from 'react';
 import AddPermissionTemplate from '../add-role/AddPermissionTemplate';
 import ReviewTemplate from './ReviewTemplate';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
-import { createIntl, createIntlCache } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 import messages from '../../../../Messages';
-import providerMessages from '../../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from '../add-role/InventoryGroupsRoleTemplate';
-import { locale } from '../../../../locales/locale';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 
 interface FormValues {
@@ -15,10 +13,7 @@ interface FormValues {
   [key: string]: unknown;
 }
 
-export const schemaBuilder = (featureFlag: boolean) => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
-
+export const schemaBuilder = (intl: IntlShape, featureFlag: boolean) => {
   return {
     fields: [
       {

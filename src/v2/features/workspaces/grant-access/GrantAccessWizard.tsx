@@ -3,6 +3,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import React from 'react';
+import { useIntl } from 'react-intl';
 
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
@@ -36,6 +37,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
   afterSubmit,
   onCancel,
 }) => {
+  const intl = useIntl();
   const navigate = useAppNavigate();
   const batchCreateMutation = useGrantAccessMutation();
 
@@ -61,7 +63,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
 
   return (
     <FormRenderer
-      schema={schemaBuilder(workspaceName, workspaceId, resourceType)}
+      schema={schemaBuilder(intl, workspaceName, workspaceId, resourceType)}
       componentMapper={customComponentMapper}
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}

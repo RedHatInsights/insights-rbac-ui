@@ -1,11 +1,10 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { createStore } from '@redhat-cloud-services/frontend-components-notifications/state';
 
-import messages from './locales/data.json';
-import { locale } from './locales/locale';
+import { IntlMessagesProvider } from './shared/i18n';
+import { useChromeLocale } from './shared/hooks/useChromeLocale';
 import { ApiErrorProvider } from './shared/contexts/ApiErrorContext';
 import { QueryClientSetup } from './shared/components/QueryClientSetup';
 import ApiErrorBoundary from './shared/components/ui-states/ApiErrorBoundary';
@@ -30,7 +29,7 @@ export interface IamProps {
  * Wires all Chrome/Unleash values into ServiceProvider so data layer hooks
  * can access them via useAppServices() without importing platform hooks.
  */
-const SharedProviders: React.FC<IamProps & { children: React.ReactNode }> = ({ testMode, children }) => {
+const SharedProviders: React.FC<IamProps & { locale: string; children: React.ReactNode }> = ({ testMode, locale, children }) => {
   const addNotification = useAddNotification() as AddNotificationFn;
   const { getToken } = usePlatformAuth();
   const { environment, ssoUrl } = usePlatformEnvironment();
@@ -44,6 +43,7 @@ const SharedProviders: React.FC<IamProps & { children: React.ReactNode }> = ({ t
     ssoUrl,
     identity: identity ? { org_id: identity.org_id, account_id: identity.internal?.account_id } : undefined,
     isITLess,
+    locale,
   });
 
   return (
@@ -69,12 +69,14 @@ const VersionRouter: React.FC = () => {
  * Main application entry point for IAM.
  *
  * Provider hierarchy:
- * - IntlProvider (i18n)
+ * - IntlMessagesProvider (i18n — async locale loading)
  * - NotificationsProvider (toast notifications)
  * - SharedProviders (error handling, services, query client)
  * - VersionRouter → IamV1 or IamV2
  */
 export const Iam: React.FC<IamProps> = ({ testMode = false }) => {
+  const locale = useChromeLocale();
+
   const notificationStore = React.useMemo(() => {
     const store = createStore();
     const originalAdd = store.addNotification.bind(store);
@@ -83,12 +85,12 @@ export const Iam: React.FC<IamProps> = ({ testMode = false }) => {
   }, []);
 
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlMessagesProvider locale={locale}>
       <NotificationsProvider store={notificationStore}>
-        <SharedProviders testMode={testMode}>
+        <SharedProviders testMode={testMode} locale={locale}>
           <VersionRouter />
         </SharedProviders>
       </NotificationsProvider>
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };

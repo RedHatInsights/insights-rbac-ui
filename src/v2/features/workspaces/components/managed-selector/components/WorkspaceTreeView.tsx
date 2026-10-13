@@ -1,5 +1,6 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
+import messages from '../../../../../../Messages';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
@@ -91,17 +92,7 @@ export const WorkspaceTreeView: React.FC<WorkspaceTreeViewProps> = ({
   }, [treeElements, disabledIds, disabledTooltip, disabledTooltipOverrides]);
 
   if (isError) {
-    return (
-      <Alert
-        data-testid="workspace-load-error"
-        variant={AlertVariant.danger}
-        title={intl.formatMessage({
-          id: 'workspaceTreeViewError',
-          description: 'Error loading workspaces in tree view',
-          defaultMessage: 'Failed to load workspaces',
-        })}
-      />
-    );
+    return <Alert data-testid="workspace-load-error" variant={AlertVariant.danger} title={intl.formatMessage(messages.workspaceTreeViewError)} />;
   }
 
   if (isLoading) {
@@ -128,16 +119,8 @@ export const WorkspaceTreeView: React.FC<WorkspaceTreeViewProps> = ({
   return (
     <p data-testid="workspace-empty-message">
       {areElementsFiltered
-        ? intl.formatMessage({
-            id: 'workspaceTreeViewNoSearchResults',
-            description: 'Message when no workspaces match search',
-            defaultMessage: 'No workspaces match your search.',
-          })
-        : intl.formatMessage({
-            id: 'workspaceTreeViewNoWorkspaces',
-            description: 'Message when no workspaces are available',
-            defaultMessage: 'No workspaces to show.',
-          })}
+        ? intl.formatMessage(messages.workspaceTreeViewNoSearchResults)
+        : intl.formatMessage(messages.workspaceTreeViewNoWorkspaces)}
     </p>
   );
 };
