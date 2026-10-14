@@ -4,7 +4,8 @@ import { ModalFormTemplate } from '../../../../shared/components/forms/ModalForm
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
 import AccordionCheckbox from '../../../../shared/components/expandable-checkbox';
 import InlineError from '../../../../shared/components/ui-states/InlineError';
 import { useCommonAuthModel } from '../../../../capabilities/useCommonAuthModel';
@@ -19,6 +20,16 @@ const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view_edit_all';
 
 const ExpandableCheckboxComponent = 'expandable-checkbox';
 const InlineErrorComponent = 'inline-error';
+
+/** Component mapper with literal keys; `InviteUsersSchema` validates the schema below. */
+const inviteUsersMapper = {
+  ...pf4Components,
+  [InlineErrorComponent]: InlineError,
+  [ExpandableCheckboxComponent]: AccordionCheckbox,
+};
+
+type InviteUsersSchema = Schema<typeof inviteUsersMapper>;
+
 const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type SubmitValues = {
@@ -87,7 +98,7 @@ const InviteUsers = () => {
     }
   };
   const intl = useIntl();
-  const schema = React.useMemo(
+  const schema = React.useMemo<InviteUsersSchema>(
     () => ({
       description: intl.formatMessage(messages.inviteUsersDescription),
       fields: [
@@ -172,11 +183,7 @@ const InviteUsers = () => {
   return (
     <FormRenderer
       schema={schema}
-      componentMapper={{
-        ...componentMapper,
-        [InlineErrorComponent]: InlineError,
-        [ExpandableCheckboxComponent]: AccordionCheckbox,
-      }}
+      componentMapper={inviteUsersMapper}
       onCancel={onCancel}
       onSubmit={onSubmit}
       FormTemplate={(props) => (

@@ -18,11 +18,13 @@ export interface WizardStep {
  * Runtime contract of a ddf wizard field.
  *
  * ddf's own `WizardFunctionProps` declares `fields: Field[]`, where `Field`
- * requires a `component` string. Since the wizard is step-based by design and
- * steps are not components, no wizard schema can satisfy that declaration —
- * it is a bug in the library's types, not a constraint worth preserving. This
- * interface records what the wizard actually accepts at runtime: a list of
- * named steps plus ddf's index-signature-loose props.
+ * requires a `component` string — but the library contradicts that declaration
+ * everywhere else: the runtime schema validator explicitly exempts wizard
+ * (and tabs) children from the `component` requirement, the wizard
+ * implementation consumes steps as `{ name, title, fields, nextStep,
+ * StepTemplate }`, and `WizardContextValue` types steps without `component`.
+ * This interface records what the wizard actually accepts at runtime: a list
+ * of named steps plus ddf's index-signature-loose props.
  *
  * The cast below exists solely to install this corrected contract in the
  * mapper; when the typing is fixed upstream (data-driven-forms/react-forms),
