@@ -7,11 +7,10 @@ import { IntlProvider } from 'react-intl';
 import { BrowserRouter } from 'react-router-dom';
 import { ConversionCompleteStep } from './ConversionCompleteStep';
 
-const mockNavigate = vi.fn();
+// Conversion sends the user to V2 with a full page load, not a client-side navigation.
+const mockAssign = vi.fn();
 
-vi.mock('../../../../shared/hooks/useAppNavigate', () => ({
-  default: () => mockNavigate,
-}));
+vi.stubGlobal('location', { ...window.location, assign: mockAssign });
 
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <IntlProvider locale="en">
@@ -21,7 +20,7 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 describe('ConversionCompleteStep', () => {
   beforeEach(() => {
-    mockNavigate.mockClear();
+    mockAssign.mockClear();
   });
 
   it('shows loading spinner when isLoading is true', () => {
@@ -45,14 +44,14 @@ describe('ConversionCompleteStep', () => {
     expect(button).toBeInTheDocument();
   });
 
-  it('navigates to overview page when dashboard button is clicked', async () => {
+  it('reloads onto the V2 overview page when dashboard button is clicked', async () => {
     const user = userEvent.setup();
     render(<ConversionCompleteStep isLoading={false} />, { wrapper: Wrapper });
 
     const button = screen.getByRole('button', { name: /go to access management dashboard/i });
     await user.click(button);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/user-access/overview');
+    expect(mockAssign).toHaveBeenCalledWith('/iam/overview');
   });
 
   it('shows external link to getting started guide', () => {

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 import { type TenantOptInResponse, createTenantApi } from '../api/tenant';
 import { useAppServices } from '../../contexts/ServiceContext';
 
@@ -20,6 +21,18 @@ export const tenantKeys = {
 const NOT_OPTED_IN: TenantOptInResponse = { v2_opted_in: false };
 
 /**
+ * A 403 or 404 is this endpoint telling us it will not answer for this user, which is as
+ * definitive as a `false`. Anything else (network failure, 5xx, timeout) might succeed if
+ * asked again, and is worth one retry: reporting "not opted in" for a tenant that has in fact
+ * converted routes them into V1, where conversion has already stopped the V1 access API from
+ * answering, so every page denies them.
+ */
+const isDefinitiveRefusal = (error: unknown): boolean => {
+  const status = (error as AxiosError | undefined)?.response?.status;
+  return status === 403 || status === 404;
+};
+
+/**
  * Whether the tenant has converted to V2.
  *
  * Failures are swallowed rather than thrown. The app shell calls this to pick which version
@@ -35,11 +48,23 @@ export function useTenantOptInStatusQuery(options?: { enabled?: boolean }) {
   return useQuery<TenantOptInResponse>({
     queryKey: tenantKeys.optInStatus(),
     queryFn: async () => {
+      const api = createTenantApi(axios);
+
       try {
-        return await createTenantApi(axios).getOptInStatus();
+        return await api.getOptInStatus();
       } catch (error) {
-        console.error('Failed to read tenant opt-in status; assuming not opted in:', error);
-        return NOT_OPTED_IN;
+        if (isDefinitiveRefusal(error)) {
+          return NOT_OPTED_IN;
+        }
+
+        // Retried here rather than through the client's `retry` option: that only runs when the
+        // query rejects, and rejecting would reach `QueryCache.onError` and blank the app.
+        try {
+          return await api.getOptInStatus();
+        } catch (retryError) {
+          console.error('Failed to read tenant opt-in status; assuming not opted in:', retryError);
+          return NOT_OPTED_IN;
+        }
       }
     },
     enabled: options?.enabled ?? true,

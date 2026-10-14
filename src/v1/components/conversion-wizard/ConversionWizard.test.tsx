@@ -8,11 +8,10 @@ import { MemoryRouter } from 'react-router-dom';
 import { ConversionWizard } from './ConversionWizard';
 import { tenantApi } from '../../../shared/data/api/tenant';
 
-const mockNavigate = vi.fn();
+// Conversion sends the user to V2 with a full page load, not a client-side navigation.
+const mockAssign = vi.fn();
 
-vi.mock('../../../shared/hooks/useAppNavigate', () => ({
-  default: () => mockNavigate,
-}));
+vi.stubGlobal('location', { ...window.location, assign: mockAssign });
 
 vi.mock('../../../shared/data/api/tenant', () => ({
   tenantApi: {
@@ -94,7 +93,7 @@ describe('ConversionWizard', () => {
     expect(modalBox.contains(screen.getByRole('button', { name: /go to access management dashboard/i }))).toBe(true);
   }, 20000);
 
-  it('calls onSuccess and navigates when the dashboard button is clicked', async () => {
+  it('calls onSuccess and reloads onto the V2 overview when the dashboard button is clicked', async () => {
     const user = userEvent.setup();
     const onSuccess = vi.fn();
     renderWizard({ onSuccess });
@@ -105,7 +104,7 @@ describe('ConversionWizard', () => {
     await user.click(screen.getByRole('button', { name: /go to access management dashboard/i }));
 
     expect(onSuccess).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith('/user-access/overview');
+    expect(mockAssign).toHaveBeenCalledWith('/iam/overview');
   }, 20000);
 
   it('checks eligibility before opting in', async () => {

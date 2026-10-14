@@ -6,9 +6,15 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import { useIntl } from 'react-intl';
 import CheckCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/check-circle-icon';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
-import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
+import { mergeToBasename } from '../../../../shared/hooks/useAppLink';
 import messages from '../../../../Messages';
-import pathnames from '../../../utilities/pathnames';
+
+/**
+ * Where the user lands after converting. V2 serves its overview from `/overview`, while the V1
+ * page this wizard is launched from lives at `/user-access/overview`; this screen only renders
+ * after a successful conversion, so V2's path is the correct target.
+ */
+const POST_CONVERSION_OVERVIEW = mergeToBasename('/overview') as string;
 
 export interface ConversionCompleteStepProps {
   /** Whether the API call is still in progress */
@@ -24,14 +30,13 @@ export interface ConversionCompleteStepProps {
  */
 export const ConversionCompleteStep: React.FC<ConversionCompleteStepProps> = ({ isLoading = false, onComplete }) => {
   const intl = useIntl();
-  const navigate = useAppNavigate();
 
   if (isLoading) {
     return (
       <div className="pf-v6-u-text-align-center pf-v6-u-p-xl">
-        <Spinner size="xl" aria-label="Converting organization" />
+        <Spinner size="xl" aria-label={intl.formatMessage(messages.conversionWizardConvertingLabel)} />
         <Content component="p" className="pf-v6-u-mt-md">
-          Converting your organization...
+          {intl.formatMessage(messages.conversionWizardConvertingMessage)}
         </Content>
       </div>
     );
@@ -42,8 +47,11 @@ export const ConversionCompleteStep: React.FC<ConversionCompleteStepProps> = ({ 
     if (onComplete) {
       onComplete();
     }
-    // Navigate to the overview page
-    navigate(pathnames.overview.link());
+    // A full page load rather than a client-side navigation. Conversion decides which version
+    // of the app the shell renders, and both sides of that decision are cached for the lifetime
+    // of the page: the opt-in query here, and Chrome's memoized `isKesselOrgOnboarded` behind
+    // the navigation. Reloading re-runs both, so the user gets V2 pages and V2 nav together.
+    window.location.assign(POST_CONVERSION_OVERVIEW);
   };
 
   return (

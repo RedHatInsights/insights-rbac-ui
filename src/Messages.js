@@ -4125,6 +4125,16 @@ export default defineMessages({
     description: 'Aria label for checklist information button',
     defaultMessage: 'More info for checklist',
   },
+  conversionWizardConvertingLabel: {
+    id: 'conversionWizardConvertingLabel',
+    description: 'Accessible label for the spinner shown while the conversion request is in flight',
+    defaultMessage: 'Converting organization',
+  },
+  conversionWizardConvertingMessage: {
+    id: 'conversionWizardConvertingMessage',
+    description: 'Text shown while the conversion request is in flight',
+    defaultMessage: 'Converting your organization...',
+  },
   conversionWizardCompleteTitle: {
     id: 'conversionWizardCompleteTitle',
     description: 'Conversion complete success title',
@@ -4154,7 +4164,7 @@ export default defineMessages({
     id: 'conversionWizardFailedMessage',
     description: 'Conversion failed message',
     defaultMessage:
-      'Conversion to workspace-based access management is failed due to an error. Check the troubleshooting documentation or contact support for help.',
+      'Conversion to workspace-based access management failed due to an error. Check the troubleshooting documentation or contact support for help.',
   },
   conversionWizardFailedButton: {
     id: 'conversionWizardFailedButton',
