@@ -8,7 +8,7 @@
 
 import { useMemo } from 'react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
-import type { NotEmptyArray, SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
+import type { SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
 import { useIdentity } from '../../shared/hooks/useIdentity';
 import { useOrganizationData } from './useOrganizationData';
 
@@ -17,6 +17,10 @@ import { useOrganizationData } from './useOrganizationData';
 // ============================================================================
 
 const RBAC_REPORTER = { type: 'rbac' } as const;
+
+// Kessel >= 0.5.7 declares this tuple type locally without exporting it.
+// Re-exported here so all Kessel integration sites share one definition.
+export type NotEmptyArray<T> = [T, ...T[]];
 
 // ============================================================================
 // Tenant-scoped bulk check helper

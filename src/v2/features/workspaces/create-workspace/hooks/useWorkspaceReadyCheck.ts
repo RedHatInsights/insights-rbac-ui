@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
-import type { NotEmptyArray, SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
+import type { SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
+import type { NotEmptyArray } from '../../../../hooks/useRbacAccess';
 import { WORKSPACE_RELATIONS } from '../../../../data/queries/workspaces';
 
 const POLL_INTERVAL_MS = 1000;

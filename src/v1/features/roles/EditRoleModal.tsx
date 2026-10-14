@@ -6,7 +6,7 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import type { Schema } from '@data-driven-forms/react-form-renderer';
+import type { LegacySchema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { ModalFormTemplate } from '../../../shared/components/forms/ModalFormTemplate';
 import { usePatchRoleMutation, useRoleQuery } from '../../data/queries/roles';
@@ -64,7 +64,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
     return undefined;
   };
 
-  const createEditRoleSchema = (id: string): Schema => {
+  const createEditRoleSchema = (id: string): LegacySchema => {
     return {
       fields: [
         {

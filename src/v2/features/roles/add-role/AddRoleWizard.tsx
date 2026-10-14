@@ -24,7 +24,7 @@ import { SilentErrorBoundary } from '../../../../shared/components/ui-states/Sil
 import messages from '../../../../Messages';
 import paths from '../../../utilities/pathnames';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
-import type Schema from '@data-driven-forms/react-form-renderer/common-types/schema';
+import type { LegacySchema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 
 interface PaginationProps {
   limit: number;
@@ -99,7 +99,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   });
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
-  const [schema, setSchema] = useState<Schema | undefined>();
+  const [schema, setSchema] = useState<LegacySchema | undefined>();
 
   // `intl` is a dependency on purpose: IntlMessagesProvider renders children before
   // the async catalog resolves, so the schema is first built with an English-only

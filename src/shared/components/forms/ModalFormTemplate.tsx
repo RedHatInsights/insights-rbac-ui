@@ -65,7 +65,7 @@ interface ModalFormTemplateProps {
   saveLabel?: React.ReactNode;
   cancelLabel?: React.ReactNode;
   alert?: () => React.ReactNode;
-  formFields?: React.ElementType[];
+  formFields?: React.ReactNode[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema?: any;
   [key: string]: unknown;
