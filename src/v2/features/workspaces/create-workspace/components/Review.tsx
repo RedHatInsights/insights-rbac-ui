@@ -8,7 +8,7 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useIntl } from 'react-intl';
 import { useWorkspacesBillingFeatures } from '../../../../../capabilities/useWorkspacesFlag';
-import { BUNDLES, WORKSPACE_ACCOUNT, WORKSPACE_DESCRIPTION, WORKSPACE_FEATURES, WORKSPACE_NAME, WORKSPACE_PARENT } from '../schema';
+import { BUNDLES, WORKSPACE_ACCOUNT, WORKSPACE_DESCRIPTION, WORKSPACE_FEATURES, WORKSPACE_NAME, WORKSPACE_PARENT } from '../constants';
 import messages from '../../../../../Messages';
 
 export const ReviewStep = () => {

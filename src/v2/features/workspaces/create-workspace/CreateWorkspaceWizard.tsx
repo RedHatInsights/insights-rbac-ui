@@ -1,5 +1,4 @@
 import type { FormTemplateCommonProps } from '@data-driven-forms/common/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import type { FormApi } from 'final-form';
@@ -14,12 +13,9 @@ import { useWorkspacesBillingFeatures } from '../../../../capabilities/useWorksp
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../../Messages';
 import { type WorkspacesWorkspace, useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
-import { ReviewStep as Review } from './components/Review';
 import { WaitForWorkspaceReady } from './components/WaitForWorkspaceReady';
-import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT, schemaBuilder } from './schema';
-import { SelectParentWorkspace } from './components/SelectParentWorkspace';
-import { SetDetails } from './components/SetDetails';
-import { SetEarMark } from './components/SetEarMark';
+import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT } from './constants';
+import { schemaBuilder, wizardMapper } from './schema';
 
 export interface CreateWorkspaceWizardProps {
   afterSubmit?: () => void;
@@ -31,13 +27,6 @@ export interface CreateWorkspaceWizardProps {
 }
 
 const FormTemplate = (props: FormTemplateCommonProps) => <Pf4FormTemplate {...props} showFormControls={false} />;
-
-export const mapperExtension = {
-  SelectParentWorkspace,
-  SetDetails,
-  SetEarMark,
-  Review,
-};
 
 export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = ({
   afterSubmit,
@@ -109,7 +98,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   return (
     <FormRenderer
       schema={schemaBuilder(intl, enableFeatures, existingWorkspaceNames, skipParentStep)}
-      componentMapper={{ ...componentMapper, ...mapperExtension }}
+      componentMapper={wizardMapper}
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}
       onCancel={onCancel || defaultOnCancel}

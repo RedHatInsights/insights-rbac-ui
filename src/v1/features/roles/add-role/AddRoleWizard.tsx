@@ -4,21 +4,13 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { Wizard } from '@patternfly/react-core/deprecated';
 import { createQueryParams } from '../../../../shared/helpers/navigation';
-import { schemaBuilder } from './schema';
+import { type RoleWizardSchema, schemaBuilder, wizardMapper } from './schema';
 import { useCreateRoleMutation } from '../../../data/queries/roles';
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { RoleCreationSuccess } from '../components/RoleCreationSuccess';
-import BaseRoleTable from './BaseRoleTable';
-import AddPermissionsTable from './AddPermissions';
-import ReviewStep from './ReviewStep';
-import InventoryGroupsRole from './InventoryGroupsRole';
-import CostResources from './CostResources';
-import TypeSelector from './TypeSelector';
-import SetName from './SetName';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { SilentErrorBoundary } from '../../../../shared/components/ui-states/SilentErrorBoundary';
 import messages from '../../../../Messages';
@@ -39,11 +31,6 @@ interface AddRoleWizardProps {
   pagination: PaginationProps;
   filters: FiltersProps;
   cancelRoute?: string;
-}
-
-interface DescriptionProps {
-  Content: React.ComponentType<Record<string, unknown>>;
-  [key: string]: unknown;
 }
 
 interface Permission {
@@ -74,7 +61,6 @@ interface FormData {
 
 // Use types from rbac-client for type safety
 import type { Access, ResourceDefinition } from '../../../data/api/roles';
-import type { LegacySchema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 
 /**
  * Role data structure matching RoleIn from rbac-client.
@@ -90,18 +76,6 @@ interface RoleData {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const FormTemplate: React.FC<any> = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
-const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
-
-export const mapperExtension = {
-  'set-name': SetName,
-  'base-role-table': BaseRoleTable,
-  'add-permissions-table': AddPermissionsTable,
-  'cost-resources': CostResources,
-  'inventory-groups-role': InventoryGroupsRole,
-  review: ReviewStep,
-  description: Description,
-  'type-selector': TypeSelector,
-};
 
 const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination = {}, filters = {}, cancelRoute }) => {
   const intl = useIntl();
@@ -123,7 +97,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   });
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
-  const [schema, setSchema] = useState<LegacySchema | undefined>();
+  const [schema, setSchema] = useState<RoleWizardSchema | undefined>();
 
   // `intl` is a dependency on purpose: IntlMessagesProvider renders children before
   // the async catalog resolves, so the schema is first built with an English-only
@@ -298,7 +272,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
           initialValues={{
             'role-type': 'create',
           }}
-          componentMapper={{ ...componentMapper, ...mapperExtension }}
+          componentMapper={wizardMapper}
           onSubmit={onSubmit}
           onCancel={handleFormCancel}
         />

@@ -1,5 +1,6 @@
 import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import AddPermissionTemplate from './AddPermissionTemplate';
 import CreateRoleStepTemplate from './CreateRoleStepTemplate';
 import ReviewTemplate from './ReviewTemplate';
@@ -13,6 +14,39 @@ import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from './InventoryGroupsRoleTemplate';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
+import BaseRoleTable from './BaseRoleTable';
+import AddPermissionsTable from './AddPermissions';
+import ReviewStep from './ReviewStep';
+import InventoryGroupsRole from './InventoryGroupsRole';
+import CostResources from './CostResources';
+import TypeSelector from './TypeSelector';
+import SetName from './SetName';
+
+interface DescriptionProps {
+  Content: React.ComponentType<Record<string, unknown>>;
+  [key: string]: unknown;
+}
+
+const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
+
+/**
+ * Component mapper for the Add Role wizard. Assembled with literal keys so
+ * `RoleWizardSchema` can validate every `component:` value the schema uses.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  'set-name': SetName,
+  'base-role-table': BaseRoleTable,
+  'add-permissions-table': AddPermissionsTable,
+  'cost-resources': CostResources,
+  'inventory-groups-role': InventoryGroupsRole,
+  review: ReviewStep,
+  description: Description,
+  'type-selector': TypeSelector,
+};
+
+export type RoleWizardSchema = Schema<typeof wizardMapper>;
 
 interface FormValues {
   'role-type'?: string;
@@ -20,7 +54,7 @@ interface FormValues {
   [key: string]: unknown;
 }
 
-export const schemaBuilder = (intl: IntlShape, featureFlag: boolean) => {
+export const schemaBuilder = (intl: IntlShape, featureFlag: boolean): RoleWizardSchema => {
   return {
     fields: [
       {

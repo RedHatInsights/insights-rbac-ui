@@ -5,7 +5,7 @@ import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleto
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { type Pf4Schema, pf4Components } from '../../../shared/forms/pf4Components';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { ModalFormTemplate } from '../../../shared/components/forms/ModalFormTemplate';
 import { useGroupQuery, useUpdateGroupMutation } from '../../../shared/data/queries/groups';
@@ -67,7 +67,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
 
   // Memoize schema to prevent recreation on every render
   // This is critical for async validators to maintain their debounce state
-  const schema = useMemo(
+  const schema = useMemo<Pf4Schema>(
     () => ({
       fields: [
         {
@@ -144,11 +144,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
       initialValues={group}
       onSubmit={onSubmit}
       onCancel={onCancel}
-      componentMapper={{
-        ...componentMapper,
-        'text-field': componentMapper[componentTypes.TEXT_FIELD],
-        textarea: componentMapper[componentTypes.TEXTAREA],
-      }}
+      componentMapper={pf4Components}
     />
   );
 };

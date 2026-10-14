@@ -8,9 +8,18 @@ import Messages from '../../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import { useParams } from 'react-router-dom';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { EditRolePermissions } from './EditRolePermissions';
+
+/** Component mapper with literal keys; `EditRoleSchema` validates the schema below. */
+const wizardMapper = {
+  ...pf4Components,
+  'role-permissions': EditRolePermissions,
+};
+
+type EditRoleSchema = Schema<typeof wizardMapper>;
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useRoleQuery, useUpdateRoleMutation } from '../../../data/queries/roles';
 import type { Permission, Role } from '../../../data/queries/roles';
@@ -73,7 +82,7 @@ export const EditRole: FunctionComponent = () => {
 
   const isLoading = isRoleLoading || !initialFormData;
 
-  const schema = useMemo(
+  const schema = useMemo<EditRoleSchema>(
     () => ({
       fields: [
         {
@@ -119,10 +128,7 @@ export const EditRole: FunctionComponent = () => {
         ) : (
           <FormRenderer
             schema={schema}
-            componentMapper={{
-              ...componentMapper,
-              'role-permissions': EditRolePermissions,
-            }}
+            componentMapper={wizardMapper}
             onSubmit={handleSubmit}
             onCancel={navigateToRoles}
             FormTemplate={FormTemplate}

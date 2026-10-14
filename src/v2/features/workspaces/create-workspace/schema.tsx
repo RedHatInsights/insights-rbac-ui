@@ -1,5 +1,6 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
 import { FormattedMessage, type IntlShape } from 'react-intl';
@@ -7,33 +8,28 @@ import messages from '../../../../Messages';
 import InputHelpPopover from '../../../../shared/components/forms/InputHelpPopover';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
 import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import { SelectParentWorkspace } from './components/SelectParentWorkspace';
+import { SetDetails } from './components/SetDetails';
+import { SetEarMark } from './components/SetEarMark';
+import { ReviewStep as Review } from './components/Review';
+import { BUNDLES, WORKSPACE_ACCOUNT, WORKSPACE_DESCRIPTION, WORKSPACE_FEATURES, WORKSPACE_NAME, WORKSPACE_PARENT } from './constants';
 
 /**
- * Placeholder bundle options for the billing features flow.
- * Gated behind `platform.rbac.workspaces-billing-features`.
- * Real implementation depends on Kessel integration — see CRCPLAN-274, CRCPLAN-367.
+ * Component mapper for the Create Workspace wizard. Assembled with literal
+ * keys so `CreateWorkspaceWizardSchema` can validate every `component:` value
+ * the schema uses.
  */
-export const BUNDLES = [
-  {
-    label: 'OpenShift',
-    value: 'openshift',
-  },
-  {
-    label: 'RHEL',
-    value: 'rhel',
-  },
-  {
-    label: 'Ansible Lightspeed',
-    value: 'lightspeed',
-  },
-];
+export const wizardMapper = {
+  ...pf4Components,
+  SelectParentWorkspace,
+  SetDetails,
+  SetEarMark,
+  Review,
+};
 
-export const WORKSPACE_NAME = 'workspace-name';
-export const WORKSPACE_DESCRIPTION = 'workspace-description';
-export const WORKSPACE_FEATURES = 'workspace-features';
-export const WORKSPACE_PARENT = 'workspace-parent';
-export const WORKSPACE_ACCOUNT = 'workspace-account';
+export type CreateWorkspaceWizardSchema = Schema<typeof wizardMapper>;
 
 export interface CreateWorkspaceFormValues {
   [WORKSPACE_NAME]: string;
@@ -49,7 +45,12 @@ export interface CreateWorkspaceFormValues {
  * @param existingWorkspaceNames - List of existing workspace names for duplicate validation
  * @param skipParentStep - When true, omits the parent selection step (parent is pre-set by caller)
  */
-export const schemaBuilder = (intl: IntlShape, enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
+export const schemaBuilder = (
+  intl: IntlShape,
+  enableBillingFeatures: boolean,
+  existingWorkspaceNames: string[] = [],
+  skipParentStep = false,
+): CreateWorkspaceWizardSchema => {
   return {
     fields: [
       {

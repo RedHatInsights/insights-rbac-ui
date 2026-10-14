@@ -3,16 +3,9 @@ import { useIntl } from 'react-intl';
 
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { schemaBuilder } from './schema';
+import { schemaBuilder, wizardMapper } from './schema';
 import { type ServiceAccount, useAddServiceAccountsToGroupMutation, useCreateGroupMutation } from '../../../../shared/data/queries/groups';
-import { SetName } from './components/stepName/SetName';
-import { SetRoles } from './components/stepRoles/SetRoles';
-import { SetUsers } from './components/stepUsers/SetUsers';
-import SetServiceAccounts from './components/stepServiceAccounts/SetServiceAccounts';
-import { SummaryContent } from './components/stepReview/SummaryContent';
-import { AddGroupSuccess } from './AddGroupSuccess';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useServiceAccountsFlag } from '../../../../capabilities/useServiceAccountsFlag';
 import { useWorkspacesFlag } from '../../../../capabilities/useWorkspacesFlag';
@@ -21,16 +14,6 @@ import { AddGroupWizardContext } from './add-group-wizard-context';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
-
-// Component mapper extension for wizard steps
-const mapperExtension = {
-  'set-name': SetName,
-  'set-roles': SetRoles,
-  'set-users': SetUsers,
-  'set-service-accounts': SetServiceAccounts,
-  'summary-content': SummaryContent,
-  'add-group-success': AddGroupSuccess,
-};
 
 interface AddGroupWizardProps {
   // No direct props - component receives data from URL params and context
@@ -193,7 +176,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
         schema={schema}
         subscription={{ values: true }}
         FormTemplate={FormTemplate}
-        componentMapper={{ ...componentMapper, ...mapperExtension }}
+        componentMapper={wizardMapper}
         onSubmit={onSubmit}
         onCancel={() => setCancelWarningVisible(true)}
       />

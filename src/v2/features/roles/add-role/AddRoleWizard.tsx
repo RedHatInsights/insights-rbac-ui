@@ -4,27 +4,19 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { Wizard } from '@patternfly/react-core/deprecated';
 import { createQueryParams } from '../../../../shared/helpers/navigation';
-import { schemaBuilder } from './schema';
+import { type RoleWizardSchema, schemaBuilder, wizardMapper } from './schema';
 import { useCreateRoleMutation } from '../../../data/queries/roles';
 import type { Permission, RolesCreateOrUpdateRoleRequest } from '../../../data/queries/roles';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { RoleCreationSuccess } from '../components/RoleCreationSuccess';
-import BaseRoleTable from './BaseRoleTable';
-import AddPermissionsTable from './AddPermissions';
-import ReviewStep from './ReviewStep';
-import CostResources from './CostResources';
-import TypeSelector from './TypeSelector';
-import SetName from './SetName';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import { SilentErrorBoundary } from '../../../../shared/components/ui-states/SilentErrorBoundary';
 import messages from '../../../../Messages';
 import paths from '../../../utilities/pathnames';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
-import type { LegacySchema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 
 interface PaginationProps {
   limit: number;
@@ -39,11 +31,6 @@ interface AddRoleWizardProps {
   pagination: PaginationProps;
   filters: FiltersProps;
   cancelRoute?: string;
-}
-
-interface DescriptionProps {
-  Content: React.ComponentType<Record<string, unknown>>;
-  [key: string]: unknown;
 }
 
 interface FormPermission {
@@ -67,17 +54,6 @@ interface FormData {
 }
 
 const FormTemplate: React.FC<React.ComponentProps<typeof Pf4FormTemplate>> = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
-const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
-
-export const mapperExtension = {
-  'set-name': SetName,
-  'base-role-table': BaseRoleTable,
-  'add-permissions-table': AddPermissionsTable,
-  'cost-resources': CostResources,
-  review: ReviewStep,
-  description: Description,
-  'type-selector': TypeSelector,
-};
 
 const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination = {}, filters = {}, cancelRoute }) => {
   const intl = useIntl();
@@ -99,7 +75,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   });
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
-  const [schema, setSchema] = useState<LegacySchema | undefined>();
+  const [schema, setSchema] = useState<RoleWizardSchema | undefined>();
 
   // `intl` is a dependency on purpose: IntlMessagesProvider renders children before
   // the async catalog resolves, so the schema is first built with an English-only
@@ -247,7 +223,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
           initialValues={{
             'role-type': 'create',
           }}
-          componentMapper={{ ...componentMapper, ...mapperExtension }}
+          componentMapper={wizardMapper}
           onSubmit={onSubmit}
           onCancel={handleFormCancel}
         />

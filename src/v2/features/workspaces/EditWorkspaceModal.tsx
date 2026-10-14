@@ -1,5 +1,5 @@
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
+import { type Pf4Schema, pf4Components } from '../../../shared/forms/pf4Components';
 import type FormTemplateRenderProps from '@data-driven-forms/react-form-renderer/common-types/form-template-render-props';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import React, { useMemo } from 'react';
@@ -48,7 +48,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     return null;
   }, [workspace]);
 
-  const createEditWorkspaceSchema = useMemo(
+  const createEditWorkspaceSchema = useMemo<Pf4Schema>(
     () => ({
       fields: [
         {
@@ -132,7 +132,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
   return (
     <FormRenderer
       schema={createEditWorkspaceSchema}
-      componentMapper={{ ...componentMapper }}
+      componentMapper={pf4Components}
       initialValues={formInitialValues}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
