@@ -116,34 +116,32 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
     const newAccess = selectedPermissions.reduce<Access[]>(
       (acc, { uuid: permission, requires = [] }) => [
         ...acc,
-        ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map(
-          (perm): Access => ({
-            permission: perm,
-            resourceDefinitions: [...costResources, ...invResources]?.find((r) => r.permission === perm)
-              ? perm.includes('inventory')
+        ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((perm): Access => ({
+          permission: perm,
+          resourceDefinitions: [...costResources, ...invResources]?.find((r) => r.permission === perm)
+            ? perm.includes('inventory')
+              ? ([
+                  {
+                    attributeFilter: {
+                      key: 'group.id',
+                      operation: 'in',
+                      value: invResources?.find((g) => g.permission === perm)?.groups?.map((group) => group?.id) ?? [],
+                    },
+                  },
+                ] as ResourceDefinition[])
+              : perm.includes('cost-management') && (costResources?.find((r) => r.permission === perm)?.resources.length ?? 0) > 0
                 ? ([
                     {
                       attributeFilter: {
-                        key: 'group.id',
+                        key: `cost-management.${perm.split(':')[1]}`,
                         operation: 'in',
-                        value: invResources?.find((g) => g.permission === perm)?.groups?.map((group) => group?.id) ?? [],
+                        value: costResources?.find((r) => r.permission === perm)?.resources ?? [],
                       },
                     },
                   ] as ResourceDefinition[])
-                : perm.includes('cost-management') && (costResources?.find((r) => r.permission === perm)?.resources.length ?? 0) > 0
-                  ? ([
-                      {
-                        attributeFilter: {
-                          key: `cost-management.${perm.split(':')[1]}`,
-                          operation: 'in',
-                          value: costResources?.find((r) => r.permission === perm)?.resources ?? [],
-                        },
-                      },
-                    ] as ResourceDefinition[])
-                  : []
-              : [],
-          }),
-        ),
+                : []
+            : [],
+        })),
       ],
       (role.access as Access[]) || [],
     );
