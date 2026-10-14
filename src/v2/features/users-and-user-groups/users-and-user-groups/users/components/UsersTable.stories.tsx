@@ -719,6 +719,7 @@ Perfect for testing filter state management and ensuring all filter controls wor
 
 // Support cases toggle column with MSW handlers for account API
 const supportCasesToggleSpy = fn();
+const supportCasesSearchSpy = fn();
 const supportCasesUsers = [
   createMockUser('john.doe', {
     email: 'john.doe@redhat.com',
@@ -770,14 +771,18 @@ export const SupportCasesColumn: Story = {
           onToggleSupportCases: (userId, grant) => {
             supportCasesToggleSpy({ userId, grant });
           },
+          onSearchUsers: (ids) => {
+            supportCasesSearchSpy(ids);
+          },
         }),
       ],
     },
   },
-  // Reset before render so a prior rerun's granted permission doesn't leak into
-  // this run's initial bulk search (which fires on mount, before the play function).
+  // Reset before render so a prior rerun's granted permission doesn't leak into this run's initial
+  // bulk search (which fires on mount). supportCasesSearchSpy resets here too — it fires before play.
   beforeEach: () => {
     supportCasesColumnPermissions.reset();
+    supportCasesSearchSpy.mockClear();
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -812,6 +817,12 @@ export const SupportCasesColumn: Story = {
       await waitFor(() => {
         expect(supportCasesToggleSpy).toHaveBeenCalledWith(expect.objectContaining({ userId: johnExternalId, grant: true }));
       });
+    });
+
+    await step('Whole page fetched support-cases permissions in ONE bulk request', async () => {
+      // Regression guard for the removed N+1: one POST /users/search per page, not per row.
+      await waitFor(() => expect(supportCasesSearchSpy).toHaveBeenCalledTimes(1));
+      expect(supportCasesSearchSpy).toHaveBeenCalledWith(expect.arrayContaining([johnExternalId, janeExternalId]));
     });
   },
 };

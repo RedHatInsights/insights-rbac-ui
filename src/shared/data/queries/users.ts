@@ -441,6 +441,9 @@ interface AccountUsersSearchResponse {
 /** The portal permission string for managing support cases */
 export const PORTAL_MANAGE_CASES = 'portal_manage_cases' as const;
 
+// Freshness window + read-after-write guard: don't re-seed entries written within this window (ms).
+const ACCOUNT_USER_STALE_TIME = 30_000;
+
 export const accountUserKeys = {
   all: ['account-user'] as const,
   details: (orgId: string) => [...accountUserKeys.all, 'detail', orgId] as const,
@@ -492,7 +495,7 @@ export function useAccountUserDetailQuery(userId: string | undefined, options?: 
         return json.body ?? (json as AccountUserDetail);
       },
       enabled: !isITLess && !!userId && !!identity?.org_id && (options?.enabled ?? true),
-      staleTime: 30_000,
+      staleTime: ACCOUNT_USER_STALE_TIME,
       // Cap retries so a down endpoint doesn't multiply into retries × rows before erroring.
       retry: 1,
     },
@@ -501,14 +504,9 @@ export function useAccountUserDetailQuery(userId: string | undefined, options?: 
 }
 
 /**
- * Fetch portal permissions for many users in ONE request via the account search endpoint,
- * instead of one GET per row (an N+1 that trips the account API rate limit on large pages).
- *
- * Seeds each returned user's detail cache so `SupportCasesToggle` and
- * `useToggleManageSupportCasesMutation` share one source of truth. Seeding never clobbers an
- * existing entry, so a later bulk refetch can't flip an optimistic/post-toggle value back.
- *
- * Skipped in ITLess environments (API not available).
+ * Fetch portal permissions for many users in ONE request (vs. an N+1 of one GET per row), seeding
+ * each user's detail cache that `SupportCasesToggle` reads. Re-seeds on refetch, but not entries
+ * written within ACCOUNT_USER_STALE_TIME (read-after-write guard). Skipped in ITLess.
  *
  * @tag api-v1-external - Uses external IT identity provider API
  */
@@ -554,19 +552,22 @@ export function useAccountUsersPermissionsQuery(userIds: Array<string | undefine
           permissions: summary.permissions ?? [],
         }));
 
-        // Seed only when permissions were actually returned — seeding an empty array for a user
-        // whose permissions were omitted would let the toggle clobber their real permissions.
+        // Seed only returned permissions (Array.isArray guards the omitted shape); skip entries written within the read-after-write window.
         summaries.forEach((summary, i) => {
           const detail = details[i];
-          if (detail.id && Array.isArray(summary.permissions)) {
-            queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(orgId, detail.id), (old) => old ?? detail);
+          if (!detail.id || !Array.isArray(summary.permissions)) return;
+
+          const key = accountUserKeys.detail(orgId, detail.id);
+          const lastWrite = queryClient.getQueryState(key)?.dataUpdatedAt ?? 0;
+          if (Date.now() - lastWrite >= ACCOUNT_USER_STALE_TIME) {
+            queryClient.setQueryData<AccountUserDetail>(key, detail);
           }
         });
 
         return details;
       },
       enabled: !isITLess && ids.length > 0 && !!identity?.org_id && (options?.enabled ?? true),
-      staleTime: 30_000,
+      staleTime: ACCOUNT_USER_STALE_TIME,
       retry: 1,
     },
     options?.queryClient,

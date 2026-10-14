@@ -3,7 +3,8 @@ import type { IntlShape } from 'react-intl';
 import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
-import { type User, useAccountUsersPermissionsQuery } from '../../../../../../shared/data/queries/users';
+import { type User } from '../../../../../../shared/data/queries/users';
+import { useSupportCasesPermissions } from '../../../../../../shared/hooks/useSupportCasesPermissions';
 import { SupportCasesToggle } from '../../../../../../shared/components/SupportCasesToggle';
 import messages from '../../../../../../Messages';
 
@@ -86,13 +87,7 @@ export function useUsersTableConfig({
   }, [authModel, showSupportCases]);
 
   // Bulk-fetch support-cases permissions for every row in one request (avoids a per-row N+1).
-  const supportCasesUserIds = useMemo(
-    () => (showSupportCases ? users.map((u) => (u.external_source_id != null ? String(u.external_source_id) : undefined)) : []),
-    [showSupportCases, users],
-  );
-  const { isLoading: isSupportCasesLoading, isError: isSupportCasesError } = useAccountUsersPermissionsQuery(supportCasesUserIds, {
-    enabled: showSupportCases,
-  });
+  const { isLoading: isSupportCasesLoading } = useSupportCasesPermissions(users, { enabled: showSupportCases });
 
   // Keyed to the full master set — exhaustiveness is enforced here once. The visible `columns`
   // above are always a subset, so every rendered column is guaranteed a config entry.
@@ -149,13 +144,12 @@ export function useUsersTableConfig({
               isDisabled={!orgAdmin}
               isActive={user.is_active ?? true}
               isPermissionsLoading={isSupportCasesLoading}
-              isPermissionsError={isSupportCasesError}
             />
           </span>
         );
       },
     }),
-    [focusedUser, orgAdmin, ouiaId, onToggleUserStatus, onToggleOrgAdmin, isSupportCasesLoading, isSupportCasesError],
+    [focusedUser, orgAdmin, ouiaId, onToggleUserStatus, onToggleOrgAdmin, isSupportCasesLoading],
   );
 
   const filterConfig: FilterConfig[] = useMemo(

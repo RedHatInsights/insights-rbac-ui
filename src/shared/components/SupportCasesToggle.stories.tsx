@@ -12,14 +12,10 @@ import { createResettableMap } from '../data/mocks/db';
 import { DEFAULT_USER_PERMISSIONS, USER_JANE, USER_JOHN } from '../data/mocks/seed';
 import { useAccountUsersPermissionsQuery } from '../data/queries/users';
 
-/**
- * Mirrors real usage: list pages bulk-fetch permissions for every row in one request and
- * seed the per-user cache the toggle reads, threading loading/error down as props. The toggle
- * itself no longer self-fetches, so these component stories drive it the same way.
- */
+/** Mirrors real usage: the list page bulk-fetches permissions and threads loading down; the toggle reads cache-only. */
 const SupportCasesToggleHarness: React.FC<React.ComponentProps<typeof SupportCasesToggle>> = (props) => {
-  const { isLoading, isError } = useAccountUsersPermissionsQuery(props.userId ? [props.userId] : []);
-  return <SupportCasesToggle {...props} isPermissionsLoading={isLoading} isPermissionsError={isError} />;
+  const { isLoading } = useAccountUsersPermissionsQuery(props.userId ? [props.userId] : []);
+  return <SupportCasesToggle {...props} isPermissionsLoading={isLoading} />;
 };
 
 const JOHN_ID = String(USER_JOHN.external_source_id);
@@ -38,7 +34,7 @@ const meta: Meta<typeof SupportCasesToggle> = {
     docs: {
       description: {
         component:
-          'A toggle switch for managing the `portal_manage_cases` permission. Fetches current state from the account API and toggles via POST. Hidden in ITLess environments.',
+          'A toggle switch for managing the `portal_manage_cases` permission. Reads its current state cache-only (the list page bulk-fetches permissions for the whole page; the harness below mirrors that) and toggles via a read-modify-write POST. Hidden in ITLess environments.',
       },
     },
     msw: {
@@ -272,6 +268,42 @@ export const ToggleError: Story = {
 
       // Optimistic update flips it on, then onError rolls it back off.
       await waitFor(() => expect(toggle).not.toBeChecked());
+    });
+  },
+};
+
+export const PermissionsOmitted: Story = {
+  args: {
+    userId: JOHN_ID,
+    username: USER_JOHN.username,
+    isDisabled: false,
+    isActive: true,
+  },
+  parameters: {
+    msw: {
+      handlers: [
+        // Bulk search omits this user's `permissions` key — the seeding guard skips it, so the toggle stays disabled.
+        ...accountManagementHandlers({
+          userPermissions: new Map(Object.entries(DEFAULT_USER_PERMISSIONS)),
+          omitSearchPermissionsForIds: [JOHN_ID],
+        }),
+      ],
+    },
+    docs: {
+      description: {
+        story: "When the bulk search omits a user's permissions, the seeding guard leaves the cache empty and the toggle stays disabled.",
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Toggle is disabled when permissions were omitted from the bulk response', async () => {
+      const toggle = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${USER_JOHN.username}`, 'i'),
+      });
+      await expect(toggle).toBeDisabled();
+      await expect(toggle).not.toBeChecked();
     });
   },
 };

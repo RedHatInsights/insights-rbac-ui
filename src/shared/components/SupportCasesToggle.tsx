@@ -10,8 +10,6 @@ interface SupportCasesToggleProps {
   isActive?: boolean;
   /** Bulk permissions fetch in progress — show a spinner. */
   isPermissionsLoading?: boolean;
-  /** Bulk permissions fetch failed — disable the toggle. */
-  isPermissionsError?: boolean;
 }
 
 /**
@@ -28,17 +26,14 @@ export const SupportCasesToggle: React.FC<SupportCasesToggleProps> = ({
   isDisabled = false,
   isActive = true,
   isPermissionsLoading = false,
-  isPermissionsError = false,
 }) => {
   const { data: accountDetail } = useAccountUserDetailQuery(userId, { enabled: false });
   const toggleMutation = useToggleManageSupportCasesMutation();
 
   const hasPermission = accountDetail?.permissions?.includes(PORTAL_MANAGE_CASES) ?? false;
 
-  // Disable unless we have the account detail to read from: the toggle is a read-modify-write
-  // against the cached permissions array, so acting without it (bulk fetch errored, or no data
-  // yet) would POST an array built from an empty base and clobber the user's real permissions.
-  const isToggleDisabled = isDisabled || !isActive || !userId || isPermissionsError || !accountDetail || toggleMutation.isPending;
+  // Disabled without cached detail: the read-modify-write needs a base array or it clobbers real permissions.
+  const isToggleDisabled = isDisabled || !isActive || !userId || !accountDetail || toggleMutation.isPending;
 
   const handleChange = (_event: React.FormEvent<HTMLInputElement>, checked: boolean) => {
     if (isToggleDisabled) return;
