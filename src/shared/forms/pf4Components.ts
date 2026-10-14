@@ -5,15 +5,36 @@ import Wizard from '@data-driven-forms/pf4-component-mapper/wizard';
 import type React from 'react';
 
 /**
- * ddf's `WizardFunctionProps` declares `fields: Field[]`, where `Field`
- * requires a `component` string — but wizard steps (`{ name, title, fields,
- * nextStep, buttons }`) are not components and never carry one, so the stock
- * typing rejects every real wizard schema. Widen the entry to a permissive
- * component type: wizard internals were index-signature-loose anyway, and
- * the schema-level guarantees we care about (component keys, field props)
- * come from the other mapper entries.
+ * A wizard step, as consumed by ddf's wizard implementation.
+ * Steps are not components — they never carry a `component` key — but they
+ * always carry a `name`, which the wizard uses for `nextStep` navigation.
  */
-const WizardComponent = Wizard as unknown as React.ComponentType<Record<string, unknown>>;
+export interface WizardStep {
+  name: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Runtime contract of a ddf wizard field.
+ *
+ * ddf's own `WizardFunctionProps` declares `fields: Field[]`, where `Field`
+ * requires a `component` string. Since the wizard is step-based by design and
+ * steps are not components, no wizard schema can satisfy that declaration —
+ * it is a bug in the library's types, not a constraint worth preserving. This
+ * interface records what the wizard actually accepts at runtime: a list of
+ * named steps plus ddf's index-signature-loose props.
+ *
+ * The cast below exists solely to install this corrected contract in the
+ * mapper; when the typing is fixed upstream (data-driven-forms/react-forms),
+ * delete `WizardFieldProps` and register `Wizard` directly.
+ */
+export interface WizardFieldProps {
+  fields?: WizardStep[];
+  [key: string]: unknown;
+}
+
+// See WizardFieldProps — replaces ddf's unsatisfiable `fields: Field[]`.
+const WizardComponent = Wizard as unknown as React.ComponentType<WizardFieldProps>;
 
 /**
  * PatternFly 4 data-driven-forms mapper entries with literal string keys.
