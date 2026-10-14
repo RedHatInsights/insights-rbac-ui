@@ -28,9 +28,7 @@ type SubmitValues = {
     'manage-support-cases'?: boolean;
     'download-software-updates'?: boolean;
     'manage-subscriptions'?:
-      | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER
-      | typeof MANAGE_SUBSCRIPTIONS_VIEW_ALL
-      | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL;
+      typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER | typeof MANAGE_SUBSCRIPTIONS_VIEW_ALL | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL;
   };
 };
 

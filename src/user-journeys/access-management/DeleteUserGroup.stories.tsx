@@ -242,7 +242,10 @@ Tests the complete "Delete user group" workflow:
       await waitFor(() => {
         expect(within(document.body).queryByRole('dialog')).toBeNull();
       });
-      expect(listGroupsSpy).toHaveBeenCalled();
+      // The list refetch is triggered by the mutation's invalidation and races the
+      // modal close (the mocked handler adds a network delay), so wait for the
+      // refetch instead of asserting on it synchronously.
+      await waitFor(() => expect(listGroupsSpy).toHaveBeenCalled());
       await waitFor(
         async () => {
           const tableAfter = await getUserGroupsTable(canvas);

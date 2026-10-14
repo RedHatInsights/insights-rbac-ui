@@ -3,7 +3,7 @@ import { NumberInput } from '@patternfly/react-core/dist/dynamic/components/Numb
 import { NumberInputProps } from '@patternfly/react-core/dist/dynamic/components/NumberInput';
 import React from 'react';
 
-export interface NumberPickerProps extends Omit<NumberInputProps, 'name'>, UseFieldApiConfig {}
+export interface NumberPickerProps extends Omit<NumberInputProps, 'name' | 'value'>, UseFieldApiConfig {}
 
 export const NumberPicker: React.FC<NumberPickerProps> = (props: NumberPickerProps) => {
   const {

@@ -464,15 +464,13 @@ export const BulkSelection: Story = {
       await userEvent.click(systemGroupCheckbox);
     });
 
-    await step('Kebab delete action shows zero-count label with no selection', async () => {
+    await step('Kebab is disabled while no rows are selected', async () => {
       const canvas = within(canvasElement);
       const kebabButton = await canvas.findByLabelText('Actions overflow menu');
-      await userEvent.click(kebabButton);
-
-      const deleteItem = await within(document.body).findByText('Delete user group');
-      await expect(deleteItem).toBeInTheDocument();
-
-      await userEvent.keyboard('{Escape}');
+      // PatternFly >= 6.5 disables the overflow kebab whenever every dropdown action
+      // is disabled. With no rows selected the bulk Delete action is disabled, so the
+      // kebab must not be clickable (previously it opened a menu with a disabled item).
+      await expect(kebabButton).toBeDisabled();
     });
 
     await step('Kebab delete action is enabled after selecting rows', async () => {

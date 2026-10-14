@@ -2,10 +2,11 @@ import React, { useMemo } from 'react';
 import { Outlet, useOutletContext } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
-import type { NotEmptyArray, SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
+import type { SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppPlaceholder } from '../../shared/components/ui-states/LoaderPlaceholders';
 import { useIdentity } from '../../shared/hooks/useIdentity';
+import type { NotEmptyArray } from '../hooks/useRbacAccess';
 import { useOrganizationData } from '../hooks/useOrganizationData';
 import messages from '../../Messages';
 

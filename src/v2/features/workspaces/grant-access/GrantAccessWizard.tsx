@@ -1,4 +1,4 @@
-import FormTemplateCommonProps from '@data-driven-forms/common/form-template';
+import type { FormTemplateCommonProps } from '@data-driven-forms/common/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
