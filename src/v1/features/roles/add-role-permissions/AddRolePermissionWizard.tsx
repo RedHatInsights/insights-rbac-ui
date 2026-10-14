@@ -84,7 +84,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
   const setWizardError = (error: string | undefined) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
-  const schema = useMemo(() => schemaBuilder(intl, enableWorkspacesNameChange), [intl, enableWorkspacesNameChange]);
+  const schema = useMemo(() => schemaBuilder(enableWorkspacesNameChange), [enableWorkspacesNameChange]);
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);
