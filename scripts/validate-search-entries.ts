@@ -29,7 +29,12 @@ const V1_V2_PAIRS: [string, string][] = [
 
 const V2_ONLY_IDS = ['rbac-workspaces-v2', 'rbac-access-management'];
 
-const WORKSPACES_FLAG = 'platform.rbac.workspaces';
+/**
+ * Chrome's visibility method for "is this org on the V2 experience". It is true when
+ * platform.rbac.workspaces is enabled OR the tenant converted itself, so gating on it rather
+ * than on the flag keeps converted tenants from being offered V1 search results.
+ */
+const ONBOARDED_METHOD = 'isKesselOrgOnboarded';
 const IAM_ALT_TITLE_TERMS = ['IAM', 'RBAC', 'user access', 'roles', 'workspaces'];
 
 interface PermissionItem {
@@ -46,10 +51,10 @@ interface SearchEntry {
   permissions?: PermissionItem[];
 }
 
-function getFeatureFlagValue(entry: SearchEntry, flagName: string): boolean | undefined {
+function getOnboardedValue(entry: SearchEntry): boolean | undefined {
   for (const p of entry.permissions ?? []) {
-    if (p?.method === 'featureFlag' && Array.isArray(p.args) && p.args[0] === flagName) {
-      return p.args[1] as boolean;
+    if (p?.method === ONBOARDED_METHOD && Array.isArray(p.args)) {
+      return p.args[0] as boolean;
     }
   }
   return undefined;
@@ -101,23 +106,23 @@ function main(): void {
   }
 
   for (const v2OnlyId of V2_ONLY_IDS) {
-    const flag = byId.get(v2OnlyId) ? getFeatureFlagValue(byId.get(v2OnlyId)!, WORKSPACES_FLAG) : undefined;
-    if (flag !== true) {
-      console.error(`❌ V2 entry id="${v2OnlyId}" must have ${WORKSPACES_FLAG}=true (found: ${flag ?? 'missing'})`);
+    const gate = byId.get(v2OnlyId) ? getOnboardedValue(byId.get(v2OnlyId)!) : undefined;
+    if (gate !== true) {
+      console.error(`❌ V2 entry id="${v2OnlyId}" must have ${ONBOARDED_METHOD}=true (found: ${gate ?? 'missing'})`);
       failed = true;
     }
   }
 
   for (const [v1Id, v2Id] of V1_V2_PAIRS) {
-    const v1Flag = byId.get(v1Id) ? getFeatureFlagValue(byId.get(v1Id)!, WORKSPACES_FLAG) : undefined;
-    const v2Flag = byId.get(v2Id) ? getFeatureFlagValue(byId.get(v2Id)!, WORKSPACES_FLAG) : undefined;
+    const v1Gate = byId.get(v1Id) ? getOnboardedValue(byId.get(v1Id)!) : undefined;
+    const v2Gate = byId.get(v2Id) ? getOnboardedValue(byId.get(v2Id)!) : undefined;
 
-    if (v1Flag !== false) {
-      console.error(`❌ V1 entry id="${v1Id}" must have ${WORKSPACES_FLAG}=false (found: ${v1Flag ?? 'missing'})`);
+    if (v1Gate !== false) {
+      console.error(`❌ V1 entry id="${v1Id}" must have ${ONBOARDED_METHOD}=false (found: ${v1Gate ?? 'missing'})`);
       failed = true;
     }
-    if (v2Flag !== true) {
-      console.error(`❌ V2 entry id="${v2Id}" must have ${WORKSPACES_FLAG}=true (found: ${v2Flag ?? 'missing'})`);
+    if (v2Gate !== true) {
+      console.error(`❌ V2 entry id="${v2Id}" must have ${ONBOARDED_METHOD}=true (found: ${v2Gate ?? 'missing'})`);
       failed = true;
     }
   }

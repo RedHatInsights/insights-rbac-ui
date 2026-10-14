@@ -4125,4 +4125,65 @@ export default defineMessages({
     description: 'Aria label for checklist information button',
     defaultMessage: 'More info for checklist',
   },
+  conversionWizardCompleteTitle: {
+    id: 'conversionWizardCompleteTitle',
+    description: 'Conversion complete success title',
+    defaultMessage: 'Conversion complete',
+  },
+  conversionWizardCompleteMessage: {
+    id: 'conversionWizardCompleteMessage',
+    description: 'Conversion complete success message',
+    defaultMessage: 'Your organization has been successfully converted to workspace-based access management.',
+  },
+  conversionWizardCompleteButton: {
+    id: 'conversionWizardCompleteButton',
+    description: 'Button text to navigate to access management dashboard',
+    defaultMessage: 'Go to Access Management dashboard',
+  },
+  conversionWizardCompleteLink: {
+    id: 'conversionWizardCompleteLink',
+    description: 'Link text for getting started guide',
+    defaultMessage: 'Getting Started with Access Management',
+  },
+  conversionWizardFailedTitle: {
+    id: 'conversionWizardFailedTitle',
+    description: 'Conversion failed title',
+    defaultMessage: 'Conversion failed',
+  },
+  conversionWizardFailedMessage: {
+    id: 'conversionWizardFailedMessage',
+    description: 'Conversion failed message',
+    defaultMessage:
+      'Conversion to workspace-based access management is failed due to an error. Check the troubleshooting documentation or contact support for help.',
+  },
+  conversionWizardFailedButton: {
+    id: 'conversionWizardFailedButton',
+    description: 'Button text linking to the troubleshooting documentation',
+    defaultMessage: 'Troubleshooting with Access Management',
+  },
+  conversionWizardFailedDetailForbidden: {
+    id: 'conversionWizardFailedDetailForbidden',
+    description: 'Conversion failure detail shown when the API responds with 403',
+    defaultMessage: 'You must be an Organization Administrator to convert to workspace-based access management.',
+  },
+  conversionWizardFailedDetailIneligible: {
+    id: 'conversionWizardFailedDetailIneligible',
+    description: 'Conversion failure detail shown when the API responds with 422',
+    defaultMessage: 'Your organization is not eligible to convert at this time. Please ensure you meet all the requirements.',
+  },
+  conversionWizardFailedDetailIneligibleItems: {
+    id: 'conversionWizardFailedDetailIneligibleItems',
+    description: 'Conversion failure detail naming the roles and groups that block conversion',
+    defaultMessage: 'Your organization is not eligible to convert yet. Resolve the following first: {items}.',
+  },
+  conversionWizardFailedDetailNetwork: {
+    id: 'conversionWizardFailedDetailNetwork',
+    description: 'Conversion failure detail shown when the request never reached the server',
+    defaultMessage: 'A network error occurred. Please check your connection and try again.',
+  },
+  conversionWizardFailedDetailGeneric: {
+    id: 'conversionWizardFailedDetailGeneric',
+    description: 'Conversion failure detail shown for any other error response',
+    defaultMessage: 'An error occurred while converting to workspace-based access management. Please try again.',
+  },
 });
