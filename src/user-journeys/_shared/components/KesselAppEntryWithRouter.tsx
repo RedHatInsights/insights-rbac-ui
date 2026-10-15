@@ -63,6 +63,13 @@ interface KesselAppEntryWithRouterProps {
   'platform.rbac.common-auth-model'?: boolean;
   /** Role IDs the mocked user can write; undefined falls back to tenant-level rbac_roles_write */
   writableRoleIds?: string[];
+  /**
+   * Whether this tenant has converted to V2. Drives the sidebar's `isKesselOrgOnboarded` gating,
+   * which is independent of `platform.rbac.workspaces`. Stories that set this must also answer
+   * `GET /api/rbac/v1/tenant/opt-in/` to match — see `tenantOptInHandlers({ optedIn: true })` —
+   * since that endpoint is what tells the app shell to render V2.
+   */
+  tenantOptedIn?: boolean;
 }
 
 /**
@@ -72,7 +79,10 @@ interface KesselAppEntryWithRouterProps {
  * while keeping full error handling wired up (403/500 → ApiErrorBoundary).
  * Uses FrontendYamlNavigation which reads deploy/frontend.yaml for the sidebar.
  */
-export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
+export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> = ({
+  initialRoute = '/iam/user-access/groups',
+  tenantOptedIn = false,
+}) => {
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
       {/* FakeAddressBar must be outside Page to avoid z-index conflicts with masthead */}
@@ -82,7 +92,7 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
         sidebar={
           <PageSidebar>
             <PageSidebarBody>
-              <FrontendYamlNavigation />
+              <FrontendYamlNavigation tenantOptedIn={tenantOptedIn} />
             </PageSidebarBody>
           </PageSidebar>
         }

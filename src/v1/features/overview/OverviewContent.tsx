@@ -13,6 +13,17 @@ import { GetStartedCard } from './components/GetStartedCard';
 import { SupportingFeaturesSection } from './components/SupportingFeaturesSection';
 import { RecommendedContentTable } from './components/RecommendedContentTable';
 
+/**
+ * Where a converted tenant lands. V2 serves its overview from `/overview`; this V1 page lives at
+ * `/user-access/overview`, which the tenant no longer has any business being on.
+ *
+ * A full page load rather than a client-side navigation: conversion changes which version of the
+ * app the shell renders, and both sides of that decision are cached for the lifetime of the page
+ * — the tenant opt-in query here, and Chrome's memoized `isKesselOrgOnboarded` behind the nav.
+ * Reloading re-runs both, so the user gets V2 pages and V2 nav together.
+ */
+const leaveForV2Overview = () => window.location.assign('/iam/overview');
+
 export interface OverviewLinks {
   groups: string;
   roles: string;
@@ -47,7 +58,7 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
           <ConversionOptInBanner isOrgAdmin={orgAdmin} onGetStarted={() => setIsWizardOpen(true)} />
         </PageSection>
       )}
-      {isWizardOpen && <ConversionWizard onCancel={() => setIsWizardOpen(false)} onSuccess={() => setIsWizardOpen(false)} />}
+      {isWizardOpen && <ConversionWizard onCancel={() => setIsWizardOpen(false)} onSuccess={leaveForV2Overview} />}
       <PageSection hasBodyWrapper={false}>
         <GetStartedCard className="pf-v6-u-mb-lg" groupsLink={links.groups} rolesLink={links.roles} />
         <SupportingFeaturesSection className="pf-v6-u-mb-lg" groupsLink={links.groups} />

@@ -31,8 +31,8 @@ objects:
           description: Manage your organization's administrator users (Identity & Access Management).
           alt_title: [org administrator, IAM, user access]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, false]
+            - method: isKesselOrgOnboarded
+              args: [false]
             - method: loosePermissions
               args: [[rbac:principal:read]]
         - id: rbac-org-admin-v2
@@ -41,8 +41,8 @@ objects:
           description: Manage your organization's administrator users (Identity & Access Management).
           alt_title: [org administrator, IAM, user access]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
             - method: loosePermissions
               args: [[rbac:principal:read]]
         - id: rbac-roles
@@ -51,8 +51,8 @@ objects:
           description: View and manage custom roles for your organization (Identity & Access Management).
           alt_title: [role, roles, RBAC, IAM, user access]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, false]
+            - method: isKesselOrgOnboarded
+              args: [false]
             - method: loosePermissions
               args: [[rbac:role:read]]
         - id: rbac-roles-v2
@@ -61,8 +61,8 @@ objects:
           description: View and manage custom roles for your organization (Identity & Access Management).
           alt_title: [role, roles, RBAC, IAM, user access]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
             - method: loosePermissions
               args: [[rbac:role:read]]
         - id: rbac-users
@@ -71,8 +71,8 @@ objects:
           description: Manage users and their role-based access (Identity & Access Management).
           alt_title: [user, users, IAM, user access, RBAC]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, false]
+            - method: isKesselOrgOnboarded
+              args: [false]
             - method: loosePermissions
               args: [[rbac:principal:read]]
         - id: rbac-users-v2
@@ -81,8 +81,8 @@ objects:
           description: Manage users and their role-based access (Identity & Access Management).
           alt_title: [user, users, IAM, user access, RBAC]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
             - method: loosePermissions
               args: [[rbac:principal:read]]
         - id: rbac-groups
@@ -91,8 +91,8 @@ objects:
           description: Manage groups and their role assignments (Identity & Access Management).
           alt_title: [group, groups, IAM, user access, RBAC]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, false]
+            - method: isKesselOrgOnboarded
+              args: [false]
             - method: loosePermissions
               args: [[rbac:group:read]]
         - id: rbac-groups-v2
@@ -101,8 +101,8 @@ objects:
           description: Manage groups and their role assignments (Identity & Access Management).
           alt_title: [group, groups, IAM, user access, RBAC]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
             - method: loosePermissions
               args: [[rbac:group:read]]
         - id: rbac-my-access
@@ -111,32 +111,32 @@ objects:
           description: View your current permissions and access (Identity & Access Management).
           alt_title: [my access, my permissions, IAM, RBAC, user access]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, false]
+            - method: isKesselOrgOnboarded
+              args: [false]
         - id: rbac-my-access-v2
           title: My Access
           href: /iam/my-access
           description: View your current permissions and access (Identity & Access Management).
           alt_title: [my access, my permissions, IAM, RBAC, user access]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
         - id: rbac-workspaces-v2
           title: Workspaces
           href: /iam/access-management/workspaces
           description: Organize systems with workspaces for granular user access (Identity & Access Management).
           alt_title: [workspace, workspaces, IAM, user access, RBAC]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
         - id: rbac-access-management
           title: Access Management
           href: /iam/access-management/users-and-user-groups
           description: Manage users, groups, roles, and workspaces (Identity & Access Management).
           alt_title: [access management, IAM, user access, RBAC, roles, workspaces]
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
             - method: loosePermissions
               args:
                 - - rbac:principal:read
@@ -150,8 +150,8 @@ objects:
           description: Manage your organization's role-based access control (RBAC) to services.
           icon: PlaceholderIcon
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, false]
+            - method: isKesselOrgOnboarded
+              args: [false]
             - method: loosePermissions
               args: [[rbac:principal:read]]
         - section: iam
@@ -162,8 +162,8 @@ objects:
           description: Manage your organization's role-based access control (RBAC) to services.
           icon: PlaceholderIcon
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
             - method: loosePermissions
               args: [[rbac:principal:read]]
         - section: iam
@@ -174,8 +174,8 @@ objects:
           description: ""
           icon: PlaceholderIcon
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, false]
+            - method: isKesselOrgOnboarded
+              args: [false]
             - method: loosePermissions
               args: [[rbac:group:read]]
         - section: iam
@@ -186,22 +186,23 @@ objects:
           description: ""
           icon: PlaceholderIcon
           permissions:
-            - method: featureFlag
-              args: [platform.rbac.workspaces, true]
+            - method: isKesselOrgOnboarded
+              args: [true]
             - method: loosePermissions
               args: [[rbac:group:read]]
       bundleSegments:
         - segmentId: module-rbac-ui
           bundleId: iam
           navItems:
-            # New navigation structure with platform.rbac.workspaces feature flag
+            # V2 navigation. Shown to tenants onboarded to Kessel V2 — either because
+            # platform.rbac.workspaces is on for the environment, or because the tenant
+            # converted itself ahead of the rollout.
             - id: overview
               title: Overview
               href: /iam/overview
               permissions:
-                - method: featureFlag
+                - method: isKesselOrgOnboarded
                   args:
-                    - platform.rbac.workspaces
                     - true
                 - method: featureFlag
                   args:
@@ -215,17 +216,15 @@ objects:
               title: My Access
               href: /iam/my-access
               permissions:
-                - method: featureFlag
+                - method: isKesselOrgOnboarded
                   args:
-                    - platform.rbac.workspaces
                     - true
             - id: access-management
               title: Access Management
               expandable: true
               permissions:
-                - method: featureFlag
+                - method: isKesselOrgOnboarded
                   args:
-                    - platform.rbac.workspaces
                     - true
               routes:
                 - id: users-and-groups
@@ -263,9 +262,8 @@ objects:
               title: Organization Management
               expandable: true
               permissions:
-                - method: featureFlag
+                - method: isKesselOrgOnboarded
                   args:
-                    - platform.rbac.workspaces
                     - true
                 - method: isOrgAdmin
               routes:
@@ -275,14 +273,14 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
-            # Legacy navigation structure (when new feature flag is off)
+            # Legacy V1 navigation. Hidden as soon as the tenant is onboarded, so a converted
+            # tenant is never offered links to pages its backend no longer populates.
             - id: my-user-access
               title: My User Access
               href: /iam/my-user-access
               permissions:
-                - method: featureFlag
+                - method: isKesselOrgOnboarded
                   args:
-                    - platform.rbac.workspaces
                     - false
             - id: user-access
               title: User Access
@@ -294,9 +292,8 @@ objects:
                     - - rbac:group:read
                     - - rbac:role:read
                     - - inventory:groups:read
-                - method: featureFlag
+                - method: isKesselOrgOnboarded
                   args:
-                    - platform.rbac.workspaces
                     - false
               routes:
                 - id: user-access-overview

@@ -56,5 +56,17 @@ Validates that Org Admin sees all sidebar items.
       const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
       expect(rolesLink).toBeInTheDocument();
     });
+
+    await step('Verify no V2 sidebar items leak in', async () => {
+      // An unconverted tenant with the flag off is the other half of `isKesselOrgOnboarded`.
+      // Gating that fails open renders both variants of every entry, which shows up first as
+      // duplicate links rather than as a missing one.
+      const v2Links = canvas.queryAllByRole('link').filter((link) => link.getAttribute('href')?.startsWith('/iam/access-management'));
+      expect(v2Links).toHaveLength(0);
+
+      const rolesLinks = canvas.getAllByRole('link', { name: /^roles$/i });
+      expect(rolesLinks).toHaveLength(1);
+      expect(rolesLinks[0]).toHaveAttribute('href', '/iam/user-access/roles');
+    });
   },
 };
