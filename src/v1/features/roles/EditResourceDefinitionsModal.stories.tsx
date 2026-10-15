@@ -6,7 +6,8 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EditResourceDefinitionsModal } from './EditResourceDefinitionsModal';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
 import type { RoleOutDynamic } from '../../data/mocks/db';
-import { inventoryHandlers, inventoryLoadingHandlers } from '../../../shared/data/mocks/inventory.handlers';
+import { inventoryErrorHandlers, inventoryHandlers, inventoryLoadingHandlers } from '../../../shared/data/mocks/inventory.handlers';
+import { defaultCostResourceTypes } from '../../../shared/data/mocks/inventory.fixtures';
 
 // API Spies
 const updateRoleSpy = fn();
@@ -34,6 +35,29 @@ const mockRole = {
             key: 'group.id',
             operation: 'in',
             value: ['group-1', 'group-2'],
+          },
+        },
+      ],
+    },
+  ],
+};
+
+// Mock role with a cost-management permission. Cost permissions resolve their
+// resources through the cost-management resource-types API rather than inventory.
+const mockCostRole = {
+  uuid: 'role-456',
+  name: 'Cost Admin',
+  display_name: 'Cost Admin',
+  description: 'Manages cost resources',
+  access: [
+    {
+      permission: 'cost-management:aws.account:read',
+      resourceDefinitions: [
+        {
+          attributeFilter: {
+            key: 'cost-management.aws.account',
+            operation: 'in',
+            value: ['AWS Account 001', 'AWS Account 002'],
           },
         },
       ],
@@ -281,6 +305,98 @@ export const AddResourceAndSave: Story = {
       },
       { timeout: 5000 },
     );
+  },
+};
+
+/**
+ * CostManagementPermission - Regression test for RHCLOUD-52266
+ *
+ * Cost-management permissions resolve their resources through the
+ * cost-management resource-types API. The resources object is `undefined` on
+ * the first render (and whenever the resource type cannot be resolved), which
+ * used to throw `Cannot convert undefined or null to object` out of
+ * `Object.entries` while building the dual-list options — the modal never
+ * rendered and the whole route crashed into the Sentry error boundary.
+ */
+export const CostManagementPermission: Story = {
+  parameters: {
+    roleId: 'role-456',
+    permissionId: 'cost-management:aws.account:read',
+    msw: {
+      handlers: [
+        ...v1RolesHandlers([mockCostRole as unknown as RoleOutDynamic]),
+        ...inventoryHandlers(inventoryGroupsForModal, defaultCostResourceTypes, { networkDelay: 0 }),
+      ],
+    },
+  },
+  play: async ({ step }) => {
+    await step('Modal renders instead of crashing', async () => {
+      await waitFor(
+        () => {
+          const title = queryModalTitle();
+          expect(title?.textContent).toContain('Edit resource definitions');
+        },
+        { timeout: 5000 },
+      );
+
+      await waitFor(
+        () => {
+          expect(querySpinner()).toBeFalsy();
+        },
+        { timeout: 10000 },
+      );
+    });
+
+    await step('AWS accounts are listed as available resources', async () => {
+      const modal = queryModalBox();
+      expect(modal).toBeTruthy();
+      const modalContent = within(modal as HTMLElement);
+
+      await waitFor(
+        () => {
+          expect(modalContent.queryByText('AWS Account 003')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
+  },
+};
+
+/**
+ * CostManagementResourceTypesUnavailable - The cost-management API is denied or
+ * unavailable (a 403 for users without cost-management access returns no
+ * resource types). The permission's resource type never resolves, so there are
+ * no options to offer — the modal must still render rather than crash.
+ */
+export const CostManagementResourceTypesUnavailable: Story = {
+  parameters: {
+    roleId: 'role-456',
+    permissionId: 'cost-management:aws.account:read',
+    msw: {
+      handlers: [...v1RolesHandlers([mockCostRole as unknown as RoleOutDynamic]), ...inventoryErrorHandlers(403)],
+    },
+  },
+  play: async ({ step }) => {
+    await step('Modal renders with no available resources', async () => {
+      await waitFor(
+        () => {
+          const title = queryModalTitle();
+          expect(title?.textContent).toContain('Edit resource definitions');
+        },
+        { timeout: 5000 },
+      );
+
+      await waitFor(
+        () => {
+          expect(querySpinner()).toBeFalsy();
+        },
+        { timeout: 10000 },
+      );
+
+      const modal = queryModalBox();
+      expect(modal).toBeTruthy();
+      expect(within(modal as HTMLElement).queryByText('AWS Account 003')).not.toBeInTheDocument();
+    });
   },
 };
 

@@ -67,10 +67,10 @@ const createOptions = (resources: Record<string, InventoryGroup> | Resources | u
           </span>
         )),
       ]
-    : Object.entries(resources as Resources).reduce(
+    : Object.entries((resources as Resources) || {}).reduce(
         (acc: { value: string; path: string; label: string }[], [key, value]) => [
           ...acc,
-          ...value.map((r) => ({
+          ...(value || []).map((r) => ({
             value: r.value,
             path: key,
             label: r.value,
