@@ -1,0 +1,248 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/PatternFly Patterns" />
+
+# PatternFly Patterns
+
+Import rules, component-specific patterns, and UX guidelines for working with PatternFly in RBAC UI.
+
+---
+
+## Import Rules
+
+### Components — Always Use Dynamic Imports
+
+```typescript
+// ✅ Dynamic imports — correct for all PF components
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
+import { Table, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
+// ❌ Global imports — never use these
+import { Button, Spinner } from '@patternfly/react-core';
+import { Table } from '@patternfly/react-table';
+```
+
+Dynamic imports enable per-component tree-shaking and match the pattern used throughout the codebase.
+
+### Icons — Always Use Absolute Path Imports
+
+```typescript
+// ✅ Absolute path imports
+import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
+import InfoCircleIcon from '@patternfly/react-icons/dist/js/icons/info-circle-icon';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
+import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
+
+// For dynamic icon imports (used in empty states)
+import { UsersIcon } from '@patternfly/react-icons/dist/dynamic/icons/users-icon';
+
+// ❌ Destructured imports from main package
+import { CheckCircleIcon, UsersIcon } from '@patternfly/react-icons';
+```
+
+### Types
+
+```typescript
+import type { RowWrapperProps } from '@patternfly/react-table/dist/dynamic/components/Table';
+```
+
+---
+
+## Named Exports
+
+Always use named exports. Never default exports, except for features (route/page containers).
+
+```typescript
+// ✅ Components — named export only
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => { ... };
+
+// ✅ Features (route containers) — both exports allowed
+export const WorkspacesList = () => { ... };
+export default WorkspacesList;
+
+// ❌ Never default-only
+export default function MyComponent() { ... }
+```
+
+Stories always import components using named imports:
+```typescript
+import { WorkspaceActions } from './WorkspaceActions';  // ✅ named
+import WorkspaceActions from './WorkspaceActions';       // ❌ default
+```
+
+---
+
+## Row Actions — Kebab Menu (Not Inline Buttons)
+
+Direct action buttons in table rows are poor UX. Always use a kebab menu:
+
+```typescript
+// ❌ Poor UX — direct delete button
+<Button variant="link" isDanger onClick={() => onDelete(user)}>Delete</Button>
+
+// ✅ Professional UX — kebab dropdown
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+
+const [isOpen, setIsOpen] = useState(false);
+
+<Dropdown
+  isOpen={isOpen}
+  onOpenChange={setIsOpen}
+  toggle={(toggleRef) => (
+    <MenuToggle
+      ref={toggleRef}
+      aria-label={`Actions for ${user.username}`}
+      variant="plain"
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <EllipsisVIcon />
+    </MenuToggle>
+  )}
+>
+  <DropdownList>
+    <DropdownItem
+      onClick={() => onDeleteUser(user)}
+      isDisabled={!orgAdmin || isProd()}
+    >
+      Delete
+    </DropdownItem>
+  </DropdownList>
+</Dropdown>
+```
+
+---
+
+## Empty State Icons — Domain Mapping
+
+Use domain-appropriate icons for no-data states. Always use `SearchIcon` for no-results (filtered) states:
+
+```typescript
+// Domain icons for no-data states
+import { UsersIcon } from '@patternfly/react-icons/dist/dynamic/icons/users-icon';     // Groups/Members
+import { CubesIcon } from '@patternfly/react-icons/dist/dynamic/icons/cubes-icon';     // Roles/Permissions
+import { ServiceCatalogIcon } from '@patternfly/react-icons/dist/dynamic/icons/service-catalog-icon'; // Service Accounts
+
+// Always SearchIcon for filter no-results
+import { SearchIcon } from '@patternfly/react-icons/dist/dynamic/icons/search-icon';
+
+// Usage
+const emptyIcon = hasActiveFilters
+  ? SearchIcon    // no results after filtering
+  : UsersIcon;    // genuinely no data (groups domain)
+```
+
+---
+
+## Empty State Component Structure
+
+Empty states inside tables must use proper table structure:
+
+```typescript
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Tbody, Td, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+
+export const GroupsEmptyState: React.FC<{ colSpan: number; hasActiveFilters: boolean }> = ({
+  colSpan,
+  hasActiveFilters,
+}) => (
+  <Tbody>
+    <Tr>
+      <Td colSpan={colSpan}>
+        {hasActiveFilters ? (
+          <EmptyState>
+            <EmptyStateHeader
+              titleText="No groups match your search"
+              headingLevel="h4"
+              icon={<EmptyStateIcon icon={SearchIcon} />}
+            />
+            <EmptyStateBody>Try adjusting your search filters.</EmptyStateBody>
+          </EmptyState>
+        ) : (
+          <EmptyState>
+            <EmptyStateHeader
+              titleText="No groups yet"
+              headingLevel="h4"
+              icon={<EmptyStateIcon icon={UsersIcon} />}
+            />
+            <EmptyStateBody>Create a group to get started.</EmptyStateBody>
+          </EmptyState>
+        )}
+      </Td>
+    </Tr>
+  </Tbody>
+);
+```
+
+Key requirements:
+- Wrap in `<Tbody><Tr><Td colSpan={colSpan}>` — not a bare `<EmptyState>`
+- `colSpan` must match the actual column count (pass dynamically)
+- Two distinct states: no-data (domain icon) vs no-results (SearchIcon)
+
+---
+
+## Permission-Based UI
+
+```typescript
+import { useContext } from 'react';
+import PermissionsContext from 'src/utilities/PermissionsContext';
+
+const { orgAdmin } = useContext(PermissionsContext);
+const { isProd } = useChrome();
+
+// Disable destructive actions based on env + permissions
+const isDeleteDisabled = !orgAdmin || isProd();
+const canEdit = orgAdmin && !isProd();
+```
+
+---
+
+## DataViewTable vs PatternFly Core Tables
+
+`DataViewTable` from `@patternfly/react-data-view` renders with `role="grid"` (same as PF core tables). Use the TableView component (`src/components/table-view/TableView`) instead of raw DataView for all new features — it wraps the correct patterns.
+
+When writing Storybook tests:
+```typescript
+// ✅ All PF tables — use role="grid"
+const table = await canvas.findByRole('grid');
+
+// ❌ Wrong
+const table = await canvas.findByRole('table');
+```
+
+---
+
+## i18n Guidelines
+
+Presentational components handle i18n internally. Smart components pass data, not translated strings.
+
+```typescript
+// ✅ Presentational — i18n internal
+import { useIntl } from 'react-intl';
+import messages from 'src/Messages';
+
+export const GroupHeader: React.FC<{ count: number }> = ({ count }) => {
+  const intl = useIntl();
+  return <h2>{intl.formatMessage(messages.groupsCount, { count })}</h2>;
+};
+
+// ❌ Don't pass translated strings as props
+<GroupHeader label={intl.formatMessage(messages.groups)} />
+```
+
+Always check `locales/translation-template.json` before creating new messages. Add new messages to:
+1. `locales/translation-template.json` — source of truth
+2. `src/Messages.js` — React message definitions
+
+Use specific, contextual messages — not generic ones:
+```typescript
+intl.formatMessage(messages.loadingWorkspaces)  // ✅ "Loading workspaces..."
+intl.formatMessage(messages.loading)            // ❌ too generic
+```

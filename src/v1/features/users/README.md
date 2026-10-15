@@ -1,0 +1,29 @@
+# users
+
+**API generation:** v1 (`@redhat-cloud-services/rbac-client`)
+
+User management in the v1 User Access model. Lists organization principals and provides admin actions: activate/deactivate, invite, toggle org admin status, toggle manage support cases permission. The v2 equivalent is `src/features/access-management/users-and-user-groups/users/` — near feature parity. Both coexist until v1 is retired. Do not merge them.
+
+## Sub-features
+
+- `add-user-to-group/` — modal for adding an existing user to a group
+- `invite-users/` — modal for inviting new users via email
+- `components/` — shared presentational components (user rows, status badges)
+
+## Data
+
+Fetching uses `useUsersQuery` from `src/shared/data/queries/users.ts`. Mutations:
+- `useChangeUserStatusMutation` — activate/deactivate
+- `useInviteUsersMutation` — invite by email
+- `useUpdateUserOrgAdminMutation` — toggle org admin flag
+- `useToggleManageSupportCasesMutation` — toggle `portal_manage_cases` permission (shared)
+- `useAccountUsersPermissionsQuery` — bulk-fetch portal permissions for the whole page in one request (shared)
+- `useAccountUserDetailQuery` — read a single user's cached portal permissions from the IT Account API (shared)
+
+## Constraints
+
+- v1 API types are broken — use `(api.method as any)`. See [API Client Patterns](../../docs/APIClientPatterns.mdx).
+- Permission model: `orgAdmin` gates all mutations. With common-auth-model enabled, the org admin column is a PatternFly Switch (disabled when the viewer is not an org admin or the target user is inactive). Without the flag, the column shows Yes/No icons.
+- The invite flow uses a different base URL derived from `fetchEnvBaseUrl()`. Do not hardcode `/api/rbac/v1/` for this endpoint — the URL resolves to an empty prefix in test environments.
+- `accountId` type varies by action: some endpoints use `org_id` (number), others use `internal.account_id` (string). Preserve the original source per action — do not standardize.
+- **Manage Support Cases column**: Visible only when `isCommonAuthModel && orgAdmin && !isITLess`. The toggle state is the presence/absence of `portal_manage_cases` in each user's `permissions` array. Permissions for the **whole page** are fetched in a **single** `POST /account/v1/accounts/{org_id}/users/search` (body `{ by: { ids: [...] } }`) via the shared `useSupportCasesPermissions(users, { enabled })` hook — not one GET per row, which would hit the account API rate limit. `useSupportCasesPermissions` is the single entry point for this orchestration: any page rendering `SupportCasesToggle` must call it with the same visibility gate, or the toggle silently disables itself (no seeded cache entry). That bulk query seeds the per-user cache `SupportCasesToggle` reads (cache-only) and the toggle mutation writes. Toggling is a read-modify-write: it adds/removes `portal_manage_cases` from the array and `POST`s the result back to `.../users/{user_id}`. The POST body contains only the `permissions` array — not the full user object (sending other fields like `id`/`username`/`roles` is rejected with a 400). `accounts/{X}` is `org_id` from the JWT (not `account_id`). The account API is not available in ITLess/FedRAMP environments — column is hidden.

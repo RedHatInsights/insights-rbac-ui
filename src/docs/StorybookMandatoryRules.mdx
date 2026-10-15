@@ -1,0 +1,474 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Storybook Mandatory Rules" />
+
+# Storybook Mandatory Rules
+
+These rules apply to **every** `.stories.tsx` file. Violations cause silent test failures or broken Interactions panel output.
+
+---
+
+## 1. Import Rule
+
+```typescript
+// ✅ Always import from 'storybook/test' (no @ prefix)
+import { userEvent, within, expect, fn, waitFor } from 'storybook/test';
+
+// ❌ Never
+import { expect } from '@storybook/test';
+import { userEvent } from '@storybook/testing-library';
+```
+
+---
+
+## 2. Query Rule — `findBy*` not `getBy*`
+
+In play functions, always use async `findBy*` queries. `getBy*` throws immediately if the element is not in the DOM yet.
+
+```typescript
+// ✅ Correct — waits for async content
+const button = await canvas.findByRole('button', { name: /save/i });
+const rows = await canvas.findAllByRole('row');
+
+// ❌ Wrong — fails if element isn't immediately present
+const button = canvas.getByRole('button', { name: /save/i });
+```
+
+**Exceptions where `getBy*` is acceptable:**
+
+- Inside `within(alreadyFoundElement)` when the parent was already awaited
+- `queryBy*` for asserting absence: `expect(canvas.queryByText('error')).not.toBeInTheDocument()`
+
+---
+
+## 3. `await expect(...)` Rule
+
+Always `await` your `expect` calls in play functions so failures appear in Storybook's **Interactions** panel:
+
+```typescript
+// ✅ Awaited — shows in Interactions panel
+await expect(canvas.findByText('Success')).resolves.toBeInTheDocument();
+await expect(spy).toHaveBeenCalled();
+
+// ❌ Not awaited — Interactions panel may not report failures
+expect(canvas.findByText('Success')).resolves.toBeInTheDocument();
+```
+
+---
+
+## 4. Modal Rule
+
+Modals render to `document.body` via React portals, not inside the canvas:
+
+```typescript
+import { screen, within } from 'storybook/test';
+
+// ✅ Modals are in document.body
+const modal = screen.getByRole('dialog');
+expect(within(modal).getByText('Confirm deletion')).toBeInTheDocument();
+
+// ❌ Modal is not in canvas
+const modal = canvas.getByRole('dialog');
+```
+
+---
+
+## 5. PatternFly Table Role
+
+PatternFly tables render as `role="grid"`, not `role="table"`:
+
+```typescript
+// ✅ Correct
+const table = await canvas.findByRole('grid');
+
+// ❌ Wrong
+const table = await canvas.findByRole('table');
+```
+
+---
+
+## 6. Container Story Pattern
+
+Container stories (feature-level, use MSW) must use the **single autodocs** pattern to prevent MSW handler conflicts when multiple stories render simultaneously in autodocs:
+
+```typescript
+// ✅ Container story meta — NO autodocs on meta
+const meta: Meta<typeof MyFeature> = {
+  component: MyFeature,
+  tags: ['my-feature'], // NOT 'autodocs'
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          groupsApiSpy({ name: new URL(request.url).searchParams.get('name') ?? '' });
+          return HttpResponse.json({ data: mockGroups, meta: { count: 1 } });
+        }),
+      ],
+    },
+  },
+};
+
+// ✅ Only the Default story gets autodocs
+export const Default: Story = {
+  tags: ['autodocs'],
+  parameters: {
+    docs: { description: { story: '...' } },
+  },
+};
+
+// ✅ Other stories — no autodocs, just MSW + play
+export const LoadingState: Story = {
+  parameters: { msw: { handlers: [http.get('/api/rbac/v1/groups/', () => new Promise(() => {}))] } },
+};
+```
+
+**Never** use `storeState` to pre-populate Redux. Always mock via MSW handlers.
+
+---
+
+## 7. API Spy Pattern (Container Stories)
+
+Test that API calls are made with correct parameters using `fn()` spies in MSW handlers:
+
+```typescript
+// Step 1: Create spies at file scope
+const groupsApiSpy = fn();
+const createGroupSpy = fn();
+
+// Step 2: Call spy inside MSW handler
+http.get('/api/rbac/v1/groups/', ({ request }) => {
+  const url = new URL(request.url);
+  groupsApiSpy({
+    name: url.searchParams.get('name') ?? '',
+    limit: url.searchParams.get('limit') ?? '20',
+    offset: url.searchParams.get('offset') ?? '0',
+  });
+  return HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } });
+}),
+
+// Step 3: Assert in play function
+play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  await canvas.findByText('my-group');           // wait for load
+
+  expect(groupsApiSpy).toHaveBeenCalledWith({
+    name: '',
+    limit: '20',
+    offset: '0',
+  });
+
+  // Type in search, then assert filtered call
+  const search = await canvas.findByPlaceholderText(/search/i);
+  await userEvent.type(search, 'admin');
+  await waitFor(() => {
+    expect(groupsApiSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'admin' }));
+  });
+},
+```
+
+Key rules:
+
+- Name spies with `Spy` suffix: `groupsApiSpy`, `createGroupSpy`
+- Wrap debounced spy assertions in `waitFor()`
+- Test `toHaveBeenCalledTimes(n)` for multi-call sequences
+
+---
+
+## 8. Story Tags
+
+Every story must include appropriate tags so stories are filterable in Storybook:
+
+| Condition                        | Tag                          |
+| -------------------------------- | ---------------------------- |
+| Component uses a feature flag    | `ff:platform.rbac.flag-name` |
+| Chrome environment set           | `env:prod` / `env:stage`     |
+| `orgAdmin: true`                 | `perm:org-admin`             |
+| `userAccessAdministrator: true`  | `perm:user-access-admin`     |
+| Component imports a `.scss` file | `custom-css`                 |
+
+```typescript
+export const AdminProductionStory: Story = {
+  tags: ['env:prod', 'perm:org-admin', 'ff:platform.rbac.workspaces'],
+  parameters: {
+    chrome: { environment: 'prod' },
+    permissions: { orgAdmin: true },
+    featureFlags: { 'platform.rbac.workspaces': true },
+  },
+};
+```
+
+Use full flag names in tags (`ff:platform.rbac.itless`, not `ff:itless`).
+
+---
+
+## 9. No Custom Redux Providers
+
+All stories automatically receive the global Redux provider from `.storybook/preview.tsx`. Never add custom providers:
+
+```typescript
+// ❌ Forbidden
+decorators: [
+  (Story) => (
+    <Provider store={createStore(reducer)}>
+      <Story />
+    </Provider>
+  ),
+],
+
+// ✅ Correct — use MSW handlers instead
+parameters: {
+  msw: { handlers: [...] },
+},
+```
+
+---
+
+## 10. MSW Handler Settle Delay
+
+Play functions in stories that use MSW handlers **must** start with `await delay(300)` before any queries. This gives MSW time to register and settle the handlers after the story mounts.
+
+```typescript
+import { delay } from 'msw';
+
+play: async ({ canvasElement }) => {
+  await delay(300); // let MSW handlers register and settle
+  const canvas = within(canvasElement);
+  // ...queries and assertions
+},
+```
+
+Stories that do **not** use MSW handlers (pure component stories with only `args`) do not need the delay.
+
+**Do not use custom `{ timeout }` overrides** on `findBy*` or `waitFor`. The default timeout (1 000 ms) is more than sufficient for a mocked network layer with ~200 ms mock delay. If you need a higher timeout, the real problem is elsewhere.
+
+---
+
+## 11. No Hardcoded Mock Data Strings
+
+Play functions must **never** use hardcoded string literals for entity names, usernames, workspace names, or other values that come from seed/fixture data. Instead, import the seed constants and reference them by property.
+
+This prevents silent breakage when seed data changes and makes the data dependency explicit.
+
+Each seed file exports named aliases — import them directly instead of indexing arrays:
+
+```typescript
+// ✅ Import named aliases from seed files
+import { USER_JOHN, GROUP_SUPPORT_TEAM } from '../../shared/data/mocks/seed';
+import { V2_ROLE_TENANT_ADMIN, WS_ROOT } from '../../v2/data/mocks/seed';
+import { V1_ROLE_ADMIN } from '../../v1/data/mocks/seed';
+
+await waitForPageToLoad(canvas, V2_ROLE_TENANT_ADMIN.name!);
+await canvas.findByText(USER_JOHN.username);
+await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+await openRowActionsMenu(user, canvas, GROUP_SUPPORT_TEAM.name);
+
+// ❌ Hardcoded strings that silently break when seed data changes
+await waitForPageToLoad(canvas, 'Tenant admin');
+await canvas.findByText('john.doe');
+await expandWorkspaceRow(user, canvas, 'Root Workspace');
+```
+
+Available aliases:
+
+| Seed file                                     | Aliases                                                                                                                                                                                                                                 |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shared/data/mocks/seed.ts`                   | `USER_JOHN`, `USER_JANE`, `USER_BOB`, `GROUP_ADMIN_DEFAULT`, `GROUP_SYSTEM_DEFAULT`, `GROUP_PLATFORM_ADMINS`, `GROUP_SUPPORT_TEAM`, `GROUP_ENGINEERING`                                                                                 |
+| `v1/data/mocks/seed.ts`                       | `V1_ROLE_ADMIN`, `V1_ROLE_VIEWER`, `V1_ROLE_CUSTOM`, `V1_ROLE_INSIGHTS_ANALYST`, `V1_ROLE_COMPLIANCE_AUDITOR`                                                                                                                           |
+| `v2/data/mocks/seed.ts`                       | `V2_ROLE_TENANT_ADMIN`, `V2_ROLE_WORKSPACE_ADMIN`, `V2_ROLE_RHEL_DEVOPS`, `V2_ROLE_INVENTORY_VIEWER`, `WS_ROOT`, `WS_DEFAULT`, `WS_PRODUCTION`, `WS_DEVELOPMENT`, `WS_STAGING`                                                          |
+| `v2/data/mocks/kesselGroupsRoles.fixtures.ts` | `KESSEL_GROUP_PROD_ADMINS`, `KESSEL_GROUP_DEV_TEAM`, `KESSEL_GROUP_VIEWERS`, `KESSEL_GROUP_MARKETING`, `KESSEL_ROLE_WS_ADMIN`, `KESSEL_ROLE_WS_VIEWER`, `KESSEL_ROLE_WS_EDITOR`, `KESSEL_PROD_ADMINS_MEMBERS`, `KESSEL_VIEWERS_MEMBERS` |
+
+---
+
+## §12 — User-journey play functions must use shared interaction helpers
+
+Do not inline modal waits, drawer scoping, tab switching, row selection, notification checks, destructive confirmations, or wizard navigation. Import helpers from `src/user-journeys/_shared/helpers/`. If a helper doesn't exist for your pattern, create one there — don't inline the sequence.
+
+Available helpers (from `src/user-journeys/_shared/helpers/interactionHelpers.ts`):
+
+| Helper | Replaces |
+|--------|----------|
+| `waitForModal()` | `document.querySelector('[role="dialog"]')` |
+| `waitForDrawer()` | `document.querySelector('.pf-v6-c-drawer__panel')` |
+| `clickTab(user, scope, tabName)` | `click tab` + `delay` + `aria-selected` check |
+| `selectTableRow(user, scope, rowText)` | `findByText` + `closest('tr')` + `querySelector('checkbox')` |
+| `waitForNotification(textPattern)` | inline `waitFor` + `getByText` notification patterns |
+| `confirmDestructiveModal(user, options?)` | modal + checkbox + delete/remove button |
+| `clickWizardNext(user, scope, options?)` | find Next + `waitFor(enabled)` + click |
+
+**Banned in play functions:**
+
+- `document.querySelector` / `document.getElementById`
+- `delay()` (except the initial MSW settle in `resetStoryState`)
+- `dispatchEvent(new MouseEvent(...))` / raw `.click()`
+- Hand-rolled polling loops (`pollUntilTrue`, `while` loops with `setTimeout`)
+- Sync `getByRole` / `getByText` after any async boundary (use `findBy*`)
+
+---
+
+## Pre-flight Checklist
+
+Before writing or submitting any `.stories.tsx` file:
+
+- [ ] Imports from `storybook/test` (no `@`)
+- [ ] All play function queries use `await canvas.findBy*()`
+- [ ] All `expect()` calls are `await`ed
+- [ ] Modals use `waitForModal()` (not `screen.getByRole('dialog')`)
+- [ ] PatternFly tables use `role="grid"`
+- [ ] Container stories: meta has no `autodocs`, only Default story has it
+- [ ] Container stories: MSW handlers, not `storeState`
+- [ ] API spies defined with `fn()` and asserted in play functions
+- [ ] Required tags applied (`ff:*`, `env:*`, `perm:*`, `custom-css`)
+- [ ] No custom Redux provider decorators
+- [ ] `args` parameter kept in play function signature if story tests callbacks
+- [ ] MSW stories: play function starts with `await delay(300)`
+- [ ] Custom `{ timeout }` on `findBy*` only for async-rendered content (e.g. data-driven-forms) with a comment
+- [ ] No hardcoded mock data strings — reference seed constants instead
+- [ ] User-journey play functions use shared helpers (§12) — no inline DOM queries
+- [ ] User-journey play functions wrap every logical phase in `await step(...)` (§13)
+
+---
+
+## §13 — User-journey play functions must use `step` for every logical phase
+
+Destructure `step` from the play function context and wrap each phase in `await step('Label', async () => { ... })`. This creates closure boundaries that prevent stale DOM references from leaking between phases.
+
+```tsx
+play: async ({ canvasElement, step, args }) => {
+  const canvas = within(canvasElement);
+  const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+  await step('Reset state', async () => {
+    await resetStoryState(db);
+    spy.mockClear();
+  });
+
+  await step('Navigate to roles page', async () => {
+    await navigateToPage(user, canvas, 'Roles');
+    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+  });
+
+  await step('Open edit form', async () => {
+    const kebab = await canvas.findByRole('button', { name: /actions/i });
+    await user.click(kebab);
+    const editOption = await canvas.findByRole('menuitem', { name: /edit/i });
+    await user.click(editOption);
+  });
+
+  await step('Verify API call', async () => {
+    await waitFor(() => expect(spy).toHaveBeenCalled());
+  });
+};
+```
+
+**Outside steps** (stable across renders): `canvas`, `user`, module-scope constants, seed data.
+
+**Inside steps** (DOM references): every `findByRole`/`findByText` result, every `within(element)` scope, every helper return (`waitForModal()`, `waitForDrawer()`, `getRolesTable()`).
+
+Step labels use imperative verb phrases: "Reset state", "Navigate to users page", "Fill form fields", "Verify drawer content".
+
+`waitFor` is still needed inside steps for spy assertions (async API calls) and for `findBy*` with `{ timeout: TEST_TIMEOUTS.ELEMENT_WAIT }` when querying async-rendered content (e.g. data-driven-forms fields inside an already-open modal shell).
+
+---
+
+## §14 — Test helper ownership: `src/test-utils/` owns, journeys consume
+
+Generic interaction helpers (`waitForModal`, `clickWizardNext`, `clearAndType`, etc.) and domain helpers (`workspaceHelpers`, `rolesTableHelpers`, `tableHelpers`) live in `src/test-utils/`.
+Feature-specific form/wizard helpers (`fillAddGroupWizardForm`, `fillCreateRoleWizard`, `confirmDeleteRoleModal`, etc.) live as `*.helpers.tsx` next to the component they exercise.
+
+User-journey stories consume from both — they never own reusable interaction logic.
+`src/user-journeys/_shared/helpers/` is limited to journey-only orchestration: `resetStoryState` and `navigateToPage`.
+
+```
+src/test-utils/
+├── testUtils.ts              # TEST_TIMEOUTS, StepFn, noopStep
+├── interactionHelpers.ts     # waitForModal, clickWizardNext, clearAndType, …
+├── tableHelpers.ts           # openRowActionsMenu, waitForPageToLoad, verifySuccessNotification, …
+├── workspaceHelpers.ts       # openWorkspaceWizard, fillWorkspaceForm, …
+└── rolesTableHelpers.ts      # getRoleRow, expandRoleGroups, …
+
+src/user-journeys/_shared/helpers/
+├── resetStoryState.ts        # MSW DB reset + notification clear
+└── navigationHelpers.ts      # navigateToPage (requires full app shell)
+```
+
+Import directly from the owning module — no barrel re-exports.
+
+---
+
+## §15 — Banned patterns in play functions (ESLint-enforced)
+
+Three patterns are banned because they cause flaky `failOnConsole` failures:
+
+### `findBy*` inside `waitFor` (double-retry) — `testing-library/no-wait-for-side-effects`
+
+`findBy*` already retries internally. Wrapping it in `waitFor` creates nested retries
+where each inner `findBy` failure logs a `TestingLibraryElementError` to `console.error`,
+which `failOnConsole` catches intermittently.
+
+```tsx
+// ❌ BAD — double retry, console.error noise
+await waitFor(async () => {
+  await dialog.findByDisplayValue('Production');
+}, { timeout: 5000 });
+
+// ✅ GOOD — single retry, no console noise
+await waitFor(() => {
+  expect(dialog.queryByDisplayValue('Production')).toBeInTheDocument();
+}, { timeout: 5000 });
+```
+
+### `console.log` / `console.warn` in stories — `no-console`
+
+`failOnConsole` can be triggered by error-like content in console output.
+Debug logging has no CI value. Use `fn()` spies for interaction callbacks.
+
+```tsx
+// ❌ BAD — debug logging in play function
+console.log('SB: ✅ Filter verified');
+
+// ❌ BAD — console.log as event handler
+args: { onSubmit: () => console.log('submitted') }
+
+// ✅ GOOD — fn() spy
+args: { onSubmit: fn() }
+
+// ✅ GOOD — no logging needed, assertions are the proof
+expect(spy).toHaveBeenCalled();
+```
+
+### try/catch swallowing assertion failures
+
+Wrapping assertions in try/catch and logging the error hides real failures
+and can trigger `failOnConsole` via the logged error object.
+
+```tsx
+// ❌ BAD — swallowed failure + error-like console output
+try {
+  await waitFor(() => { expect(element).toBeVisible(); });
+} catch (error) {
+  console.log('Test skipped:', error);
+}
+
+// ✅ GOOD — assertion runs or fails, no silent swallowing
+await waitFor(() => { expect(element).toBeVisible(); });
+
+// ✅ GOOD — if truly optional, use queryBy + if-guard
+const el = dialog.queryByText('optional content');
+if (el) expect(el).toBeVisible();
+```
+
+---
+
+## Quick Reference
+
+| What              | Pattern                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| Testing imports   | `import { userEvent, within, expect, fn, waitFor } from 'storybook/test'`          |
+| MSW settle        | `await delay(300)` as first line of play function                                  |
+| Wait for element  | `await canvas.findByRole('button')`                                                |
+| Assert existence  | `await expect(canvas.findByText('x')).resolves.toBeInTheDocument()`                |
+| Modal content     | `const modal = await waitForModal(); modal.findByText('...')`                      |
+| PF table          | `await canvas.findByRole('grid')`                                                  |
+| API spy           | `const spy = fn(); ... spy({ params }); ... expect(spy).toHaveBeenCalledWith(...)` |
+| Clear all filters | `table.clearAllFilters()` — never manually reset filter keys                       |
+| Mock data refs    | `DEFAULT_USERS[0].username` — never `'john.doe'`                                   |

@@ -1,0 +1,733 @@
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible } from '../../../test-utils/interactionHelpers';
+import { findSortButton } from '../../../test-utils/tableHelpers';
+import UsersListNotSelectable from './UsersListNotSelectable';
+import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
+import { accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
+import { createResettableMap } from '../../../shared/data/mocks/db';
+import { withRouter as withRouterDecorator } from '../../../../.storybook/helpers/router-test-utils';
+import {
+  PAGINATION_TEST_DEFAULT_PER_PAGE,
+  PAGINATION_TEST_SMALL_PER_PAGE,
+  PAGINATION_TEST_TOTAL_ITEMS,
+  expectLocationParams,
+  getLastCallArg,
+  openPerPageMenu,
+  selectPerPage,
+} from '../../../../.storybook/helpers/pagination-test-utils';
+
+// Spy function to track API calls
+const fetchUsersSpy = fn();
+const usersPaginationSpy = fn();
+
+// RouterLocationSpy provided by shared Storybook router helper.
+
+// Mock user data
+const mockUsers = [
+  {
+    id: '1',
+    username: 'john.doe',
+    email: 'john.doe@redhat.com',
+    first_name: 'John',
+    last_name: 'Doe',
+    is_active: true,
+    is_org_admin: false,
+    external_source_id: 123456,
+  },
+  {
+    id: '2',
+    username: 'jane.admin',
+    email: 'jane.admin@redhat.com',
+    first_name: 'Jane',
+    last_name: 'Admin',
+    is_active: true,
+    is_org_admin: true,
+    external_source_id: 789012,
+  },
+  {
+    id: '3',
+    username: 'bob.smith',
+    email: 'bob.smith@redhat.com',
+    first_name: 'Bob',
+    last_name: 'Smith',
+    is_active: true,
+    is_org_admin: false,
+    external_source_id: 345678,
+  },
+  {
+    id: '4',
+    username: 'alice.inactive',
+    email: 'alice.inactive@redhat.com',
+    first_name: 'Alice',
+    last_name: 'Inactive',
+    is_active: false,
+    is_org_admin: false,
+    external_source_id: 456789,
+  },
+];
+
+const FIRST_USER = mockUsers[0];
+const ORG_ADMIN_USER = mockUsers[1];
+
+const mockUsersLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, idx) => {
+  const i = idx + 1;
+  return {
+    id: String(i),
+    username: `user${i}`,
+    email: `user${i}@example.com`,
+    first_name: `First${i}`,
+    last_name: `Last${i}`,
+    is_active: true,
+    is_org_admin: false,
+    external_source_id: i,
+  };
+});
+
+// Standard args for the component
+const defaultArgs = {
+  userLinks: true,
+  usesMetaInURL: true,
+  props: {
+    isSelectable: false, // Component is UsersListNotSelectable - no row selection
+    isCompact: false,
+  },
+};
+
+const meta: Meta<typeof UsersListNotSelectable> = {
+  component: UsersListNotSelectable,
+  decorators: [withRouterDecorator],
+  parameters: {
+    docs: {
+      description: {
+        component: `
+**UsersListNotSelectable** is a container component that manages the users list at \`/iam/user-access/users\`.
+
+## Container Responsibilities
+- **State Management**: Manages user data, filters, pagination through React Query
+- **API Orchestration**: Dispatches \`fetchUsers\` action on component mount
+- **Permission Context**: Uses \`orgAdmin\` from useUserData for access control
+- **URL Synchronization**: Manages pagination and filters in URL parameters
+- **User Management**: Handles user status changes, bulk operations
+
+## Known Issue (TO BE FIXED)
+This component currently makes unauthorized API calls for non-admin users, causing 403 error toast spam.
+The stories below test both the bug scenario and expected behavior after fix.
+        `,
+      },
+    },
+    // Default MSW handlers for all stories
+    msw: {
+      handlers: usersHandlers(mockUsers as unknown as Parameters<typeof usersHandlers>[0], { onList: () => fetchUsersSpy({}) }),
+    },
+  },
+  argTypes: {
+    userLinks: {
+      control: 'boolean',
+      description: 'Whether usernames should be rendered as links to user detail pages',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'true' },
+      },
+    },
+    usesMetaInURL: {
+      control: 'boolean',
+      description: 'Whether to store pagination and filters in URL parameters',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'true' },
+      },
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const AdminUserWithUsers: Story = {
+  tags: ['autodocs', 'perm:org-admin'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Admin User View**: Tests complete users management interface for organization administrators.
+
+## Additional Test Stories
+
+For testing specific scenarios and the permission bug, see these additional stories:
+
+- **[NonAdminUserUnauthorizedCalls](?path=/story/features-users-users-list-not-selectable--non-admin-user-unauthorized-calls)**: Tests the BUG - non-admin users trigger unauthorized API calls
+- **[LoadingState](?path=/story/features-users-users-list-not-selectable--loading-state)**: Tests container behavior during API loading
+- **[EmptyUsers](?path=/story/features-users-users-list-not-selectable--empty-users)**: Tests container response to empty user data
+
+## Expected Fix Behavior
+After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass with zero API calls made.
+        `,
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    // Uses default MSW handlers from meta
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify admin user view with users table', async () => {
+      // Wait for container to load data through React Query
+      expect(await canvas.findByText('john.doe')).toBeInTheDocument();
+      expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
+      expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+
+      // Verify admin users trigger API calls (expected behavior)
+      // Note: Since component makes API call on mount, spy should already have been called
+      expect(fetchUsersSpy).toHaveBeenCalled();
+
+      // Verify users table is displayed with data
+      const table = await canvas.findByRole('grid');
+      expect(table).toBeInTheDocument();
+
+      // Verify user data is rendered through React Query state
+      const tableContent = within(table);
+      expect(await tableContent.findByText('john.doe')).toBeInTheDocument();
+      expect(await tableContent.findByText('john.doe@redhat.com')).toBeInTheDocument();
+      expect(await tableContent.findByText('John')).toBeInTheDocument();
+      expect(await tableContent.findByText('Doe')).toBeInTheDocument();
+    });
+  },
+};
+
+// NonAdminUserUnauthorizedCalls story removed - now handled by route-level PermissionGuard
+
+export const LoadingState: Story = {
+  tags: ['perm:org-admin'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests container behavior during API loading via React Query state management.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    msw: {
+      handlers: usersLoadingHandlers(),
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Verify loading state', async () => {
+      // Should show loading state while API calls are pending
+      await waitFor(async () => {
+        expectLoadingVisible(canvasElement);
+      });
+    });
+  },
+};
+
+export const EmptyUsers: Story = {
+  tags: ['perm:org-admin'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests container handling of empty user data from React Query.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    msw: {
+      handlers: usersHandlers([]),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Should show empty state message for no users
+    await expect(canvas.findByText(/No matching users found/i)).resolves.toBeInTheDocument();
+  },
+};
+
+export const AdminUserWithUsersFiltering: Story = {
+  tags: ['perm:org-admin'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests username filtering functionality with spy verification.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    // Uses default MSW handlers from meta (includes filtering and sorting)
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Filter by john', async () => {
+      // Wait for initial data load
+      expect(await canvas.findByText('john.doe')).toBeInTheDocument();
+
+      // Find filter input
+      const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
+      expect(filterInput).toBeInTheDocument();
+
+      // Test 1: Filter by "john"
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'john');
+
+      // Wait for filtered results - only john.doe should be visible
+      await waitFor(() => {
+        expect(canvas.queryByText('john.doe')).toBeInTheDocument();
+        expect(canvas.queryByText('jane.admin')).not.toBeInTheDocument();
+      });
+    });
+
+    await step('Filter by admin', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
+      // Test 2: Filter by "admin"
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'admin');
+
+      // Wait for filtered results - only jane.admin should be visible
+      await waitFor(() => {
+        expect(canvas.queryByText('jane.admin')).toBeInTheDocument();
+        expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
+      });
+    });
+
+    await step('Clear filter', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
+      await userEvent.clear(filterInput);
+    });
+  },
+};
+
+export const AdminUserWithUsersSorting: Story = {
+  tags: ['perm:org-admin'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests Username column sorting functionality - verifies data is sorted correctly.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    // Uses default MSW handlers from meta (includes sorting)
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify initial sort and toggle to descending', async () => {
+      // Wait for initial data load (sorted ascending by default)
+      expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+
+      // Helper function to get usernames from table - re-queries DOM each time
+      const getUsernames = () => {
+        const grid = canvas.queryByRole('grid');
+        if (!grid) throw new Error('Grid not found');
+        const rows = within(grid).queryAllByRole('row');
+        const dataRows = rows.slice(1); // skip header
+        return dataRows
+          .map((row) => {
+            const cells = within(row).queryAllByRole('cell');
+            return cells[1]?.textContent?.trim();
+          })
+          .filter(Boolean);
+      };
+
+      // Verify initial sort is ascending (bob < jane < john alphabetically)
+      let usernames = getUsernames();
+      expect(usernames[0]).toBe('bob.smith');
+
+      const sortButton = await findSortButton(canvas, /username/i);
+      expect(sortButton).toBeInTheDocument();
+
+      // Click to sort descending
+      await userEvent.click(sortButton);
+
+      // Wait for data to re-sort and verify descending order
+      await waitFor(
+        () => {
+          usernames = getUsernames();
+          expect(usernames[0]).toBe('john.doe'); // john > jane > bob alphabetically
+        },
+        { timeout: 3000 },
+      );
+    });
+
+    await step('Toggle to ascending', async () => {
+      const getUsernames = () => {
+        const grid = canvas.queryByRole('grid');
+        if (!grid) throw new Error('Grid not found');
+        const rows = within(grid).queryAllByRole('row');
+        const dataRows = rows.slice(1); // skip header
+        return dataRows
+          .map((row) => {
+            const cells = within(row).queryAllByRole('cell');
+            return cells[1]?.textContent?.trim();
+          })
+          .filter(Boolean);
+      };
+
+      const sortButton2 = await findSortButton(canvas, /username/i);
+      await userEvent.click(sortButton2);
+
+      await waitFor(
+        () => {
+          const usernames = getUsernames();
+          expect(usernames[0]).toBe('bob.smith');
+        },
+        { timeout: 3000 },
+      );
+    });
+  },
+};
+
+export const AdminUserWithUsersTableContent: Story = {
+  tags: ['perm:org-admin'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests table content rendering including org admin indicators and status labels.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    // Uses default MSW handlers from meta - default filter is Active, so only active users shown
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify table content and user data', async () => {
+      // Wait for initial data load
+      const table = await canvas.findByRole('grid', { name: /users table/i });
+      expect(table).toBeInTheDocument();
+
+      // Test user data is rendered correctly (only active users shown due to default filter)
+      expect(await canvas.findByText('john.doe')).toBeInTheDocument();
+      expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
+      expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+
+      // alice.inactive is not shown because the default filter is Active
+      expect(canvas.queryByText('alice.inactive')).not.toBeInTheDocument();
+
+      // Test email addresses
+      expect(await canvas.findByText('john.doe@redhat.com')).toBeInTheDocument();
+      expect(await canvas.findByText('jane.admin@redhat.com')).toBeInTheDocument();
+      expect(await canvas.findByText('bob.smith@redhat.com')).toBeInTheDocument();
+
+      // Test names
+      expect(await canvas.findByText('John')).toBeInTheDocument();
+      expect(await canvas.findByText('Jane')).toBeInTheDocument();
+      expect(await canvas.findByText('Bob')).toBeInTheDocument();
+      expect(await canvas.findByText('Doe')).toBeInTheDocument();
+      expect(await canvas.findByText('Admin')).toBeInTheDocument();
+      expect(await canvas.findByText('Smith')).toBeInTheDocument();
+
+      // Test org admin indicators (Yes/No icons — common-auth-model is off in this story)
+      const yesTexts = await canvas.findAllByText('Yes');
+      const noTexts = await canvas.findAllByText('No');
+      expect(yesTexts).toHaveLength(1); // jane.admin is org admin
+      expect(noTexts).toHaveLength(2); // john.doe and bob.smith are not
+
+      // Test status labels - all shown users are Active
+      const activeLabels = await canvas.findAllByText('Active');
+      expect(activeLabels.length).toBeGreaterThanOrEqual(3); // john.doe, jane.admin, bob.smith + filter checkbox
+    });
+  },
+};
+
+export const PaginationUrlSync: Story = {
+  tags: ['perm:org-admin', 'sbtest:users-pagination'],
+  args: defaultArgs,
+  parameters: {
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    routerInitialEntries: [`/iam/user-access/users?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    msw: {
+      handlers: usersHandlers(mockUsersLarge as unknown as Parameters<typeof usersHandlers>[0], {
+        onList: (params) => {
+          const limit = parseInt(params?.get?.('limit') ?? String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
+          const offset = parseInt(params?.get?.('offset') ?? '0', 10);
+          usersPaginationSpy({ limit, offset });
+        },
+      }),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    usersPaginationSpy.mockClear();
+
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+
+    const locEl = canvas.getByTestId('router-location');
+    await expectLocationParams(locEl, { page: null, perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE) });
+
+    await openPerPageMenu(body);
+    await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+
+    await expectLocationParams(locEl, { page: null, perPage: String(PAGINATION_TEST_SMALL_PER_PAGE) });
+
+    await waitFor(() => {
+      expect(usersPaginationSpy).toHaveBeenCalled();
+      const last = getLastCallArg<{ limit: number; offset: number }>(usersPaginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(0);
+    });
+
+    // Next page
+    const nextButtons = canvas.getAllByLabelText('Go to next page');
+    await userEvent.click(nextButtons[0]);
+
+    await expectLocationParams(locEl, { page: '2', perPage: String(PAGINATION_TEST_SMALL_PER_PAGE) });
+
+    await waitFor(() => {
+      const last = getLastCallArg<{ limit: number; offset: number }>(usersPaginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+    });
+  },
+};
+
+// NOTE: PaginationOutOfRangeClampsToLastPage test was REMOVED from here.
+// Page clamping is now handled centrally by TableView and tested in:
+//
+// This avoids duplicating the same test across Roles, Users, and Groups stories.
+// All tables using TableView automatically get page clamping behavior.
+
+const toggleOrgAdminSpy = fn();
+
+export const OrgAdminToggleIntegration: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model', 'sbtest:org-admin-toggle'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'With common-auth-model enabled, org admin status is a Switch. Clicking it calls the IT API roles endpoint and shows a success notification.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+    },
+    msw: {
+      handlers: [
+        ...usersHandlers(mockUsers as unknown as Parameters<typeof usersHandlers>[0], { onList: () => fetchUsersSpy({}) }),
+        ...accountManagementHandlers({
+          onToggleOrgAdmin: (accountId, userId, body) => {
+            toggleOrgAdminSpy({ accountId, userId, body });
+          },
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Reset spy', async () => {
+      toggleOrgAdminSpy.mockClear();
+    });
+
+    await step('Grant org admin to a non-admin user', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+
+      const orgAdminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${FIRST_USER.username}`, 'i'),
+      });
+      await expect(orgAdminSwitch).not.toBeChecked();
+      await expect(orgAdminSwitch).not.toBeDisabled();
+      await userEvent.click(orgAdminSwitch);
+    });
+
+    await step('Verify API call and success notification', async () => {
+      await waitFor(async () => {
+        await expect(toggleOrgAdminSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            userId: String(FIRST_USER.external_source_id),
+            body: { role: 'organization_administrator' },
+          }),
+        );
+      });
+
+      await waitFor(async () => {
+        const notification = within(document.body).queryByText(/Success updating user/i);
+        await expect(notification).toBeInTheDocument();
+      });
+    });
+
+    await step('Existing org admin switch is on', async () => {
+      const adminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${ORG_ADMIN_USER.username}`, 'i'),
+      });
+      await expect(adminSwitch).toBeChecked();
+      await expect(adminSwitch).not.toBeDisabled();
+    });
+  },
+};
+
+export const NonAdminOrgAdminTogglesDisabled: Story = {
+  tags: ['ff:platform.rbac.common-auth-model', 'sbtest:org-admin-toggle'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Non-org-admin viewers still see org admin switches, but every switch is disabled.',
+      },
+    },
+    orgAdmin: false,
+    permissions: [],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Wait for users to load', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(ORG_ADMIN_USER.username)).resolves.toBeInTheDocument();
+    });
+
+    await step('Org admin switches are disabled for a non-admin viewer', async () => {
+      const firstSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${FIRST_USER.username}`, 'i'),
+      });
+      const adminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${ORG_ADMIN_USER.username}`, 'i'),
+      });
+      await expect(firstSwitch).toBeDisabled();
+      await expect(adminSwitch).toBeDisabled();
+    });
+  },
+};
+
+const toggleSupportCasesSpy = fn();
+const searchUsersSpy = fn();
+
+// Resettable so the POST handler's mutation doesn't leak across play-function reruns.
+const supportCasesPermissions = createResettableMap<string, string[]>([
+  [String(FIRST_USER.external_source_id), ['portal_download']],
+  [String(ORG_ADMIN_USER.external_source_id), ['portal_manage_cases', 'portal_download']],
+]);
+
+export const SupportCasesToggleIntegration: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model', 'sbtest:support-cases-toggle'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'With common-auth-model enabled, org admins see a "Manage Support Cases" Switch column. Clicking it toggles the portal_manage_cases permission via the IT Account API.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': false,
+    },
+    msw: {
+      handlers: [
+        ...usersHandlers(mockUsers as unknown as Parameters<typeof usersHandlers>[0]),
+        ...accountManagementHandlers({
+          userPermissions: supportCasesPermissions,
+          onToggleSupportCases: (userId, grant) => {
+            toggleSupportCasesSpy({ userId, grant });
+          },
+          onSearchUsers: (ids) => {
+            searchUsersSpy(ids);
+          },
+        }),
+      ],
+    },
+  },
+  // Reset before render so a prior rerun's granted permission doesn't leak into this run's initial
+  // bulk search (which fires on mount). searchUsersSpy resets here too — it fires before play runs.
+  beforeEach: () => {
+    supportCasesPermissions.reset();
+    searchUsersSpy.mockClear();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Reset spy', async () => {
+      toggleSupportCasesSpy.mockClear();
+    });
+
+    await step('Verify Manage Support Cases column is visible', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+
+      const header = await canvas.findByText('Manage Support Cases');
+      await expect(header).toBeInTheDocument();
+    });
+
+    await step('Toggle on for a user without the permission', async () => {
+      const toggle = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${FIRST_USER.username}`, 'i'),
+      });
+      await expect(toggle).not.toBeChecked();
+      await userEvent.click(toggle);
+
+      await waitFor(() => {
+        expect(toggleSupportCasesSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            userId: String(FIRST_USER.external_source_id),
+            grant: true,
+          }),
+        );
+      });
+    });
+
+    await step('Existing permission user has toggle checked', async () => {
+      const adminToggle = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${ORG_ADMIN_USER.username}`, 'i'),
+      });
+      await expect(adminToggle).toBeChecked();
+    });
+
+    await step('Whole page fetched support-cases permissions in ONE bulk request', async () => {
+      // Regression guard for the removed N+1: one POST /users/search per page, not per row.
+      await waitFor(() => expect(searchUsersSpy).toHaveBeenCalledTimes(1));
+      expect(searchUsersSpy).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          String(FIRST_USER.external_source_id),
+          String(ORG_ADMIN_USER.external_source_id),
+          String(mockUsers[2].external_source_id),
+        ]),
+      );
+    });
+  },
+};
+
+export const SupportCasesHiddenInITLess: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model', 'sbtest:support-cases-itless'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'In ITLess/FedRAMP environments, the Manage Support Cases column is not rendered.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': true,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify column is hidden in ITLess', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+    });
+  },
+};

@@ -1,0 +1,66 @@
+{
+  "$schema": "./seed-schema.json",
+  "description": "V2 seed data: roles, groups, and workspaces (full Access Management support)",
+  "seededUsers": [
+    { "username": "iqe_rbac_v2_normal" }
+  ],
+  "roles": [
+    {
+      "name": "Seeded Role",
+      "display_name": "Seeded Role",
+      "description": "Controlled test role for search and view tests",
+      "permissions": [
+        "inventory:hosts:read",
+        "inventory:groups:read"
+      ]
+    },
+    {
+      "name": "Child Role",
+      "display_name": "Child Role",
+      "description": "Role for child workspace testing",
+      "permissions": [
+        "vulnerability:report_and_export:read"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "Seeded Group",
+      "description": "Controlled test group for search and view tests",
+      "roles_list": ["Seeded Role"],
+      "user_list": [{ "username": "iqe_rbac_v2_normal" }]
+    },
+    {
+      "name": "Child Group",
+      "description": "Group for child workspace testing",
+      "roles_list": ["Child Role"],
+      "user_list": [{ "username": "iqe_rbac_v2_normal" }]
+    }
+  ],
+  "workspaces": [
+    {
+      "name": "Seeded Workspace",
+      "description": "Controlled test workspace for V2 tests"
+    },
+    {
+      "name": "Seeded Child Workspace",
+      "description": "Nested workspace for inheritance testing",
+      "parent_id": "Seeded Workspace"
+    }
+  ],
+  "role_bindings": [
+    {
+      "group": "Seeded Group",
+      "role": "Seeded Role",
+      "workspace": "Seeded Workspace"
+    },
+    {
+      "group": "Child Group",
+      "role": "Child Role",
+      "workspace": "Seeded Child Workspace"
+    }
+  ],
+  "serviceAccounts": [
+    { "clientId": "iqe-rbac-v2-e2e-service-account" }
+  ]
+}

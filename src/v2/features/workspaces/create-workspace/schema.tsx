@@ -1,0 +1,260 @@
+import { componentTypes } from '@data-driven-forms/react-form-renderer';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import React from 'react';
+import { FormattedMessage, type IntlShape } from 'react-intl';
+import messages from '../../../../Messages';
+import InputHelpPopover from '../../../../shared/components/forms/InputHelpPopover';
+import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
+import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
+import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import { SelectParentWorkspace } from './components/SelectParentWorkspace';
+import { SetDetails } from './components/SetDetails';
+import { SetEarMark } from './components/SetEarMark';
+import { ReviewStep as Review } from './components/Review';
+import { BUNDLES, WORKSPACE_ACCOUNT, WORKSPACE_DESCRIPTION, WORKSPACE_FEATURES, WORKSPACE_NAME, WORKSPACE_PARENT } from './constants';
+
+/**
+ * Component mapper for the Create Workspace wizard. Assembled with literal
+ * keys so `CreateWorkspaceWizardSchema` can validate every `component:` value
+ * the schema uses.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  SelectParentWorkspace,
+  SetDetails,
+  SetEarMark,
+  Review,
+};
+
+export type CreateWorkspaceWizardSchema = Schema<typeof wizardMapper>;
+
+export interface CreateWorkspaceFormValues {
+  [WORKSPACE_NAME]: string;
+  [WORKSPACE_DESCRIPTION]: string;
+  [WORKSPACE_FEATURES]: string[];
+  [WORKSPACE_PARENT]: WorkspacesWorkspace;
+  [WORKSPACE_ACCOUNT]: string;
+}
+
+/**
+ * Schema builder for the create workspace wizard.
+ * @param enableBillingFeatures - Whether to show billing features step
+ * @param existingWorkspaceNames - List of existing workspace names for duplicate validation
+ * @param skipParentStep - When true, omits the parent selection step (parent is pre-set by caller)
+ */
+export const schemaBuilder = (
+  intl: IntlShape,
+  enableBillingFeatures: boolean,
+  existingWorkspaceNames: string[] = [],
+  skipParentStep = false,
+): CreateWorkspaceWizardSchema => {
+  return {
+    fields: [
+      {
+        component: 'wizard',
+        name: 'wizard',
+        isDynamic: true,
+        crossroads: ['workspace-features'],
+        'data-ouia-component-id': 'create-workspace-wizard',
+        inModal: true,
+        showTitles: true,
+        container: getModalContainer(),
+        title: intl.formatMessage(messages.createNewWorkspace),
+        fields: [
+          {
+            title: intl.formatMessage(messages.workspaceDetails),
+            showTitle: false,
+            name: 'details',
+            buttons: WizardButtons,
+            nextStep: skipParentStep ? () => (enableBillingFeatures ? 'select-features' : 'review') : 'select-parent',
+            fields: [
+              {
+                name: 'details-title',
+                component: componentTypes.PLAIN_TEXT,
+                className: 'pf-v6-c-title pf-m-xl',
+                label: intl.formatMessage(messages.workspaceDetailsTitle),
+              },
+              {
+                name: 'details-description',
+                component: componentTypes.PLAIN_TEXT,
+                className: 'pf-v6-u-my-md',
+                label: intl.formatMessage(messages.workspaceDetailsDescription),
+              },
+              {
+                name: 'workspace-name',
+                component: componentTypes.TEXT_FIELD,
+                label: intl.formatMessage(messages.workspaceName),
+                isRequired: true,
+                FormGroupProps: {
+                  labelIcon: (
+                    <InputHelpPopover
+                      bodyContent={
+                        <Content component="p">
+                          <FormattedMessage
+                            id={messages.workspaceNamingGuidelines.id}
+                            defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
+                            values={{
+                              link: '', // RHCLOUD-40659: Temporarily hidden link until Learn More section is ready
+                            }}
+                          />
+                        </Content>
+                      }
+                      field="workspace name"
+                    />
+                  ),
+                },
+                validate: [
+                  {
+                    type: validatorTypes.REQUIRED,
+                  },
+                  {
+                    type: validatorTypes.MAX_LENGTH,
+                    threshold: 150,
+                  },
+                  (value: string) => {
+                    if (!value) return undefined;
+                    const isDuplicate = existingWorkspaceNames.some((name) => name.toLowerCase() === value.toLowerCase());
+                    return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
+                  },
+                ],
+              },
+              ...(enableBillingFeatures
+                ? [
+                    {
+                      name: 'workspace-details',
+                      component: 'SetDetails',
+                      fields: [
+                        {
+                          name: WORKSPACE_ACCOUNT,
+                          component: componentTypes.TEXT_FIELD,
+                          isRequired: true,
+                          hideField: true,
+                          validate: [
+                            {
+                              type: validatorTypes.REQUIRED,
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ]
+                : []),
+              {
+                name: 'workspace-description',
+                component: componentTypes.TEXTAREA,
+                label: intl.formatMessage(messages.workspaceDescription),
+                FormGroupProps: {
+                  labelIcon: (
+                    <InputHelpPopover
+                      bodyContent={<Content component="p">{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Content>}
+                      field="workspace description"
+                    />
+                  ),
+                },
+                validate: [
+                  {
+                    type: validatorTypes.MAX_LENGTH,
+                    threshold: 255,
+                  },
+                ],
+              },
+              ...(skipParentStep
+                ? [
+                    {
+                      name: WORKSPACE_PARENT,
+                      component: componentTypes.TEXT_FIELD,
+                      isRequired: true,
+                      hideField: true,
+                      validate: [{ type: validatorTypes.REQUIRED }],
+                    },
+                  ]
+                : []),
+            ],
+          },
+          ...(skipParentStep
+            ? []
+            : [
+                {
+                  title: intl.formatMessage(messages.selectParentWorkspace),
+                  showTitle: false,
+                  name: 'select-parent',
+                  buttons: WizardButtons,
+                  nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
+                  fields: [
+                    {
+                      name: WORKSPACE_PARENT,
+                      component: componentTypes.TEXT_FIELD,
+                      isRequired: true,
+                      hideField: true,
+                      validate: [{ type: validatorTypes.REQUIRED }],
+                    },
+                    {
+                      name: 'select-parent-workspace',
+                      component: 'SelectParentWorkspace',
+                    },
+                  ],
+                },
+              ]),
+          {
+            title: intl.formatMessage(messages.selectFeatures),
+            name: 'select-features',
+            buttons: WizardButtons,
+            nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
+              const selectedFeatures = values['workspace-features'] || [];
+              return selectedFeatures.length > 0 ? `ear-mark-${selectedFeatures[0]}` : 'review';
+            },
+            fields: [
+              {
+                name: 'features-description',
+                className: 'pf-v6-u-my-md',
+                component: componentTypes.PLAIN_TEXT,
+                label:
+                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+              },
+              {
+                name: 'workspace-features',
+                className: 'pf-v6-u-my-sm',
+                component: componentTypes.CHECKBOX,
+                options: BUNDLES,
+              },
+            ],
+          },
+          ...BUNDLES.map((feature) => ({
+            name: `ear-mark-${feature.value}`,
+            title: feature.label,
+            showTitle: false,
+            buttons: WizardButtons,
+            substepOf: intl.formatMessage(messages.earMark),
+            nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
+              const currIndex = values['workspace-features'].indexOf(feature.value);
+              return currIndex < values['workspace-features'].length - 1 ? `ear-mark-${values['workspace-features'][currIndex + 1]}` : 'review';
+            },
+            fields: [
+              {
+                component: 'SetEarMark',
+                name: `ear-mark-${feature.value}-cores`,
+                feature,
+                isRequired: true,
+              },
+            ],
+          })),
+          {
+            name: 'review',
+            title: intl.formatMessage(messages.review),
+            showTitle: false,
+            buttons: WizardButtons,
+            fields: [
+              {
+                component: 'Review',
+                name: 'review',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+};

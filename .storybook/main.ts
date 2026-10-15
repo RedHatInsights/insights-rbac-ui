@@ -1,72 +1,21 @@
-import type { StorybookConfig } from '@storybook/react-webpack5';
-import path from 'path';
+import { createMainConfig } from '@redhat-cloud-services/hcc-storybook-hub/config';
 import remarkGfm from 'remark-gfm';
 
-const config: StorybookConfig = {
-  stories: [
-    "../src/docs/*.mdx",
-    "../src/**/*.mdx",
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
-  ],
-  addons: [
-    "@storybook/addon-webpack5-compiler-swc",
-    {
-      name: "@storybook/addon-docs",
-      options: {
-        mdxPluginOptions: {
-          mdxCompileOptions: {
-            remarkPlugins: [remarkGfm],
-          },
-        },
-      },
-    },
-    "msw-storybook-addon",
-  ],
-  framework: {
-    name: "@storybook/react-webpack5",
-    options: {}
-  },
-  docs: {
-    defaultName: 'Documentation',
-  },
+const config = createMainConfig({
+  stories: ['../src/docs/*.mdx', '../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   staticDirs: ['../static'],
-  webpackFinal: async (config) => {
-    // Mock hooks for Storybook - replace real implementations with our context-aware versions
-    config.resolve = {
-      ...config.resolve,
-      alias: {
-        ...config.resolve?.alias,
-        '@redhat-cloud-services/frontend-components/useChrome': path.resolve(process.cwd(), '.storybook/hooks/useChrome'),
-        '@unleash/proxy-client-react': path.resolve(process.cwd(), '.storybook/hooks/unleash'),
-      },
-    };
-
-    // Add SCSS support
-    config.module = config.module || {};
-    config.module.rules = config.module.rules || [];
-    
-    // Add SCSS rule
-    config.module.rules.push({
-      test: /\.s[ac]ss$/i,
-      use: [
-        'style-loader',
-        'css-loader',
-        'sass-loader',
-      ],
-    });
-
-
-
-    return config;
-  },
-  typescript: {
-    check: false,
-    reactDocgen: 'react-docgen-typescript',
-    reactDocgenTypescriptOptions: {
-      shouldExtractLiteralValuesFromEnum: true,
-      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+  remarkPlugins: [remarkGfm],
+  a11y: false,
+  extraWebpackRules: [
+    // Add raw loader for YAML files with ?raw query
+    {
+      resourceQuery: /raw/,
+      type: 'asset/source',
     },
-  },
-};
+  ],
+});
+
+// rbac-ui uses a portal container for modals in Storybook
+config.previewBody = () => '<div id="chrome-app-render-root"></div><div id="storybook-modals"></div>';
 
 export default config;

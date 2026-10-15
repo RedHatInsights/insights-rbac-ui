@@ -104,11 +104,6 @@ export default defineMessages({
     description: 'Invite users form emails field error message is one email address is not valid.',
     defaultMessage: 'Some of the email addresses you provided are not valid',
   },
-  inviteUsersMessageTitle: {
-    id: 'inviteUsersMessageTitle',
-    description: 'Message to be sent to each email',
-    defaultMessage: 'Send a message with the invite',
-  },
   inviteUsersCustomerPortalPermissions: {
     id: 'inviteUsersCustomerPortalPermissions',
     description: 'Customer portal permissions title',
@@ -205,6 +200,11 @@ export default defineMessages({
     description: 'Org. Admin name',
     defaultMessage: 'Org. Admin',
   },
+  manageSupportCases: {
+    id: 'manageSupportCases',
+    description: 'Manage Support Cases column header',
+    defaultMessage: 'Manage Support Cases',
+  },
   userAccessAdmin: {
     id: 'userAccessAdmin',
     description: 'User Access Admin name',
@@ -229,6 +229,12 @@ export default defineMessages({
     id: 'usersDescription',
     description: 'Description text for user list',
     defaultMessage: 'These are all of the users in your Red Hat organization.',
+  },
+  usersDescriptionAdmin: {
+    id: 'usersDescriptionAdmin',
+    description: 'Description text for user list shown to org admins',
+    defaultMessage:
+      "Manage your organization's users. From here, you can invite new users, manage their status, and set 'Organization Administration' privileges.",
   },
   rbacUsers: {
     id: 'rbacUsers',
@@ -274,6 +280,11 @@ export default defineMessages({
     id: 'cancel',
     description: 'Cancel button text',
     defaultMessage: 'Cancel',
+  },
+  submit: {
+    id: 'submit',
+    description: 'Submit button text',
+    defaultMessage: 'Submit',
   },
   close: {
     id: 'close',
@@ -419,7 +430,7 @@ export default defineMessages({
   editGroupErrorDescription: {
     id: 'editGroupErrorDescription',
     description: 'Edit group error notification description',
-    defaultMessage: 'The group was not updated successfuly.',
+    defaultMessage: 'The group was not updated successfully.',
   },
   deleteWorkspaceErrorTitle: {
     id: 'deleteWorkspaceErrorTitle',
@@ -531,6 +542,16 @@ export default defineMessages({
     description: 'Add group member error notification description',
     defaultMessage: 'The member was not added successfully.',
   },
+  addGroupServiceAccountSuccessTitle: {
+    id: 'addGroupServiceAccountSuccessTitle',
+    description: 'Add group service account success notification title',
+    defaultMessage: 'Success adding service account to group',
+  },
+  addGroupServiceAccountErrorTitle: {
+    id: 'addGroupServiceAccountErrorTitle',
+    description: 'Add group service account error notification title',
+    defaultMessage: 'Failed adding service account to group',
+  },
   removeGroupMembersSuccessTitle: {
     id: 'removeGroupMembersSuccessTitle',
     description: 'Remove group members success notification title',
@@ -600,7 +621,12 @@ export default defineMessages({
   removeGroupServiceAccountsSuccessTitle: {
     id: 'removeGroupServiceAccountsSuccessTitle',
     description: 'Removal of group service accounts success notification title',
-    defaultMessage: 'Success removing service {count, plural, one {account} other {accounts}} from the group',
+    defaultMessage: 'Success removing service accounts from the group',
+  },
+  removeGroupServiceAccountSuccessTitle: {
+    id: 'removeGroupServiceAccountSuccessTitle',
+    description: 'Removal of group service account success notification title',
+    defaultMessage: 'Success removing service account from the group',
   },
   removeGroupServiceAccountsSuccessDescription: {
     id: 'removeGroupServiceAccountsSuccessDescription',
@@ -610,7 +636,12 @@ export default defineMessages({
   removeGroupServiceAccountsErrorTitle: {
     id: 'removeGroupServiceAccountsErrorTitle',
     description: 'Removal of  group service accounts error notification title',
-    defaultMessage: 'Failed removing service {count, plural, one {account} other {accounts}} from group',
+    defaultMessage: 'Failed removing service accounts from group',
+  },
+  removeGroupServiceAccountErrorTitle: {
+    id: 'removeGroupServiceAccountErrorTitle',
+    description: 'Removal of  group service account error notification title',
+    defaultMessage: 'Failed removing service account from group',
   },
   removeGroupServiceAccountsErrorDescription: {
     id: 'removeGroupServiceAccountsErrorDescription',
@@ -797,6 +828,11 @@ export default defineMessages({
     description: 'Add group success notification description',
     defaultMessage: 'The group was added successfully.',
   },
+  addGroupErrorTitle: {
+    id: 'addGroupErrorTitle',
+    description: 'Add group error notification title',
+    defaultMessage: 'Failed adding group',
+  },
   addingGroupMemberTitle: {
     id: 'addingGroupMemberTitle',
     description: 'Adding group member notification title',
@@ -905,12 +941,17 @@ export default defineMessages({
   role: {
     id: 'role',
     description: 'Role singular',
-    defaultMessage: 'role',
+    defaultMessage: 'Role',
   },
   roles: {
     id: 'roles',
     description: 'Roles plural',
     defaultMessage: 'Roles',
+  },
+  adminOrViewerRole: {
+    id: 'adminOrViewerRole',
+    description: 'Admin or viewer role column label',
+    defaultMessage: 'Admin or Viewer role',
   },
   userGroups: {
     id: 'userGroups',
@@ -921,6 +962,11 @@ export default defineMessages({
     id: 'userGroup',
     description: 'User group singular',
     defaultMessage: 'User group',
+  },
+  userGroupName: {
+    id: 'userGroupName',
+    description: 'User group name column header',
+    defaultMessage: 'User group name',
   },
   groups: {
     id: 'groups',
@@ -1069,6 +1115,47 @@ export default defineMessages({
     description: 'learn more link',
     defaultMessage: 'Learn more',
   },
+  auditLogTableAriaLabel: {
+    id: 'auditLogTableAriaLabel',
+    description: 'Audit log table aria label',
+    defaultMessage: 'Audit log entries',
+  },
+  auditLog: {
+    id: 'auditLog',
+    description: 'Audit Log page title',
+    defaultMessage: 'Audit Log',
+  },
+  auditLogSubtitle: {
+    id: 'auditLogSubtitle',
+    description: 'Audit Log page subtitle',
+    defaultMessage:
+      'The user access audit log tracks admin actions, such as adding/removing users from groups, adding/removing roles from groups, create/editing/deleting roles, or creating/editing/deleting groups. Logs can be filtered by requester, resource or action.',
+  },
+  auditLogNoResults: {
+    id: 'auditLogNoResults',
+    description: 'Audit log empty state when filters match no results',
+    defaultMessage: 'No audit log entries found',
+  },
+  filterByRequester: {
+    id: 'filterByRequester',
+    description: 'Audit log filter placeholder for requester',
+    defaultMessage: 'Filter by requester',
+  },
+  userCapitalized: {
+    id: 'userCapitalized',
+    description: 'User singular (capitalized)',
+    defaultMessage: 'User',
+  },
+  add: {
+    id: 'add',
+    description: 'Add label',
+    defaultMessage: 'Add',
+  },
+  create: {
+    id: 'create',
+    description: 'Create label',
+    defaultMessage: 'Create',
+  },
   overviewHeroTitle: {
     id: 'overviewHeroTitle',
     description: 'Overview Hero section title',
@@ -1124,6 +1211,36 @@ export default defineMessages({
     description: 'Create workspace error notification description',
     defaultMessage: 'The workspace was not created successfuly.',
   },
+  createWorkspaceProgressTitle: {
+    id: 'createWorkspaceProgressTitle',
+    description: 'Title shown while waiting for workspace permissions to propagate',
+    defaultMessage: 'Setting up your workspace',
+  },
+  createWorkspaceProgressBody: {
+    id: 'createWorkspaceProgressBody',
+    description: 'Body text shown while waiting for workspace permissions to propagate',
+    defaultMessage: 'Configuring permissions for {name}. This usually takes a few seconds.',
+  },
+  createWorkspaceReadyTitle: {
+    id: 'createWorkspaceReadyTitle',
+    description: 'Title shown when workspace permissions are fully propagated',
+    defaultMessage: 'Workspace ready',
+  },
+  createWorkspaceReadyBody: {
+    id: 'createWorkspaceReadyBody',
+    description: 'Body text shown when workspace permissions are fully propagated',
+    defaultMessage: '{name} has been created and is ready to use.',
+  },
+  createWorkspaceTimeoutTitle: {
+    id: 'createWorkspaceTimeoutTitle',
+    description: 'Title shown when workspace permission propagation takes too long',
+    defaultMessage: 'Taking longer than expected',
+  },
+  createWorkspaceTimeoutBody: {
+    id: 'createWorkspaceTimeoutBody',
+    description: 'Body text shown when workspace permission propagation takes too long',
+    defaultMessage: '{name} was created, but permissions are still being set up. You can close this dialog and check back shortly.',
+  },
   editWorkspaceSuccessTitle: {
     id: 'editWorkspaceSuccessTitle',
     description: 'Update workspace success notification title',
@@ -1134,6 +1251,16 @@ export default defineMessages({
     description: 'Update workspace success notification description',
     defaultMessage: 'The workspace was updated successfully.',
   },
+  editWorkspaceErrorTitle: {
+    id: 'editWorkspaceErrorTitle',
+    description: 'Update workspace error notification title',
+    defaultMessage: 'Error updating workspace',
+  },
+  editWorkspaceErrorDescription: {
+    id: 'editWorkspaceErrorDescription',
+    description: 'Update workspace error notification description',
+    defaultMessage: 'The workspace was not updated successfully.',
+  },
   editingWorkspaceTitle: {
     id: 'editingWorkspaceTitle',
     description: 'Editing workspace notification title',
@@ -1143,6 +1270,11 @@ export default defineMessages({
     id: 'editingWorkspaceCanceledDescription',
     description: 'Edit workspace canceled notification description',
     defaultMessage: 'Edit workspace was canceled by the user.',
+  },
+  editingWorkspaceNoPermissionDescription: {
+    id: 'editingWorkspaceNoPermissionDescription',
+    description: 'Edit workspace denied notification description',
+    defaultMessage: 'You do not have permission to edit this workspace.',
   },
   deleteWorkspaceSuccessTitle: {
     id: 'deleteWorkspaceSuccessTitle',
@@ -1178,6 +1310,41 @@ export default defineMessages({
     id: 'rolesAssignedInParentWorkspaces',
     description: 'Tab title for roles assigned in parent workspaces',
     defaultMessage: 'Roles assigned in parent workspaces',
+  },
+  parentWorkspacesPopoverHeader: {
+    id: 'parentWorkspacesPopoverHeader',
+    description: 'Popover header for the parent workspaces tab info icon',
+    defaultMessage: 'Manage roles in their assigned workspace',
+  },
+  parentWorkspacesPopoverBody: {
+    id: 'parentWorkspacesPopoverBody',
+    description: 'Popover body for the parent workspaces tab info icon',
+    defaultMessage: 'A child workspace inherits all roles assigned in the parent workspace.',
+  },
+  parentWorkspacesInstructionalText: {
+    id: 'parentWorkspacesInstructionalText',
+    description: 'Instructional text shown above the inherited group assignments table',
+    defaultMessage: 'To edit roles for these user groups, click the workspace name in the <b>Inherited from</b> column.',
+  },
+  inheritedFromPopoverHeader: {
+    id: 'inheritedFromPopoverHeader',
+    description: 'Popover header for the Inherited from column info icon',
+    defaultMessage: 'What does Inherited from show?',
+  },
+  inheritedFromPopoverBody: {
+    id: 'inheritedFromPopoverBody',
+    description: 'Popover body for the Inherited from column info icon',
+    defaultMessage: 'This column shows the parent workspace where the role was originally assigned.',
+  },
+  inheritedDrawerSubtitle: {
+    id: 'inheritedDrawerSubtitle',
+    description: 'Subtitle in the drawer when showing inherited group roles',
+    defaultMessage: 'The roles listed here were granted in a parent workspace.',
+  },
+  inheritedDrawerAlert: {
+    id: 'inheritedDrawerAlert',
+    description: 'Warning alert in the drawer when showing inherited group roles',
+    defaultMessage: 'Editing access to a parent workspace must be done within that workspace.',
   },
   assets: {
     id: 'assets',
@@ -1230,20 +1397,15 @@ export default defineMessages({
     description: 'Menu item Create sub-workspace',
     defaultMessage: 'Create sub-workspace',
   },
-  workspacesActionViewTenant: {
-    id: 'workspacesActionViewTenant',
-    description: 'Menu item View tenant',
-    defaultMessage: 'View tenant',
+  workspacesActionCreateSiblingWorkspace: {
+    id: 'workspacesActionCreateSiblingWorkspace',
+    description: 'Menu item Create sibling workspace',
+    defaultMessage: 'Create sibling workspace',
   },
-  workspacesActionManageIntegrations: {
-    id: 'workspacesActionManageIntegrations',
-    description: 'Menu item Manage integrations',
-    defaultMessage: 'Manage integrations',
-  },
-  workspacesActionManageNotifications: {
-    id: 'workspacesActionManageNotifications',
-    description: 'Menu item Manage notifications',
-    defaultMessage: 'Manage notifications',
+  workspacesActionMoveWorkspace: {
+    id: 'workspacesActionMoveWorkspace',
+    description: 'Menu item Move workspace',
+    defaultMessage: 'Move workspace',
   },
   workspacesActionDeleteWorkspace: {
     id: 'workspacesActionDeleteWorkspace',
@@ -1290,6 +1452,26 @@ export default defineMessages({
     description: 'Workspace details step description',
     defaultMessage: 'Complete the fields to create a workspace.',
   },
+  workspaceSelectorDisabledTooltip: {
+    id: 'workspaceSelectorDisabledTooltip',
+    description: 'Tooltip shown on disabled workspace tree items when the user lacks the required permission',
+    defaultMessage: 'You do not have {permission} permission on this workspace',
+  },
+  workspaceTreeViewError: {
+    id: 'workspaceTreeViewError',
+    description: 'Error loading workspaces in tree view',
+    defaultMessage: 'Failed to load workspaces',
+  },
+  workspaceTreeViewNoSearchResults: {
+    id: 'workspaceTreeViewNoSearchResults',
+    description: 'Message when no workspaces match search',
+    defaultMessage: 'No workspaces match your search.',
+  },
+  workspaceTreeViewNoWorkspaces: {
+    id: 'workspaceTreeViewNoWorkspaces',
+    description: 'Message when no workspaces are available',
+    defaultMessage: 'No workspaces to show.',
+  },
   workspaceNamingGuidelines: {
     id: 'workspaceNamingGuidelines',
     description: 'Workspace naming guidelines hint',
@@ -1300,6 +1482,47 @@ export default defineMessages({
     id: 'workspaceDescriptionMaxLength',
     description: 'Workspace description max length helper text',
     defaultMessage: 'The first {count} characters will appear in the description field.',
+  },
+  selectParentWorkspace: {
+    id: 'selectParentWorkspace',
+    description: 'Select parent workspace wizard step title',
+    defaultMessage: 'Select parent workspace',
+  },
+  selectParentWorkspaceDescription: {
+    id: 'selectParentWorkspaceDescription',
+    description: 'Select parent workspace wizard step description',
+    defaultMessage:
+      'Choose a parent workspace. The new workspace will inherit access control settings, such as user groups and associated roles, from the selected parent.',
+  },
+  searchWorkspaces: {
+    id: 'searchWorkspaces',
+    description: 'Search workspaces placeholder text',
+    defaultMessage: 'Search workspaces by name',
+  },
+  moveWorkspaceDisabledSelf: {
+    id: 'moveWorkspaceDisabledSelf',
+    description: 'Tooltip on the workspace being moved in the destination tree',
+    defaultMessage: 'This is the workspace being moved',
+  },
+  moveWorkspaceDisabledDescendant: {
+    id: 'moveWorkspaceDisabledDescendant',
+    description: 'Tooltip on descendants of the workspace being moved',
+    defaultMessage: 'Cannot move a workspace under itself',
+  },
+  moveWorkspaceDisabledCurrentParent: {
+    id: 'moveWorkspaceDisabledCurrentParent',
+    description: 'Tooltip on the current parent workspace in the move destination tree',
+    defaultMessage: 'This workspace is already the current parent',
+  },
+  moveWorkspaceSelectDestination: {
+    id: 'moveWorkspaceSelectDestination',
+    description: 'Instructions shown above the tree in the move workspace dialog',
+    defaultMessage: 'Select a new parent workspace. The workspace will inherit access control settings from the selected destination.',
+  },
+  moveWorkspaceTitle: {
+    id: 'moveWorkspaceTitle',
+    description: 'Title for the move workspace dialog',
+    defaultMessage: 'Move "{name}"',
   },
   workspaceParentHelperText: {
     id: 'workspaceParentHelperText',
@@ -1335,7 +1558,12 @@ export default defineMessages({
   workspaceEmptyStateSubtitle: {
     id: 'workspaceEmptyStateSubtitle',
     description: 'Empty State Subtitle Workspaces',
-    defaultMessage: 'This filter criteria matches no workspaces.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no workspaces. Try changing your filter input.',
+  },
+  workspacePendingTooltip: {
+    id: 'workspacePendingTooltip',
+    description: 'Tooltip shown on workspace name when Kessel access has not synced yet',
+    defaultMessage: 'This workspace is being set up and is not available for inspection yet.',
   },
   setEarmark: {
     id: 'setEarmark',
@@ -1595,10 +1823,20 @@ export default defineMessages({
     description: 'Add member',
     defaultMessage: 'Add member',
   },
+  allOrgAdmins: {
+    id: 'allOrgAdmins',
+    description: 'All org admins label for admin default groups',
+    defaultMessage: 'All org admins',
+  },
   allOrgAdminsAreMembers: {
     id: 'allOrgAdminsAreMembers',
     description: 'All org. admins are members of this group message',
     defaultMessage: 'All organization administrators in this organization are members of this group.',
+  },
+  allUsers: {
+    id: 'allUsers',
+    description: 'All users label for default groups',
+    defaultMessage: 'All users',
   },
   allUsersAreMembers: {
     id: 'allUsersAreMembers',
@@ -1940,6 +2178,36 @@ export default defineMessages({
     description: 'My User Access label',
     defaultMessage: 'My User Access',
   },
+  myAccess: {
+    id: 'myAccess',
+    description: 'My Access page title',
+    defaultMessage: 'My Access',
+  },
+  myAccessDescription: {
+    id: 'myAccessDescription',
+    description: 'My Access page subtitle',
+    defaultMessage: 'View your permissions across all groups and workspaces within the Hybrid Cloud Console.',
+  },
+  myGroups: {
+    id: 'myGroups',
+    description: 'My groups tab label',
+    defaultMessage: 'My groups',
+  },
+  myWorkspaces: {
+    id: 'myWorkspaces',
+    description: 'My workspaces tab label',
+    defaultMessage: 'My workspaces',
+  },
+  adminRole: {
+    id: 'adminRole',
+    description: 'Admin role label',
+    defaultMessage: 'Admin',
+  },
+  viewerRole: {
+    id: 'viewerRole',
+    description: 'Viewer role label',
+    defaultMessage: 'Viewer',
+  },
   selectAppsToViewPermissions: {
     id: 'selectAppsToViewPermissions',
     description: 'Select applications to view your personal permissions message',
@@ -2086,6 +2354,11 @@ export default defineMessages({
     id: 'seeMore',
     description: 'See more label',
     defaultMessage: 'See more',
+  },
+  typeToRefineResults: {
+    id: 'typeToRefineResults',
+    description: 'Hint shown when dropdown results are capped',
+    defaultMessage: 'Showing {shown} of {total} — type to refine',
   },
   roleCreatedSuccessfully: {
     id: 'roleCreatedSuccessfully',
@@ -2307,6 +2580,21 @@ export default defineMessages({
     description: 'Assign at least one resource message',
     defaultMessage: 'You need to assign at least one resource to each permission.',
   },
+  allResources: {
+    id: 'allResources',
+    description: 'All resources label for cost management permission definitions',
+    defaultMessage: 'All resources',
+  },
+  noResourcesAvailableAll: {
+    id: 'noResourcesAvailableAll',
+    description: 'No resources available text in dropdown when permission applies to all',
+    defaultMessage: 'No resources available (applies to all)',
+  },
+  selectResourcesOptional: {
+    id: 'selectResourcesOptional',
+    description: 'Placeholder when selecting resources is optional',
+    defaultMessage: 'Select resources (optional - default all)',
+  },
   assignAtLeastOneInventoryGroup: {
     id: 'assignAtLeastOneGroup',
     description: 'Assign at least one inventory group message',
@@ -2361,6 +2649,11 @@ export default defineMessages({
     id: 'deleteRoleQuestion',
     description: 'Delete role question message',
     defaultMessage: 'Delete role?',
+  },
+  editRole: {
+    id: 'editRole',
+    description: 'Edit role toolbar action',
+    defaultMessage: 'Edit role',
   },
   deleteRole: {
     id: 'deleteRole',
@@ -2428,6 +2721,21 @@ export default defineMessages({
     description: 'Resource label',
     defaultMessage: 'Resource',
   },
+  date: {
+    id: 'date',
+    description: 'Date label',
+    defaultMessage: 'Date',
+  },
+  requester: {
+    id: 'requester',
+    description: 'Requester label',
+    defaultMessage: 'Requester',
+  },
+  action: {
+    id: 'action',
+    description: 'Action label',
+    defaultMessage: 'Action',
+  },
   resources: {
     id: 'resources',
     description: 'Resources label',
@@ -2451,7 +2759,8 @@ export default defineMessages({
   addNewUsersText: {
     id: 'addNewUsersText',
     description: 'Add new users text',
-    defaultMessage: 'To add new users or manage existing users, go to your',
+    defaultMessage:
+      'For more advanced user management, including adding users directly, editing details (like job title and language), and managing Customer Portal access, visit the',
   },
   triggerMyQuickstart: {
     id: 'triggerMyQuickstart',
@@ -2563,6 +2872,175 @@ export default defineMessages({
     defaultMessage:
       "Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform.",
   },
+  workspacesServiceCardTitle: {
+    id: 'workspacesServiceCardTitle',
+    description: 'Workspaces service card title',
+    defaultMessage: 'Workspaces',
+  },
+  groupsServiceCardTitle: {
+    id: 'groupsServiceCardTitle',
+    description: 'Groups service card title',
+    defaultMessage: 'Groups',
+  },
+  roleServiceCardTitle: {
+    id: 'roleServiceCardTitle',
+    description: 'Role service card title',
+    defaultMessage: 'Role',
+  },
+  bindingsServiceCardTitle: {
+    id: 'bindingsServiceCardTitle',
+    description: 'Bindings service card title',
+    defaultMessage: 'Bindings',
+  },
+  workspacesButton: {
+    id: 'workspacesButton',
+    description: 'Workspaces button label',
+    defaultMessage: 'Workspaces',
+  },
+  viewGroupsButton: {
+    id: 'viewGroupsButton',
+    description: 'View groups button label',
+    defaultMessage: 'View groups',
+  },
+  viewRolesButton: {
+    id: 'viewRolesButton',
+    description: 'View roles button label',
+    defaultMessage: 'View roles',
+  },
+  viewAccessRequestsButton: {
+    id: 'viewAccessRequestsButton',
+    description: 'View access requests button label',
+    defaultMessage: 'View access requests',
+  },
+  understandingAccessTitle: {
+    id: 'understandingAccessTitle',
+    description: 'Understanding access section title',
+    defaultMessage: 'Understanding access',
+  },
+  defaultGroupsHeading: {
+    id: 'defaultGroupsHeading',
+    description: 'Default groups heading',
+    defaultMessage: 'Default groups',
+  },
+  viewYourDefaultGroups: {
+    id: 'viewYourDefaultGroups',
+    description: 'View your default groups link text',
+    defaultMessage: 'View your default groups',
+  },
+  allUsersGroupDescription: {
+    id: 'allUsersGroupDescription',
+    description: 'All Users group description',
+    defaultMessage: 'The {bold} contains all authenticated users in your organization.',
+  },
+  allUsersGroupBold: {
+    id: 'allUsersGroupBold',
+    description: 'All Users group bold text',
+    defaultMessage: 'All Users group',
+  },
+  adminUsersGroupDescription: {
+    id: 'adminUsersGroupDescription',
+    description: 'Admin Users group description',
+    defaultMessage:
+      'The {bold} should contain any users within your organization who require key admin privileges (like workspace administrator, or user access administrator) so they can be applied to roles and workspaces.',
+  },
+  adminUsersGroupBold: {
+    id: 'adminUsersGroupBold',
+    description: 'Admin Users group bold text',
+    defaultMessage: 'Admin Users group',
+  },
+  grantingAccessInWorkspacesHeading: {
+    id: 'grantingAccessInWorkspacesHeading',
+    description: 'Granting access in workspaces heading',
+    defaultMessage: 'Granting access in workspaces',
+  },
+  grantAccessLink: {
+    id: 'grantAccessLink',
+    description: 'Grant access link text',
+    defaultMessage: 'Grant access',
+  },
+  userGroupsDescription: {
+    id: 'userGroupsDescription',
+    description: 'User Groups description in granting access section',
+    defaultMessage:
+      "{bold}: group your organization's end users and service accounts based on common functions (e.g., Developers, Security, Ops, etc.) to help streamline permission management.",
+  },
+  userGroupsBold: {
+    id: 'userGroupsBold',
+    description: 'User Groups bold text',
+    defaultMessage: 'User Groups',
+  },
+  rolesDescription: {
+    id: 'rolesDescription',
+    description: 'Roles description in granting access section',
+    defaultMessage:
+      '{bold}: predefined roles (e.g., Viewer, Editor, Admin) provide distinct levels of access tailored to the needs of each user group.',
+  },
+  rolesBold: {
+    id: 'rolesBold',
+    description: 'Roles bold text',
+    defaultMessage: 'Roles',
+  },
+  grantingAccessDescription: {
+    id: 'grantingAccessDescription',
+    description: 'Granting access description',
+    defaultMessage:
+      '{bold}: assigning user groups and specific roles to a workspace grants all members of that group the corresponding permissions within the role for the services and assets within the workspace.',
+  },
+  grantingAccessBold: {
+    id: 'grantingAccessBold',
+    description: 'Granting access bold text',
+    defaultMessage: 'Granting access',
+  },
+  recommendedContentTitle: {
+    id: 'recommendedContentTitle',
+    description: 'Recommended content section title',
+    defaultMessage: 'Recommended content',
+  },
+  createWorkspaceQuickStart: {
+    id: 'createWorkspaceQuickStart',
+    description: 'Create a workspace and grant access quick start title',
+    defaultMessage: 'Create a workspace and grant access',
+  },
+  quickStartLabel: {
+    id: 'quickStartLabel',
+    description: 'Quick start label',
+    defaultMessage: 'Quick start',
+  },
+  beginQuickStart: {
+    id: 'beginQuickStart',
+    description: 'Begin Quick start link text',
+    defaultMessage: 'Begin Quick start',
+  },
+  structuringWorkspacesDoc: {
+    id: 'structuringWorkspacesDoc',
+    description: 'Structuring your workspaces documentation title',
+    defaultMessage: 'Structuring your workspaces to fit your organizational use cases',
+  },
+  documentationLabel: {
+    id: 'documentationLabel',
+    description: 'Documentation label',
+    defaultMessage: 'Documentation',
+  },
+  viewDocumentation: {
+    id: 'viewDocumentation',
+    description: 'View documentation link text',
+    defaultMessage: 'View documentation',
+  },
+  workspaceHierarchyDoc: {
+    id: 'workspaceHierarchyDoc',
+    description: 'Understanding Workspace hierarchy and inheritance documentation title',
+    defaultMessage: 'Understanding Workspace hierarchy and inheritance',
+  },
+  accessManagementDoc: {
+    id: 'accessManagementDoc',
+    description: 'Understanding access management documentation title',
+    defaultMessage: 'Understanding access management',
+  },
+  viewAllIAMLearningResources: {
+    id: 'viewAllIAMLearningResources',
+    description: 'View all IAM Learning resources link text',
+    defaultMessage: 'View all Identity and Access Management Learning resources',
+  },
   usersAndUserGroups: {
     id: 'usersAndUserGroups',
     description: 'Users and user groups label',
@@ -2572,11 +3050,6 @@ export default defineMessages({
     id: 'usersAndUserGroupsDescription',
     description: 'Users and user groups description',
     defaultMessage: 'These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.',
-  },
-  createUserGroup: {
-    id: 'createUserGroup',
-    description: 'Create user group',
-    defaultMessage: 'Create User Group',
   },
   usersAndUserGroupsAdd: {
     id: 'usersAndUserGroupsAdd',
@@ -2588,6 +3061,16 @@ export default defineMessages({
     description: 'Create user group label',
     defaultMessage: 'Create user group',
   },
+  organizationWideAccessTitle: {
+    id: 'organizationWideAccessTitle',
+    description: 'Organization-Wide Access page title',
+    defaultMessage: 'Organization-Wide Access',
+  },
+  organizationWideAccessSubtitle: {
+    id: 'organizationWideAccessSubtitle',
+    description: 'Organization-Wide Access page subtitle',
+    defaultMessage: 'Grant organization-level access to users and groups.',
+  },
   usersAndUserGroupsEditUserGroup: {
     id: 'usersAndUserGroupsEditUserGroup',
     description: 'Edit user group label',
@@ -2597,6 +3080,11 @@ export default defineMessages({
     id: 'usersAndUserGroupsDeleteUserGroup',
     description: 'Delete user group label',
     defaultMessage: 'Delete user group',
+  },
+  usersAndUserGroupsDeleteUserGroupCount: {
+    id: 'usersAndUserGroupsDeleteUserGroupCount',
+    description: 'Delete user group action label with selected count',
+    defaultMessage: 'Delete {count, plural, =0 {user group} one {user group (#)} other {user groups (#)}}',
   },
   usersAndUserGroupsRemoveFromGroup: {
     id: 'usersAndUserGroupsRemoveFromGroup',
@@ -2647,12 +3135,12 @@ export default defineMessages({
   usersEmptyStateSubtitle: {
     id: 'usersEmptyStateSubtitle',
     description: 'Empty state subtitle Users',
-    defaultMessage: 'This filter criteria matches no users.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no users. Try changing your filter input.',
   },
   roleAssignmentsEmptyStateSubtitle: {
     id: 'roleAssignmentsEmptyStateSubtitle',
     description: 'Empty state subtitle role bindings',
-    defaultMessage: 'This filter criteria matches no role assignments.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no role assignments. Try changing your filter input.',
   },
   rolesEmptyStateTitle: {
     id: 'rolesEmptyStateTitle',
@@ -2662,7 +3150,7 @@ export default defineMessages({
   rolesEmptyStateSubtitle: {
     id: 'rolesEmptyStateSubtitle',
     description: 'Empty state subtitle Roles',
-    defaultMessage: 'This filter criteria matches no roles.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no roles. Try changing your filter input.',
   },
   userGroupsEmptyStateTitle: {
     id: 'userGroupsEmptyStateTitle',
@@ -2672,7 +3160,7 @@ export default defineMessages({
   userGroupsEmptyStateSubtitle: {
     id: 'userGroupsEmptyStateSubtitle',
     description: 'Empty state subtitle User groups',
-    defaultMessage: 'This filter criteria matches no user groups.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no user groups. Try changing your filter input.',
   },
   assignedRoles: {
     id: 'assignedRoles',
@@ -2698,17 +3186,7 @@ export default defineMessages({
   workspaceAssignment: {
     id: 'workspaceAssignment',
     description: 'column header for assigned user groups table',
-    defaultMessage: 'Workspace assignment (TBD)',
-  },
-  deleteUserModalTitle: {
-    id: 'deleteUserModalTitle',
-    description: 'Title for delete user modal ',
-    defaultMessage: 'Remove from user groups?',
-  },
-  deleteUserModalBody: {
-    id: 'deleteUserModalBody',
-    description: 'Modal body text for delete user',
-    defaultMessage: 'will lose all the roles associated with the user groups it belongs to.',
+    defaultMessage: 'Workspace assignment',
   },
   deleteUserGroupModalTitle: {
     id: 'deleteUserGroupModalTitle',
@@ -2729,6 +3207,46 @@ export default defineMessages({
     id: 'removeFromUserGroup',
     description: 'Action column option to remove user from group',
     defaultMessage: 'Remove from user groups',
+  },
+  removeFromUserGroupWarningTitle: {
+    id: 'removeFromUserGroupWarningTitle',
+    description: 'Warning title when removing user from groups',
+    defaultMessage: 'This action will remove users from selected groups',
+  },
+  removeFromUserGroupWarningDescription: {
+    id: 'removeFromUserGroupWarningDescription',
+    description: 'Warning description when removing user from groups',
+    defaultMessage: 'The selected {plural} will lose all access granted through the selected groups.',
+  },
+  usersToRemove: {
+    id: 'usersToRemove',
+    description: 'Label for users to remove list',
+    defaultMessage: 'Users to remove',
+  },
+  selectGroupsToRemoveFrom: {
+    id: 'selectGroupsToRemoveFrom',
+    description: 'Label for group selection',
+    defaultMessage: 'Select groups to remove from',
+  },
+  removeGroupMemberSuccessTitle: {
+    id: 'removeGroupMemberSuccessTitle',
+    description: 'Success notification title for single member removal',
+    defaultMessage: 'User removed from group',
+  },
+  removeGroupMemberSuccessDescription: {
+    id: 'removeGroupMemberSuccessDescription',
+    description: 'Success notification description for single member removal',
+    defaultMessage: 'The user was successfully removed from the group.',
+  },
+  removeGroupMemberErrorTitle: {
+    id: 'removeGroupMemberErrorTitle',
+    description: 'Error notification title for single member removal',
+    defaultMessage: 'Failed to remove user',
+  },
+  removeGroupMemberErrorDescription: {
+    id: 'removeGroupMemberErrorDescription',
+    description: 'Error notification description for single member removal',
+    defaultMessage: 'An error occurred while removing the user from the group.',
   },
   deleteCustomRoleModalHeader: {
     id: 'deleteCustomRoleModalHeader',
@@ -2898,10 +3416,25 @@ export default defineMessages({
     description: 'Grant access in workspace wizard title',
     defaultMessage: 'Grant access in Workspace {workspaceName}',
   },
+  grantAccessInOrganization: {
+    id: 'grantAccessInOrganization',
+    description: 'Grant access in organization wizard title',
+    defaultMessage: 'Grant organization-wide access',
+  },
+  grantAccessInOrganizationWithName: {
+    id: 'grantAccessInOrganizationWithName',
+    description: 'Grant access in organization wizard title with organization name',
+    defaultMessage: 'Grant access in {organizationName}',
+  },
   selectUserGroups: {
     id: 'selectUserGroups',
     description: 'Select user groups step title',
     defaultMessage: 'Select user group(s)',
+  },
+  selectUserGroupsContentTitle: {
+    id: 'selectUserGroupsContentTitle',
+    description: 'Select user groups content header title',
+    defaultMessage: 'Select user group(s) you want to grant access to',
   },
   selectRoles: {
     id: 'selectRoles',
@@ -2912,7 +3445,7 @@ export default defineMessages({
     id: 'selectUserGroupsDescription',
     description: 'Select user groups step description',
     defaultMessage:
-      "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in Users and Groups.",
+      "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in <link>Users and Groups</link>.",
   },
   selectRolesDescription: {
     id: 'selectRolesDescription',
@@ -2978,5 +3511,618 @@ export default defineMessages({
     id: 'noGroupsAvailable',
     description: 'Message when no groups are available for selection',
     defaultMessage: 'No groups available',
+  },
+  editAccess: {
+    id: 'editAccess',
+    description: 'Edit access action text',
+    defaultMessage: 'Edit access',
+  },
+  grantOrRemoveAccess: {
+    id: 'grantOrRemoveAccess',
+    description: 'Edit access modal instruction text',
+    defaultMessage:
+      'Grant or remove access to the <b>{groupName}</b> group within the <b>{workspaceName}</b> workspace by selecting or deselecting roles below.',
+  },
+  all: {
+    id: 'all',
+    description: 'All tab label',
+    defaultMessage: 'All',
+  },
+  selected: {
+    id: 'selected',
+    description: 'Selected tab label',
+    defaultMessage: 'Selected',
+  },
+  update: {
+    id: 'update',
+    description: 'Update button label',
+    defaultMessage: 'Update',
+  },
+  // Error handling messages for race conditions and permission errors
+  itemAlreadyRemovedTitle: {
+    id: 'itemAlreadyRemovedTitle',
+    description: 'Title for notification when item was already removed (race condition)',
+    defaultMessage: 'Item already removed',
+  },
+  itemAlreadyRemovedDescription: {
+    id: 'itemAlreadyRemovedDescription',
+    description: 'Description for notification when item was already removed (race condition)',
+    defaultMessage: 'One or more items were already removed by another user. The list has been refreshed.',
+  },
+  insufficientPermissionsTitle: {
+    id: 'insufficientPermissionsTitle',
+    description: 'Title for notification when user lacks permission',
+    defaultMessage: 'Insufficient permissions',
+  },
+  insufficientPermissionsDescription: {
+    id: 'insufficientPermissionsDescription',
+    description: 'Description for notification when user lacks permission',
+    defaultMessage: 'You do not have permission to perform this action. Please contact your administrator.',
+  },
+  organizationNameLabel: {
+    id: 'organizationNameLabel',
+    description: 'Label for organization name field',
+    defaultMessage: 'Organization name:',
+  },
+  accountNumberLabel: {
+    id: 'accountNumberLabel',
+    description: 'Label for account number field',
+    defaultMessage: 'Account number:',
+  },
+  organizationIdLabel: {
+    id: 'organizationIdLabel',
+    description: 'Label for organization ID field',
+    defaultMessage: 'Organization ID:',
+  },
+  redHatOrganizationPlaceholder: {
+    id: 'redHatOrganizationPlaceholder',
+    description: 'Placeholder text for organization name',
+    defaultMessage: 'Red Hat Organization',
+  },
+  unknownSubjectName: {
+    id: 'unknownSubjectName',
+    description: 'Fallback text when subject name is not available',
+    defaultMessage: 'Unknown',
+  },
+  unauthorizedAccessServiceName: {
+    id: 'unauthorizedAccessServiceName',
+    description: 'Generic service name displayed on unauthorized access pages',
+    defaultMessage: 'this page',
+  },
+  unauthorizedAccessBodyText: {
+    id: 'unauthorizedAccessBodyText',
+    description: 'Body text displayed on unauthorized access pages',
+    defaultMessage: "You don't have permission to view this page.",
+  },
+  selectAtLeastOneRowToFilter: {
+    id: 'selectAtLeastOneRowToFilter',
+    description: 'Tooltip shown when selected toggle is disabled because no rows are selected',
+    defaultMessage: 'Select at least one row to enable this filter',
+  },
+  updateRoleBindingsSuccessTitle: {
+    id: 'updateRoleBindingsSuccessTitle',
+    description: 'Success notification title when role bindings are updated',
+    defaultMessage: 'Access updated successfully',
+  },
+  updateRoleBindingsErrorTitle: {
+    id: 'updateRoleBindingsErrorTitle',
+    description: 'Error notification title when role bindings update fails',
+    defaultMessage: 'Failed to update access',
+  },
+  updateRoleBindingsErrorDescription: {
+    id: 'updateRoleBindingsErrorDescription',
+    description: 'Error notification description when role bindings update fails',
+    defaultMessage: 'There was a problem saving the role changes. Please try again.',
+  },
+  grantAccessSuccessTitle: {
+    id: 'grantAccessSuccessTitle',
+    description: 'Success notification title when access is granted',
+    defaultMessage: 'Access granted successfully',
+  },
+  grantAccessSuccessDescription: {
+    id: 'grantAccessSuccessDescription',
+    description: 'Success notification description when access is granted',
+    defaultMessage: 'Role bindings were created for the selected groups.',
+  },
+  grantAccessErrorTitle: {
+    id: 'grantAccessErrorTitle',
+    description: 'Error notification title when granting access fails',
+    defaultMessage: 'Failed to grant access',
+  },
+  grantAccessErrorDescription: {
+    id: 'grantAccessErrorDescription',
+    description: 'Error notification description when granting access fails',
+    defaultMessage: 'There was a problem granting access. Please try again.',
+  },
+  removeGroupFromWorkspace: {
+    id: 'removeGroupFromWorkspace',
+    description: 'Remove group from workspace action label',
+    defaultMessage: 'Remove from workspace',
+  },
+  removeGroupFromOrganization: {
+    id: 'removeGroupFromOrganization',
+    description: 'Remove group from organization action label',
+    defaultMessage: 'Remove from organization',
+  },
+  removeGroupFromWorkspaceConfirmTitle: {
+    id: 'removeGroupFromWorkspaceConfirmTitle',
+    description: 'Confirmation modal title when removing a group from a workspace',
+    defaultMessage: 'Remove {groupName} from workspace?',
+  },
+  removeGroupFromOrganizationConfirmTitle: {
+    id: 'removeGroupFromOrganizationConfirmTitle',
+    description: 'Confirmation modal title when removing a group from an organization',
+    defaultMessage: 'Remove {groupName} from organization?',
+  },
+  removeGroupFromWorkspaceConfirmBody: {
+    id: 'removeGroupFromWorkspaceConfirmBody',
+    description: 'Confirmation modal body when removing a group from a workspace',
+    defaultMessage: 'All role assignments for this group in {workspaceName} will be removed. This action cannot be undone.',
+  },
+  removeGroupFromWorkspaceSuccessTitle: {
+    id: 'removeGroupFromWorkspaceSuccessTitle',
+    description: 'Success notification when group is removed from workspace',
+    defaultMessage: 'Group removed from workspace',
+  },
+  removeGroupFromWorkspaceErrorTitle: {
+    id: 'removeGroupFromWorkspaceErrorTitle',
+    description: 'Error notification when removing group from workspace fails',
+    defaultMessage: 'Failed to remove group from workspace',
+  },
+  removeAccess: {
+    id: 'removeAccess',
+    description: 'Remove access action label',
+    defaultMessage: 'Remove access',
+  },
+  conversionBannerAdminTitle: {
+    id: 'conversionBannerAdminTitle',
+    description: 'Title for workspace v2 conversion opt-in banner shown to org admins',
+    defaultMessage: 'Elevate your infrastructure with workspace-based access management',
+  },
+  conversionBannerAdminGetStarted: {
+    id: 'conversionBannerAdminGetStarted',
+    description: 'Get started button text for admin conversion banner',
+    defaultMessage: 'Get started now',
+  },
+  conversionBannerAdminLearnMore: {
+    id: 'conversionBannerAdminLearnMore',
+    description: 'Learn more link text for admin conversion banner',
+    defaultMessage: 'Learn more about the benefits',
+  },
+  conversionBannerNonAdminTitle: {
+    id: 'conversionBannerNonAdminTitle',
+    description: 'Title for workspace v2 conversion opt-in banner shown to non-admin users',
+    defaultMessage: 'Ready for a smarter way to organize your work?',
+  },
+  conversionBannerBody: {
+    id: 'conversionBannerNonAdminBody',
+    description: 'Body text for workspace v2 conversion opt-in banner shown to non-admin users',
+    defaultMessage:
+      'Your organization is eligible for new workspace-based access management. Organize your RHEL systems into workspaces with hierarchical permission control. The new access management model introduces workspace organization, permission inheritance, and improved collaboration, all while preserving your existing permissions and access.',
+  },
+  conversionBannerNonAdminRequest: {
+    id: 'conversionBannerNonAdminRequest',
+    description: 'Request from admin link text for non-admin conversion banner',
+    defaultMessage: 'Request from your admin',
+  },
+  conversionWizardWhatChangesTitle: {
+    id: 'conversionWizardWhatChangesTitle',
+    description: 'Title for What changes during conversion section',
+    defaultMessage: 'What changes during conversion',
+  },
+  conversionWizardProductAvailabilityAlertTitle: {
+    id: 'conversionWizardProductAvailabilityAlertTitle',
+    description: 'Title for product availability warning alert',
+    defaultMessage: 'Not all products are available yet',
+  },
+  conversionWizardProductAvailabilityAlertDescription: {
+    id: 'conversionWizardProductAvailabilityAlertDescription',
+    description: 'Description for product availability warning alert',
+    defaultMessage:
+      "Not every Red Hat product is available in this new experience yet. If your organization uses OpenShift Cluster Manager, Ansible Automation Platform, or Cost Management we recommend postponing conversion. Check back soon; we'll update this notice as each product completes integration.",
+  },
+  conversionWizardApiIntegrationAlertTitle: {
+    id: 'conversionWizardApiIntegrationAlertTitle',
+    description: 'Title for API integration info alert',
+    defaultMessage: 'Custom API Integrations Will Need to be Updated',
+  },
+  conversionWizardApiIntegrationAlertDescription: {
+    id: 'conversionWizardApiIntegrationAlertDescription',
+    description: 'Description for API integration info alert',
+    defaultMessage:
+      "If your organization has built custom integrations, scripts, or automation using Red Hat's {rbacApiLink}, these connections will need to be updated to use the new v2 RBAC API after this conversion. See {kbLink} for migration guidance.",
+  },
+  conversionWizardApiIntegrationKbLinkText: {
+    id: 'conversionWizardApiIntegrationKbLinkText',
+    description: 'Link text for KB article in API integration alert',
+    defaultMessage: 'KB migration article',
+  },
+  conversionWizardWorkspacesIntro: {
+    id: 'conversionWizardWorkspacesIntro',
+    description: 'Introduction paragraph about workspaces',
+    defaultMessage:
+      "The Red Hat Hybrid Cloud Console's new access management model replaces the legacy User Access feature. It introduces <strong>workspaces</strong>—a hierarchical structure that allows you to organize assets and control who can access them in your organization.",
+  },
+  conversionWizardPermissionsCascade: {
+    id: 'conversionWizardPermissionsCascade',
+    description: 'Paragraph about permissions cascading',
+    defaultMessage:
+      'Instead of managing permissions for each system individually, you can organize systems into workspaces and grant permissions that automatically cascade down through your organizational structure.',
+  },
+  conversionWizardLearnMoreGuide: {
+    id: 'conversionWizardLearnMoreGuide',
+    description: 'Learn more in our guide text',
+    defaultMessage: 'Learn more in our {link} Guide',
+  },
+  conversionWizardGetStartedLink: {
+    id: 'conversionWizardGetStartedLink',
+    description: 'Getting Started with Access Management link text',
+    defaultMessage: 'Getting Started with Access Management',
+  },
+  conversionWizardHierarchyTitle: {
+    id: 'conversionWizardHierarchyTitle',
+    description: 'During conversion a workspace hierarchy will be created title',
+    defaultMessage: 'During conversion a workspace hierarchy will be created',
+  },
+  conversionWizardRootWorkspace: {
+    id: 'conversionWizardRootWorkspace',
+    description: 'Root workspace term',
+    defaultMessage: 'Root workspace',
+  },
+  conversionWizardRootWorkspaceDesc: {
+    id: 'conversionWizardRootWorkspaceDesc',
+    description: 'Root workspace description',
+    defaultMessage: 'Created at the top level for organization access',
+  },
+  conversionWizardDefaultWorkspace: {
+    id: 'conversionWizardDefaultWorkspace',
+    description: 'Default workspace term',
+    defaultMessage: 'Default workspace',
+  },
+  conversionWizardDefaultWorkspaceDesc: {
+    id: 'conversionWizardDefaultWorkspaceDesc',
+    description: 'Default workspace description',
+    defaultMessage: 'Created under Root, existing workspaces move here as sub workspaces',
+  },
+  conversionWizardExistingWorkspaces: {
+    id: 'conversionWizardExistingWorkspaces',
+    description: 'Existing workspaces term',
+    defaultMessage: 'Existing workspaces',
+  },
+  conversionWizardExistingWorkspacesDesc: {
+    id: 'conversionWizardExistingWorkspacesDesc',
+    description: 'Existing workspaces description',
+    defaultMessage: 'Moved under the default workspace. Configured permissions are preserved.',
+  },
+  conversionWizardUngroupedHosts: {
+    id: 'conversionWizardUngroupedHosts',
+    description: 'Ungrouped hosts workspace term',
+    defaultMessage: 'Ungrouped hosts workspace',
+  },
+  conversionWizardUngroupedHostsDesc: {
+    id: 'conversionWizardUngroupedHostsDesc',
+    description: 'Ungrouped hosts workspace description',
+    defaultMessage: 'Created under Default for existing systems not yet in a workspace',
+  },
+  conversionWizardPermissionsChangeTitle: {
+    id: 'conversionWizardPermissionsChangeTitle',
+    description: 'How permissions change section title',
+    defaultMessage: 'How permissions change',
+  },
+  conversionWizardDefaultAdminAccess: {
+    id: 'conversionWizardDefaultAdminAccess',
+    description: 'Default Admin access term',
+    defaultMessage: 'Default Admin access',
+  },
+  conversionWizardDefaultAdminAccessDesc: {
+    id: 'conversionWizardDefaultAdminAccessDesc',
+    description: 'Default Admin access description',
+    defaultMessage: 'Scoped to root workspace (all workspaces)',
+  },
+  conversionWizardDefaultAccess: {
+    id: 'conversionWizardDefaultAccess',
+    description: 'Default Access term',
+    defaultMessage: 'Default Access',
+  },
+  conversionWizardDefaultAccessDesc: {
+    id: 'conversionWizardDefaultAccessDesc',
+    description: 'Default Access description',
+    defaultMessage: 'Scoped to default workspace and sub workspaces only',
+  },
+  conversionWizardCustomGroups: {
+    id: 'conversionWizardCustomGroups',
+    description: 'Custom groups term',
+    defaultMessage: 'Custom groups',
+  },
+  conversionWizardCustomGroupsDesc: {
+    id: 'conversionWizardCustomGroupsDesc',
+    description: 'Custom groups description',
+    defaultMessage: 'Preserved with all memberships intact',
+  },
+  conversionWizardIsolatedEnvironments: {
+    id: 'conversionWizardIsolatedEnvironments',
+    description: 'Creating isolated environments paragraph',
+    defaultMessage:
+      'To create isolated environments, remove unnecessary permissions in the default workspace and create peer workspaces directly under the default workspace so they will not inherit additional permissions from the default workspace. In this example, the Project Alpha workspace is created to allow for fewer permissions for that workspace:',
+  },
+  conversionWizardRoleBindingsTitle: {
+    id: 'conversionWizardRoleBindingsTitle',
+    description: 'How role bindings work section title',
+    defaultMessage: 'How role bindings work',
+  },
+  conversionWizardRoleBindingsIntro: {
+    id: 'conversionWizardRoleBindingsIntro',
+    description: 'Role bindings introduction paragraph',
+    defaultMessage:
+      'Role bindings are the mechanism that link subjects (users, groups, service accounts) and roles to a workspace. While workspace access management is the "what", role bindings are the "how".',
+  },
+  conversionWizardRoleBindingConnectsTitle: {
+    id: 'conversionWizardRoleBindingConnectsTitle',
+    description: 'A role binding connects title',
+    defaultMessage: 'A role binding connects:',
+  },
+  conversionWizardRoleBindingWho: {
+    id: 'conversionWizardRoleBindingWho',
+    description: 'Role binding Who term',
+    defaultMessage: 'Who',
+  },
+  conversionWizardRoleBindingWhoDesc: {
+    id: 'conversionWizardRoleBindingWhoDesc',
+    description: 'Role binding Who description',
+    defaultMessage: 'User group',
+  },
+  conversionWizardRoleBindingWhat: {
+    id: 'conversionWizardRoleBindingWhat',
+    description: 'Role binding What term',
+    defaultMessage: 'What',
+  },
+  conversionWizardRoleBindingWhatDesc: {
+    id: 'conversionWizardRoleBindingWhatDesc',
+    description: 'Role binding What description',
+    defaultMessage: 'Role (permissions)',
+  },
+  conversionWizardRoleBindingWhere: {
+    id: 'conversionWizardRoleBindingWhere',
+    description: 'Role binding Where term',
+    defaultMessage: 'Where',
+  },
+  conversionWizardRoleBindingWhereDesc: {
+    id: 'conversionWizardRoleBindingWhereDesc',
+    description: 'Role binding Where description',
+    defaultMessage: 'Workspace',
+  },
+  conversionWizardRoleBindingExample: {
+    id: 'conversionWizardRoleBindingExample',
+    description: 'Role binding example paragraph',
+    defaultMessage:
+      'The following example demonstrates how role bindings provide administrative access to Ethan from the engineering team for RHEL systems in the Project Alpha workspace:',
+  },
+  conversionWizardRoleBindingsLinkText: {
+    id: 'conversionWizardRoleBindingsLinkText',
+    description: 'How role bindings work link text',
+    defaultMessage: 'How role bindings work',
+  },
+  conversionWizardRoleBindingsLinkContext: {
+    id: 'conversionWizardRoleBindingsLinkContext',
+    description: 'Context text around role bindings link',
+    defaultMessage: 'See {link} for more information.',
+  },
+  conversionWizardRemediationPlansTitle: {
+    id: 'conversionWizardRemediationPlansTitle',
+    description: 'Legacy remediation plans will be deleted section title',
+    defaultMessage: 'Legacy remediation plans will be deleted',
+  },
+  conversionWizardRemediationPlansWarning: {
+    id: 'conversionWizardRemediationPlansWarning',
+    description: 'Remediation plans warning paragraph',
+    defaultMessage:
+      'Once you proceed with this conversion, all existing remediation plans across your organization will be deleted. Please ensure your teams have executed or downloaded any active plans before continuing.',
+  },
+  conversionWizardRemediationPlansNew: {
+    id: 'conversionWizardRemediationPlansNew',
+    description: 'New remediation plans features paragraph',
+    defaultMessage:
+      'Remediation plans created after this conversion will be tied to your workspaces rather than individual users, enabling authorized team members to seamlessly collaborate, update, and execute them.',
+  },
+  conversionWizardWorkspaceHierarchyDiagramAlt: {
+    id: 'conversionWizardWorkspaceHierarchyDiagramAlt',
+    description: 'Alt text for workspace hierarchy diagram',
+    defaultMessage: 'Workspace hierarchy diagram',
+  },
+  conversionWizardPermissionsDiagramAlt: {
+    id: 'conversionWizardPermissionsDiagramAlt',
+    description: 'Alt text for permissions and workspace hierarchy diagram',
+    defaultMessage: 'Permissions and workspace hierarchy diagram',
+  },
+  conversionWizardRoleBindingsDiagramAlt: {
+    id: 'conversionWizardRoleBindingsDiagramAlt',
+    description: 'Alt text for role bindings example diagram',
+    defaultMessage: 'Role bindings example diagram',
+  },
+  // Step 2: Post-conversion requirements
+  conversionWizardPostConversionTitle: {
+    id: 'conversionWizardPostConversionTitle',
+    description: 'Post-conversion requirements step title',
+    defaultMessage: 'Post-conversion requirements',
+  },
+  conversionWizardPostConversionIntro: {
+    id: 'conversionWizardPostConversionIntro',
+    description: 'Post-conversion requirements introduction paragraph',
+    defaultMessage:
+      'Review your access structure within one week of conversion. Default Admin Access and Default Access are fixed by design and drive everything below.',
+  },
+  conversionWizardDefaultWorkspaceScopeTitle: {
+    id: 'conversionWizardDefaultWorkspaceScopeTitle',
+    description: 'Know what is fixed title',
+    defaultMessage: "Know what's fixed",
+  },
+  conversionWizardDefaultWorkspaceScopeDesc: {
+    id: 'conversionWizardDefaultWorkspaceScopeDesc',
+    description: 'Know what is fixed description',
+    defaultMessage:
+      "Default Admin Access binds at the root workspace to every Organization Administrator with every admin role, and cascades everywhere below. Default Access binds at the Default workspace to every user in your organization. Neither group's membership can change; only Default Access's roles can.",
+  },
+  conversionWizardAdjustDefaultAccessTitle: {
+    id: 'conversionWizardAdjustDefaultAccessTitle',
+    description: 'Adjust default access roles title',
+    defaultMessage: 'Adjust default access roles',
+  },
+  conversionWizardAdjustDefaultAccessDesc: {
+    id: 'conversionWizardAdjustDefaultAccessDesc',
+    description: 'Adjust default access roles description',
+    defaultMessage:
+      "Default Access carries over whatever roles you had configured before conversion, including any customizations. In Users and Groups, review what's bound at the Default workspace and remove anything granting more access than needed.",
+  },
+  conversionWizardReviewUngroupedHostsTitle: {
+    id: 'conversionWizardReviewUngroupedHostsTitle',
+    description: 'Review Ungrouped hosts workspace title',
+    defaultMessage: 'Review the Ungrouped hosts workspace',
+  },
+  conversionWizardReviewUngroupedHostsDesc: {
+    id: 'conversionWizardReviewUngroupedHostsDesc',
+    description: 'Review Ungrouped hosts workspace description',
+    defaultMessage: "Systems here inherit Default Access's bound roles. Confirm that access still matches your changes in step 2.",
+  },
+  conversionWizardVerifyCriticalAccessTitle: {
+    id: 'conversionWizardVerifyCriticalAccessTitle',
+    description: 'Verify critical user access title',
+    defaultMessage: 'Verify critical user access',
+  },
+  conversionWizardVerifyCriticalAccessItem1: {
+    id: 'conversionWizardVerifyCriticalAccessItem1',
+    description: 'Verify critical user access bullet point 1',
+    defaultMessage: 'Confirm 3-5 users across your org can reach their systems',
+  },
+  conversionWizardVerifyCriticalAccessItem2: {
+    id: 'conversionWizardVerifyCriticalAccessItem2',
+    description: 'Verify critical user access bullet point 2',
+    defaultMessage: 'Covers Default Admin Access, Default Access, and custom groups',
+  },
+  conversionWizardPlanStructureTitle: {
+    id: 'conversionWizardPlanStructureTitle',
+    description: 'Plan workspace structure title',
+    defaultMessage: 'Plan workspace structure',
+  },
+  conversionWizardPlanStructureIntro: {
+    id: 'conversionWizardPlanStructureIntro',
+    description: 'Plan workspace structure introduction',
+    defaultMessage: 'Create subworkspaces under the Default workspace for:',
+  },
+  conversionWizardPlanStructureItem1: {
+    id: 'conversionWizardPlanStructureItem1',
+    description: 'Plan workspace structure bullet point 1',
+    defaultMessage: 'High-security production environments',
+  },
+  conversionWizardPlanStructureItem2: {
+    id: 'conversionWizardPlanStructureItem2',
+    description: 'Plan workspace structure bullet point 2',
+    defaultMessage: 'Compliance-required isolated systems',
+  },
+  conversionWizardPlanStructureClosing: {
+    id: 'conversionWizardPlanStructureClosing',
+    description: 'Plan workspace structure closing statement',
+    defaultMessage: 'Organization Administrators keep access everywhere via Default Admin Access, so subworkspaces isolate other users, not admins.',
+  },
+  conversionWizardPreConversionChecklistTitle: {
+    id: 'conversionWizardPreConversionChecklistTitle',
+    description: 'Pre-conversion checklist step title',
+    defaultMessage: 'Pre-conversion checklist',
+  },
+  conversionWizardPreConversionChecklistDescription: {
+    id: 'conversionWizardPreConversionChecklistDescription',
+    description: 'Pre-conversion checklist step description',
+    defaultMessage: 'Please complete the checklist to confirm you understand the changes that will be made during conversion.',
+  },
+  conversionWizardPreConversionChecklistPopover: {
+    id: 'conversionWizardPreConversionChecklistPopover',
+    description: 'Pre-conversion checklist popover content',
+    defaultMessage:
+      'These items must be acknowledged before proceeding with conversion. This ensures you understand the impact and are prepared for the changes.',
+  },
+  conversionWizardChecklistReviewedConfig: {
+    id: 'conversionWizardChecklistReviewedConfig',
+    description: 'Pre-conversion checklist item 1',
+    defaultMessage: 'I have reviewed the current user and group configuration and understand what will change',
+  },
+  conversionWizardChecklistUnderstandPermanent: {
+    id: 'conversionWizardChecklistUnderstandPermanent',
+    description: 'Pre-conversion checklist item 2',
+    defaultMessage: 'I understand that conversion is permanent and cannot be reversed',
+  },
+  conversionWizardChecklistCompletePostConversion: {
+    id: 'conversionWizardChecklistCompletePostConversion',
+    description: 'Pre-conversion checklist item 3',
+    defaultMessage: 'I will complete post-conversion organization tasks within one week',
+  },
+  conversionWizardChecklistUnderstandRemediation: {
+    id: 'conversionWizardChecklistUnderstandRemediation',
+    description: 'Pre-conversion checklist item 4',
+    defaultMessage: 'I understand that all existing legacy remediation plans will be deleted',
+  },
+  conversionWizardConfirmConversionTitle: {
+    id: 'conversionWizardConfirmConversionTitle',
+    description: 'Confirm conversion step title',
+    defaultMessage: 'Confirm conversion',
+  },
+  conversionWizardConversionPermanentTitle: {
+    id: 'conversionWizardConversionPermanentTitle',
+    description: 'Warning banner title for confirm conversion step',
+    defaultMessage: 'Conversion is permanent',
+  },
+  conversionWizardConversionPermanentDesc: {
+    id: 'conversionWizardConversionPermanentDesc',
+    description: 'Warning banner description for confirm conversion step',
+    defaultMessage:
+      'Once you convert to workspace-based access management, you cannot revert to the previous experience. All existing permissions will be preserved, but the organizational structure will change.',
+  },
+  conversionWizardConfirmIntro: {
+    id: 'conversionWizardConfirmIntro',
+    description: 'Confirm conversion intro text',
+    defaultMessage: 'You are about to convert your organization from User Access to workspace-based access management. This action will:',
+  },
+  conversionWizardConfirmAction1: {
+    id: 'conversionWizardConfirmAction1',
+    description: 'Confirm conversion action item 1',
+    defaultMessage: 'Create a workspace hierarchy (root, default, and ungrouped assets workspaces)',
+  },
+  conversionWizardConfirmAction2: {
+    id: 'conversionWizardConfirmAction2',
+    description: 'Confirm conversion action item 2',
+    defaultMessage: 'Convert all existing permissions to role bindings',
+  },
+  conversionWizardConfirmAction3: {
+    id: 'conversionWizardConfirmAction3',
+    description: 'Confirm conversion action item 3',
+    defaultMessage: 'Preserve all user groups and role assignments',
+  },
+  conversionWizardConfirmAction4: {
+    id: 'conversionWizardConfirmAction4',
+    description: 'Confirm conversion action item 4',
+    defaultMessage: 'Change the scope of Default Admin Access and Default Access groups',
+  },
+  conversionWizardConfirmQuestion: {
+    id: 'conversionWizardConfirmQuestion',
+    description: 'Confirm conversion question',
+    defaultMessage: 'Are you sure you wish to move forward with this conversion?',
+  },
+  conversionWizardConfirmCheckbox: {
+    id: 'conversionWizardConfirmCheckbox',
+    description: 'Confirm conversion checkbox label',
+    defaultMessage: 'Yes, convert to workspace-based access management.',
+  },
+  conversionWizardCheckboxValidationError: {
+    id: 'conversionWizardCheckboxValidationError',
+    description: 'Error message when required checkbox is not checked',
+    defaultMessage: 'This item must be acknowledged',
+  },
+  conversionWizardChecklistPopoverAriaLabel: {
+    id: 'conversionWizardChecklistPopoverAriaLabel',
+    description: 'Aria label for checklist information popover',
+    defaultMessage: 'Checklist information',
+  },
+  conversionWizardChecklistPopoverButtonAriaLabel: {
+    id: 'conversionWizardChecklistPopoverButtonAriaLabel',
+    description: 'Aria label for checklist information button',
+    defaultMessage: 'More info for checklist',
   },
 });

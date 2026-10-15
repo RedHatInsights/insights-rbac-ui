@@ -1,0 +1,39 @@
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
+import React, { FunctionComponent } from 'react';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
+
+type ActiveUserAdminProps = {
+  linkDescription?: string;
+  linkTitle?: string;
+  prefix: string;
+  children?: React.ReactNode;
+};
+
+export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
+  linkDescription = '',
+  linkTitle = 'Red Hat User Management page',
+  prefix,
+  children,
+}) => {
+  const intl = useIntl();
+  return (
+    <>
+      <span>
+        {`${intl.formatMessage(messages.usersDescriptionAdmin)} `}
+        {linkDescription}{' '}
+        <Content
+          component="a"
+          href={`https://www.${prefix}redhat.com/wapps/ugc/protected/usermgt/userList.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {linkTitle} <ExternalLinkAltIcon />
+        </Content>
+        .
+      </span>
+      {children}
+    </>
+  );
+};

@@ -1,132 +1,189 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import AppEntry from '../../../AppEntry';
-import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
-import WorkspaceDetail from '../../../features/workspaces/workspace-detail/WorkspaceDetail';
+import { deriveTenantPermissions } from '@redhat-cloud-services/hcc-storybook-hub';
+import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
-import { KesselNavigation } from './KesselNavigation';
-import { Masthead, MastheadMain, Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
+import { FrontendYamlNavigation } from './FrontendYamlNavigation';
+import { ProductionHeader } from './ProductionHeader';
+import { GlobalBreadcrumb } from './GlobalBreadcrumb';
+import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
+
+/**
+ * Common permission presets for Kessel journey stories.
+ * Use these instead of boolean flags for explicit permission testing.
+ */
+export const KESSEL_PERMISSIONS = {
+  /** Full admin - can do everything */
+  FULL_ADMIN: ['rbac:*:*', 'inventory:groups:read', 'inventory:groups:write'],
+  /** Read-only - can view workspaces but not create/edit */
+  READ_ONLY: ['rbac:group:read', 'rbac:role:read', 'inventory:groups:read'],
+  /** Workspace admin - can manage workspaces */
+  WORKSPACE_ADMIN: ['inventory:groups:read', 'inventory:groups:write'],
+  /** User viewer - can only view users (rbac:principal:read) */
+  USER_VIEWER: ['rbac:principal:read'],
+  /** No permissions - should see unauthorized */
+  NONE: [],
+} as const;
+
+/** Per-relation workspace permission override for stories. */
+export interface WorkspacePermissionsOverride {
+  view: string[];
+  edit: string[];
+  delete: string[];
+  create: string[];
+  move: string[];
+  role_binding_view?: string[];
+  role_binding_grant?: string[];
+  role_binding_revoke?: string[];
+}
 
 interface KesselAppEntryWithRouterProps {
   initialRoute?: string;
   typingDelay?: number;
+  /** Required: Explicit permissions (rbac:*, inventory:*, etc.) - use KESSEL_PERMISSIONS presets or custom array */
+  permissions?: readonly string[];
+  /** User identity: is this user an org admin? (separate from permissions) */
   orgAdmin?: boolean;
-  userAccessAdministrator?: boolean;
+  /** Environment: 'staging' (default) or 'production' */
+  environment?: 'staging' | 'production';
+  /**
+   * Optional explicit workspace permission override for stories.
+   * When provided, replaces the computed all-granted / all-denied value.
+   * Use this to test partial-permission scenarios (e.g. root excluded).
+   */
+  workspacePermissions?: WorkspacePermissionsOverride;
   'platform.rbac.workspaces'?: boolean;
   'platform.rbac.workspaces-list'?: boolean;
   'platform.rbac.workspace-hierarchy'?: boolean;
   'platform.rbac.workspaces-role-bindings'?: boolean;
   'platform.rbac.workspaces-role-bindings-write'?: boolean;
+  'platform.rbac.overview'?: boolean;
   'platform.rbac.group-service-accounts'?: boolean;
   'platform.rbac.group-service-accounts.stable'?: boolean;
   'platform.rbac.common-auth-model'?: boolean;
-  'platform.rbac.common.userstable'?: boolean;
+  /** Role IDs the mocked user can write; undefined falls back to tenant-level rbac_roles_write */
+  writableRoleIds?: string[];
 }
 
 /**
- * Wrapper component for Kessel (Workspaces) journey tests
- * Uses KesselNavigation instead of LeftNavigation to include Workspaces link
+ * Wrapper component for Kessel (Workspaces) journey tests.
+ * Uses the production Iam component directly for maximum fidelity.
+ * testMode enables test-friendly QueryClient settings (no cache, no retries)
+ * while keeping full error handling wired up (403/500 → ApiErrorBoundary).
+ * Uses FrontendYamlNavigation which reads deploy/frontend.yaml for the sidebar.
  */
 export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
+      {/* FakeAddressBar must be outside Page to avoid z-index conflicts with masthead */}
+      <FakeAddressBar />
       <Page
-        header={
-          <Masthead>
-            <MastheadMain>
-              <FakeAddressBar />
-            </MastheadMain>
-          </Masthead>
-        }
+        masthead={<ProductionHeader />}
         sidebar={
           <PageSidebar>
             <PageSidebarBody>
-              <KesselNavigation />
+              <FrontendYamlNavigation />
             </PageSidebarBody>
           </PageSidebar>
         }
       >
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route
-              path="/iam/my-user-access"
-              element={
-                <div style={{ padding: 0, margin: 0 }}>
-                  <MyUserAccess />
-                </div>
-              }
-            />
-            {/* Explicit workspace detail route for M3+ */}
-            <Route path="/iam/user-access/workspaces/detail/:workspaceId" element={<WorkspaceDetail />} />
-            <Route path="/iam/user-access/*" element={<AppEntry />} />
-            <Route path="/iam/access-management/*" element={<AppEntry />} />
-          </Routes>
-        </Suspense>
+        <GlobalBreadcrumb />
+        <Routes>
+          <Route path="/iam/*" element={<Iam testMode />} />
+        </Routes>
       </Page>
     </MemoryRouter>
   );
 };
 
 /**
- * Helper to create dynamic environment parameters from story args
+ * Helper to create dynamic environment parameters from story args.
+ *
+ * Requires explicit permissions - no magic derivation from boolean flags.
+ * - `permissions`: What the user can DO (authorization) - supports rbac:*, inventory:*, etc.
+ * - `orgAdmin`: Who the user IS (identity for user profile)
  */
 export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) => {
+  const permissions = args.permissions;
+  if (!permissions) {
+    throw new Error('permissions is required - use KESSEL_PERMISSIONS presets or provide explicit array');
+  }
+
+  // Derive write capability from permissions (has any :write or :* permission)
+  const hasWritePermissions = permissions.some((p) => p.includes(':write') || p.includes(':*') || p === 'rbac:*:*');
+
+  // '*' wildcard grants all workspace IDs (including dynamically created ones).
+  const allGranted = {
+    view: ['*'],
+    edit: ['*'],
+    delete: ['*'],
+    create: ['*'],
+    move: ['*'],
+  };
+  const allDenied = { view: [], edit: [], delete: [], create: [], move: [] };
+  // Use explicit override if provided; otherwise derive from write permissions.
+  const workspacePermissions = args.workspacePermissions ?? (hasWritePermissions ? allGranted : allDenied);
+
+  // Tenant permissions for V2 domain hooks - derive from Chrome permissions
+  const tenantPermissions = deriveTenantPermissions(permissions as string[]);
+
+  // orgAdmin is explicit - controls user identity, not permissions
+  const isOrgAdmin = args.orgAdmin === true;
+
+  // Environment - defaults to staging for test environments
+  const environment = args.environment === 'production' ? 'prod' : 'stage';
+
+  // Convert permission strings to chrome.getUserPermissions format
+  const chromePermissions = permissions.map((permission) => ({
+    permission,
+    resourceDefinitions: [],
+  }));
+
   return {
+    // Journey stories use Iam directly - skip preview.tsx provider wrapping
+    noWrapping: true,
+    // Explicit permissions for route-level permission guard
+    permissions,
+    // Environment setting
+    environment: args.environment ?? 'staging',
+    // Workspace permissions for useSelfAccessCheck mock (workspace IDs user can edit/create in)
+    workspacePermissions,
+    // Tenant permissions for V2 domain hooks (useRolesAccess, useGroupsAccess, etc.)
+    tenantPermissions,
+    // Per-role write allowlist (undefined = fall back to tenant rbac_roles_write flag)
+    writableRoleIds: args.writableRoleIds,
+    // User identity for auth.getUser() - used by StorybookMockContext
+    userIdentity: {
+      org_id: '12510751',
+      account_number: '123456',
+      internal: {
+        account_id: '123456',
+      },
+      user: {
+        username: 'test-user',
+        email: 'test@redhat.com',
+        first_name: 'Test',
+        last_name: 'User',
+        is_org_admin: isOrgAdmin,
+      },
+      entitlements: {
+        ansible: { is_entitled: true },
+        cost_management: { is_entitled: true },
+        insights: { is_entitled: true },
+        openshift: { is_entitled: true },
+        rhel: { is_entitled: true },
+        smart_management: { is_entitled: false },
+      },
+    },
+    // Chrome config (for compatibility - most values now come from StorybookMockContext)
     chrome: {
-      environment: 'prod',
-      getUserPermissions: () => {
-        const { orgAdmin = false, userAccessAdministrator = false } = args;
-        let permissions;
-        if (orgAdmin) {
-          permissions = [
-            { permission: 'rbac:*:*', resourceDefinitions: [] },
-            { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-            { permission: 'inventory:groups:write', resourceDefinitions: [] },
-            { permission: 'inventory:groups:*', resourceDefinitions: [] },
-          ];
-        } else if (userAccessAdministrator) {
-          permissions = [
-            { permission: 'rbac:group:*', resourceDefinitions: [] },
-            { permission: 'rbac:principal:*', resourceDefinitions: [] },
-            { permission: 'rbac:role:read', resourceDefinitions: [] },
-            { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-          ];
-        } else {
-          permissions = [
-            { permission: 'rbac:group:read', resourceDefinitions: [] },
-            { permission: 'rbac:role:read', resourceDefinitions: [] },
-            { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-          ];
-        }
-        return Promise.resolve(permissions);
-      },
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              user: {
-                username: 'test-user',
-                email: 'test@redhat.com',
-                first_name: 'Test',
-                last_name: 'User',
-                is_org_admin: args.orgAdmin || false,
-              },
-            },
-            entitlements: {
-              ansible: { is_entitled: true },
-              cost_management: { is_entitled: true },
-              insights: { is_entitled: true },
-              openshift: { is_entitled: true },
-              rhel: { is_entitled: true },
-              smart_management: { is_entitled: false },
-            },
-          }),
-        getToken: () => Promise.resolve('mock-token-12345'),
-      },
+      environment,
+      getUserPermissions: () => Promise.resolve(chromePermissions),
       isBeta: () => false,
-      getEnvironment: () => 'prod',
+      isProd: () => false,
+      getEnvironment: () => 'stage',
       getBundle: () => 'iam',
-      getApp: () => 'user-access',
+      getApp: () => '',
     },
     featureFlags: {
       'platform.rbac.workspaces': args['platform.rbac.workspaces'] ?? false,
@@ -134,10 +191,10 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
       'platform.rbac.workspace-hierarchy': args['platform.rbac.workspace-hierarchy'] ?? false,
       'platform.rbac.workspaces-role-bindings': args['platform.rbac.workspaces-role-bindings'] ?? false,
       'platform.rbac.workspaces-role-bindings-write': args['platform.rbac.workspaces-role-bindings-write'] ?? false,
+      'platform.rbac.overview': args['platform.rbac.overview'] ?? true,
       'platform.rbac.group-service-accounts': args['platform.rbac.group-service-accounts'] ?? false,
       'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? false,
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? false,
-      'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
       'platform.rbac.itless': false,
     },
   };

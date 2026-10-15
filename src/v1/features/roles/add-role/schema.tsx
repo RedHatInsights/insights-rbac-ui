@@ -1,0 +1,260 @@
+import React from 'react';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
+import AddPermissionTemplate from './AddPermissionTemplate';
+import CreateRoleStepTemplate from './CreateRoleStepTemplate';
+import ReviewTemplate from './ReviewTemplate';
+import CostResourcesTemplate from './CostResourcesTemplate';
+import { ValidatorReset } from './validators';
+import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
+import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
+import type { IntlShape } from 'react-intl';
+import messages from '../../../../Messages';
+import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
+import InventoryGroupsRoleTemplate from './InventoryGroupsRoleTemplate';
+import { AddRoleWizardContext } from './AddRoleWizardContext';
+import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
+import BaseRoleTable from './BaseRoleTable';
+import AddPermissionsTable from './AddPermissions';
+import ReviewStep from './ReviewStep';
+import InventoryGroupsRole from './InventoryGroupsRole';
+import CostResources from './CostResources';
+import TypeSelector from './TypeSelector';
+import SetName from './SetName';
+
+interface DescriptionProps {
+  Content: React.ComponentType<Record<string, unknown>>;
+  [key: string]: unknown;
+}
+
+const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
+
+/**
+ * Component mapper for the Add Role wizard. Assembled with literal keys so
+ * `RoleWizardSchema` can validate every `component:` value the schema uses.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  'set-name': SetName,
+  'base-role-table': BaseRoleTable,
+  'add-permissions-table': AddPermissionsTable,
+  'cost-resources': CostResources,
+  'inventory-groups-role': InventoryGroupsRole,
+  review: ReviewStep,
+  description: Description,
+  'type-selector': TypeSelector,
+};
+
+export type RoleWizardSchema = Schema<typeof wizardMapper>;
+
+interface FormValues {
+  'role-type'?: string;
+  'add-permissions-table'?: { uuid: string }[];
+  [key: string]: unknown;
+}
+
+export const schemaBuilder = (intl: IntlShape, featureFlag: boolean): RoleWizardSchema => {
+  return {
+    fields: [
+      {
+        component: 'wizard',
+        name: 'wizard',
+        isDynamic: true,
+        inModal: true,
+        showTitles: true,
+        crossroads: ['role-type'],
+        'data-ouia-component-id': 'add-role-wizard',
+        title: intl.formatMessage(messages.createRole),
+        style: { overflow: 'hidden' },
+        container: getModalContainer(),
+        fields: [
+          {
+            title: intl.formatMessage(messages.createRole),
+            name: 'step-1',
+            StepTemplate: CreateRoleStepTemplate,
+            buttons: WizardButtons,
+            nextStep: {
+              when: 'role-type',
+              stepMapper: {
+                copy: 'name-and-description',
+                create: 'add-permissions',
+              },
+            },
+            fields: [
+              {
+                component: 'type-selector',
+                name: 'role-type',
+                isRequired: true,
+                validate: [
+                  {
+                    type: validatorTypes.REQUIRED,
+                  },
+                ],
+              },
+              {
+                component: 'set-name',
+                name: 'role-name',
+                type: 'text',
+                validate: [
+                  {
+                    type: validatorTypes.REQUIRED,
+                  },
+                  {
+                    type: validatorTypes.MAX_LENGTH,
+                    threshold: 150,
+                  },
+                ],
+                condition: {
+                  when: 'role-type',
+                  is: 'create',
+                },
+              },
+              {
+                component: 'text-field',
+                name: 'role-description',
+                hideField: true,
+              },
+              {
+                component: 'base-role-table',
+                name: 'copy-base-role',
+                label: intl.formatMessage(messages.baseRole),
+                isRequired: true,
+                condition: {
+                  when: 'role-type',
+                  is: 'copy',
+                },
+                validate: [
+                  {
+                    type: validatorTypes.REQUIRED,
+                  },
+                ],
+              },
+              {
+                condition: {
+                  when: 'role-type',
+                  is: 'create',
+                },
+                component: 'description',
+                name: 'fixasyncvalidation',
+                Content: ValidatorReset,
+              },
+              {
+                condition: {
+                  when: 'role-type',
+                  is: 'copy',
+                },
+                component: 'description',
+                name: 'fixasyncvalidation2',
+                Content: ValidatorReset,
+              },
+            ],
+          },
+          {
+            title: intl.formatMessage(messages.nameAndDescription),
+            name: 'name-and-description',
+            buttons: WizardButtons,
+            nextStep: 'add-permissions',
+            fields: [
+              {
+                component: 'set-name',
+                name: 'role-copy-name',
+                nameFieldKey: 'role-copy-name',
+                descriptionFieldKey: 'role-copy-description',
+                type: 'text',
+                validate: [
+                  {
+                    type: validatorTypes.REQUIRED,
+                  },
+                  {
+                    type: validatorTypes.MAX_LENGTH,
+                    threshold: 150,
+                  },
+                ],
+              },
+              {
+                component: 'text-field',
+                name: 'role-copy-description',
+                hideField: true,
+              },
+            ],
+          },
+          {
+            name: 'add-permissions',
+            title: intl.formatMessage(messages.addPermissions),
+            StepTemplate: AddPermissionTemplate,
+            buttons: WizardButtons,
+            nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('add-permissions', values),
+            fields: [
+              {
+                component: 'add-permissions-table',
+                name: 'add-permissions-table',
+              },
+            ],
+          },
+          {
+            title: intl.formatMessage(featureFlag ? messages.workspacesAccessTitle : messages.inventoryGroupsAccessTitle),
+            name: 'inventory-groups-role',
+            StepTemplate: InventoryGroupsRoleTemplate,
+            buttons: WizardButtons,
+            nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('inventory-groups-role', values),
+            fields: [
+              {
+                component: 'plain-text',
+                name: 'cost-resources',
+                label: (
+                  <p className="pf-v6-u-mb-md">
+                    {intl.formatMessage(featureFlag ? messages.applyWorkspacesRolePermission : messages.applyInventoryGroupsRolePermission)}
+                  </p>
+                ),
+              },
+              {
+                component: 'inventory-groups-role',
+                name: 'inventory-groups-role',
+                validate: [
+                  (value: { groups: unknown[]; permission: string }[] = []) =>
+                    value?.every(({ groups, permission }) => groups?.length > 0 && permission)
+                      ? undefined
+                      : intl.formatMessage(messages.assignAtLeastOneInventoryGroup),
+                ],
+              },
+            ],
+          },
+          {
+            name: 'cost-resources-definition',
+            title: intl.formatMessage(messages.defineCostResources),
+            buttons: WizardButtons,
+            nextStep: 'review',
+            StepTemplate: CostResourcesTemplate,
+            fields: [
+              {
+                component: 'plain-text',
+                name: 'text-description',
+                label: <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.applyCostPermissionText)}</p>,
+              },
+              {
+                component: 'cost-resources',
+                name: 'cost-resources',
+              },
+            ],
+          },
+          {
+            name: 'review',
+            title: intl.formatMessage(messages.reviewDetails),
+            buttons: (props: Omit<React.ComponentProps<typeof ReviewStepButtons>, 'context'>) => (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              <ReviewStepButtons {...props} context={AddRoleWizardContext as any} />
+            ),
+            StepTemplate: ReviewTemplate,
+            fields: [
+              {
+                component: 'review',
+                name: 'review',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+};

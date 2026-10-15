@@ -28,11 +28,119 @@ objects:
         - id: rbac-org-admin
           title: Org Admins
           href: /iam/user-access/users
-          description: Manage your organization's administrator users.
-          alt_title:
-            - org administrator
+          description: Manage your organization's administrator users (Identity & Access Management).
+          alt_title: [org administrator, IAM, user access]
           permissions:
-            - method: isOrgAdmin
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
+        - id: rbac-org-admin-v2
+          title: Org Admins
+          href: /iam/access-management/users-and-user-groups
+          description: Manage your organization's administrator users (Identity & Access Management).
+          alt_title: [org administrator, IAM, user access]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
+        - id: rbac-roles
+          title: Roles
+          href: /iam/user-access/roles
+          description: View and manage custom roles for your organization (Identity & Access Management).
+          alt_title: [role, roles, RBAC, IAM, user access]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:role:read]]
+        - id: rbac-roles-v2
+          title: Roles
+          href: /iam/access-management/roles
+          description: View and manage custom roles for your organization (Identity & Access Management).
+          alt_title: [role, roles, RBAC, IAM, user access]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:role:read]]
+        - id: rbac-users
+          title: Users
+          href: /iam/user-access/users
+          description: Manage users and their role-based access (Identity & Access Management).
+          alt_title: [user, users, IAM, user access, RBAC]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
+        - id: rbac-users-v2
+          title: Users
+          href: /iam/access-management/users-and-user-groups
+          description: Manage users and their role-based access (Identity & Access Management).
+          alt_title: [user, users, IAM, user access, RBAC]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
+        - id: rbac-groups
+          title: Groups
+          href: /iam/user-access/groups
+          description: Manage groups and their role assignments (Identity & Access Management).
+          alt_title: [group, groups, IAM, user access, RBAC]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:group:read]]
+        - id: rbac-groups-v2
+          title: Groups
+          href: /iam/access-management/users-and-user-groups
+          description: Manage groups and their role assignments (Identity & Access Management).
+          alt_title: [group, groups, IAM, user access, RBAC]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:group:read]]
+        - id: rbac-my-access
+          title: My User Access
+          href: /iam/my-user-access
+          description: View your current permissions and access (Identity & Access Management).
+          alt_title: [my access, my permissions, IAM, RBAC, user access]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+        - id: rbac-my-access-v2
+          title: My Access
+          href: /iam/my-access
+          description: View your current permissions and access (Identity & Access Management).
+          alt_title: [my access, my permissions, IAM, RBAC, user access]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+        - id: rbac-workspaces-v2
+          title: Workspaces
+          href: /iam/access-management/workspaces
+          description: Organize systems with workspaces for granular user access (Identity & Access Management).
+          alt_title: [workspace, workspaces, IAM, user access, RBAC]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+        - id: rbac-access-management
+          title: Access Management
+          href: /iam/access-management/users-and-user-groups
+          description: Manage users, groups, roles, and workspaces (Identity & Access Management).
+          alt_title: [access management, IAM, user access, RBAC, roles, workspaces]
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args:
+                - - rbac:principal:read
+                - - rbac:group:read
       serviceTiles:
         - section: iam
           group: iam
@@ -42,7 +150,22 @@ objects:
           description: Manage your organization's role-based access control (RBAC) to services.
           icon: PlaceholderIcon
           permissions:
-            - method: isOrgAdmin
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
+        - section: iam
+          group: iam
+          id: users-v2
+          href: /iam/access-management/users-and-user-groups
+          title: Users
+          description: Manage your organization's role-based access control (RBAC) to services.
+          icon: PlaceholderIcon
+          permissions:
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
         - section: iam
           group: iam
           id: groups
@@ -51,52 +174,50 @@ objects:
           description: ""
           icon: PlaceholderIcon
           permissions:
-            - method: isOrgAdmin
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:group:read]]
         - section: iam
           group: iam
-          id: workspaces
-          href: /iam/user-access/workspaces
-          title: Workspaces
+          id: groups-v2
+          href: /iam/access-management/users-and-user-groups
+          title: Groups
           description: ""
           icon: PlaceholderIcon
           permissions:
             - method: featureFlag
-              args:
-                - platform.rbac.workspaces-list
-                - true
-        - section: iam
-          group: iam
-          id: serviceAccounts
-          href: /iam/service-accounts
-          title: Service Accounts
-          description: Authenticate and connect securely to APIs from multiple services.
-          icon: ServicesIcon
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:group:read]]
       bundleSegments:
         - segmentId: module-rbac-ui
           bundleId: iam
           navItems:
-            # New navigation structure with platform.rbac.workspaces-organization-management feature flag
+            # New navigation structure with platform.rbac.workspaces feature flag
             - id: overview
               title: Overview
-              href: /iam/user-access/overview
+              href: /iam/overview
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
                 - method: featureFlag
                   args:
                     - platform.rbac.overview
                     - true
-                - method: isOrgAdmin
+                - method: loosePermissionsKessel
+                  args:
+                    - - rbac_roles_read
               product: Identity & Access Management
             - id: my-access
               title: My Access
-              href: /iam/my-user-access
+              href: /iam/my-access
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
             - id: access-management
               title: Access Management
@@ -104,50 +225,47 @@ objects:
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
-                - method: loosePermissions
-                  args:
-                    - - 'rbac:*:*'
               routes:
                 - id: users-and-groups
                   title: Users and Groups
-                  href: /iam/access-management/users-and-groups
+                  href: /iam/access-management/users-and-user-groups
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissionsKessel
+                      args:
+                        - - rbac_principal_read
+                          - rbac_groups_read
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
-                  href: /iam/user-access/roles
+                  href: /iam/access-management/roles
                   permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
-                - id: service-accounts
-                  title: Service Accounts
-                  href: /iam/service-accounts
-                  permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissionsKessel
+                      args:
+                        - - rbac_roles_read
                   product: Identity & Access Management
                 - id: workspaces
                   title: Workspaces
-                  href: /iam/user-access/workspaces
+                  href: /iam/access-management/workspaces
                   icon: PlaceholderIcon
-                  permissions:
-                    - method: featureFlag
-                      args:
-                        - platform.rbac.workspaces-list
-                        - true
-                    - method: loosePermissions
-                      args:
-                        - - 'inventory:groups:read'
                   product: Identity & Access Management
+                - id: audit-log
+                  title: Audit Log
+                  href: /iam/access-management/audit-log
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+                - segmentRef:
+                    frontendName: service-accounts
+                    segmentId: iam-access-management-service-accounts
             - id: organization-management
               title: Organization Management
               expandable: true
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
                 - method: isOrgAdmin
               routes:
@@ -157,32 +275,6 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
-                - id: trusted-organizations
-                  title: Trusted Organizations
-                  href: /iam/organization-management/trusted-organizations
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
-                - id: authentication-factors
-                  title: Authentication Factors
-                  href: /iam/organization-management/authentication-factors
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
-                - id: identity-provider-integration
-                  title: Identity Provider Integration
-                  href: /iam/organization-management/identity-provider-integration
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
-            - id: learning-resources
-              title: Learning Resources
-              href: /iam/learning-resources
-              permissions:
-                - method: featureFlag
-                  args:
-                    - platform.rbac.workspaces-organization-management
-                    - true
             # Legacy navigation structure (when new feature flag is off)
             - id: my-user-access
               title: My User Access
@@ -190,7 +282,7 @@ objects:
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - false
             - id: user-access
               title: User Access
@@ -198,17 +290,16 @@ objects:
               permissions:
                 - method: loosePermissions
                   args:
-                    - - 'rbac:*:*'
+                    - - rbac:principal:read
+                    - - rbac:group:read
+                    - - rbac:role:read
+                    - - inventory:groups:read
                 - method: featureFlag
                   args:
                     - platform.rbac.workspaces
                     - false
-                - method: featureFlag
-                  args:
-                    - platform.rbac.workspaces-organization-management
-                    - false
               routes:
-                - id: overview
+                - id: user-access-overview
                   title: Overview
                   href: /iam/user-access/overview
                   permissions:
@@ -216,40 +307,35 @@ objects:
                       args:
                         - platform.rbac.overview
                         - true
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - rbac:*:read
                   product: Identity & Access Management
                 - id: users
                   title: Users
                   href: /iam/user-access/users
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - rbac:principal:read
                   icon: PlaceholderIcon
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
                   href: /iam/user-access/roles
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - rbac:role:read
                   product: Identity & Access Management
                 - id: groups
                   title: Groups
                   href: /iam/user-access/groups
                   permissions:
-                    - method: isOrgAdmin
-                  icon: PlaceholderIcon
-                  product: Identity & Access Management
-                - id: workspaces
-                  title: Workspaces
-                  href: /iam/user-access/workspaces
-                  icon: PlaceholderIcon
-                  permissions:
-                    - method: featureFlag
-                      args:
-                        - platform.rbac.workspaces-list
-                        - true
                     - method: loosePermissions
                       args:
-                        - - 'inventory:groups:read'
+                        - - rbac:group:read
+                  icon: PlaceholderIcon
                   product: Identity & Access Management
                 - segmentRef:
                     frontendName: access-requests
@@ -263,20 +349,14 @@ objects:
             - api.console
             - api.iam.service_accounts
         modules:
-          - id: my-user-access
-            module: ./MyUserAccess
-            routes:
-              - pathname: /iam
-              - pathname: /iam/my-user-access
           - id: settings-user-access
             module: ./SettingsUserAccess
             routes:
               - pathname: /settings/rbac
           - id: iam-user-access
-            module: ./IamUserAccess
+            module: ./Iam
             routes:
-              - pathname: /iam/user-access
-              - pathname: /iam/access-management
+              - pathname: /iam
 
 parameters:
   - name: ENV_NAME

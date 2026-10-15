@@ -1,0 +1,6 @@
+{
+  "$schema": "./expected-failures.schema.json",
+  "description": "Tests that are known to fail. CI passes if only these tests fail.",
+  "lastUpdated": "2026-02-05",
+  "failures": []
+}

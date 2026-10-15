@@ -1,0 +1,131 @@
+import { z } from 'zod';
+
+// ============================================================================
+// Zod Schemas for Input Validation
+// ============================================================================
+
+/**
+ * Role input schema for CLI operations.
+ *
+ * Permissions format: "application:resource_type:operation" (colon-separated string)
+ * Examples: "rbac:groups:read", "inventory:hosts:*", "cost-management:*:*"
+ *
+ * Note: System roles are auto-discovered from the API and included in the seed-map.
+ * Only define custom roles here that should be created.
+ *
+ * The V1 API expects `access: [{ permission: string }]` but we use the
+ * simpler `permissions: string[]` interface (matching CreateRoleV2Request).
+ */
+export const RoleInputSchema = z.object({
+  name: z.string().min(1, 'Role name is required'),
+  display_name: z.string().optional(),
+  description: z.string().optional(),
+  permissions: z.array(z.string()).optional().default([]),
+});
+
+/**
+ * Group input schema for CLI operations.
+ *
+ * Note: System groups are auto-discovered from the API and included in the seed-map.
+ * Only define custom groups here that should be created.
+ */
+export const GroupInputSchema = z.object({
+  name: z.string().min(1, 'Group name is required'),
+  description: z.string().optional(),
+  user_list: z.array(z.object({ username: z.string() })).optional(),
+  roles_list: z.array(z.string()).optional(),
+});
+
+/**
+ * Workspace input schema for CLI operations
+ */
+export const WorkspaceInputSchema = z.object({
+  name: z.string().min(1, 'Workspace name is required'),
+  description: z.string().optional(),
+  parent_id: z.string().optional(),
+});
+
+/**
+ * Persona input schema for test user definitions.
+ * These usernames are added to seeded groups automatically.
+ */
+export const PersonaInputSchema = z.object({
+  username: z.string().min(1, 'Username is required'),
+});
+
+/**
+ * Role binding input schema for CLI operations.
+ *
+ * Binds a group+role pair to a workspace via the V2 role-bindings API.
+ * Names are resolved to UUIDs from the seeder's resource mapping after
+ * roles, groups, and workspaces have been created.
+ */
+export const RoleBindingInputSchema = z.object({
+  group: z.string().min(1, 'Group name is required'),
+  role: z.string().min(1, 'Role name is required'),
+  workspace: z.string().min(1, 'Workspace name is required'),
+});
+
+/**
+ * Seed payload schema - wrapper for batch operations
+ */
+export const SeedPayloadSchema = z.object({
+  personas: z.record(z.string(), PersonaInputSchema).optional(),
+  roles: z.array(RoleInputSchema).optional(),
+  groups: z.array(GroupInputSchema).optional(),
+  workspaces: z.array(WorkspaceInputSchema).optional(),
+  role_bindings: z.array(RoleBindingInputSchema).optional(),
+});
+
+// ============================================================================
+// TypeScript Types (inferred from Zod schemas)
+// ============================================================================
+
+export type RoleInput = z.infer<typeof RoleInputSchema>;
+export type GroupInput = z.infer<typeof GroupInputSchema>;
+export type WorkspaceInput = z.infer<typeof WorkspaceInputSchema>;
+export type RoleBindingInput = z.infer<typeof RoleBindingInputSchema>;
+export type SeedPayload = z.infer<typeof SeedPayloadSchema>;
+
+/**
+ * CLI operation result
+ */
+export interface OperationResult {
+  success: boolean;
+  id?: string;
+  uuid?: string;
+  name?: string;
+  error?: string;
+}
+
+/**
+ * Seed summary output
+ */
+export interface SeedSummary {
+  success: boolean;
+  roles: {
+    created: number;
+    failed: number;
+    results: Record<string, OperationResult>;
+  };
+  groups: {
+    created: number;
+    failed: number;
+    results: Record<string, OperationResult>;
+  };
+  workspaces: {
+    created: number;
+    failed: number;
+    results: Record<string, OperationResult>;
+  };
+  role_bindings?: {
+    created: number;
+    failed: number;
+  };
+  /** Name-to-UUID mappings for seed-map output. Includes both system and created resources. */
+  mappings?: {
+    roles: Record<string, string>;
+    groups: Record<string, string>;
+    workspaces: Record<string, string>;
+  };
+}

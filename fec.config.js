@@ -1,10 +1,11 @@
 const path = require('path');
 
 module.exports = {
-  appUrl: ['/iam/my-user-access', '/iam', '/iam/user-access'],
+  appUrl: ['/iam'],
   debug: true,
   useProxy: true,
   proxyVerbose: true,
+  stripAllPfStyles: true,
   frontendCRDPath: path.resolve(__dirname, './deploy/frontend.yaml'),
   /**
    * Change to false after your app is registered in configuration files
@@ -19,13 +20,13 @@ module.exports = {
   hotReload: process.env.HOT === 'true',
   moduleFederation: {
     exposes: {
-      './MyUserAccess': path.resolve(__dirname, './src/entries/MyUserAccess.js'),
-      './IamUserAccess': path.resolve(__dirname, './src/entries/IamUserAccess.js'),
-      './CreateWorkspaceWizardModule': path.resolve(__dirname, './src/features/workspaces/create-workspace/CreateWorkspaceWizardModule.tsx'),
-              './Workspaces/ManagedSelector': path.resolve(__dirname, './src/features/workspaces/components/managed-selector/ManagedSelector.tsx'),
-        './Workspaces/WorkspaceSelector': path.resolve(__dirname, './src/features/workspaces/components/managed-selector/components/WorkspaceSelector.tsx'),
+      // Application entry point
+      './Iam': path.resolve(__dirname, './src/federated-modules/Iam.tsx'),
+      // Shared modules (self-contained with providers)
+      './modules/CreateWorkspaceWizard': path.resolve(__dirname, './src/federated-modules/CreateWorkspaceWizard.tsx'),
+      './modules/WorkspaceSelector': path.resolve(__dirname, './src/federated-modules/WorkspaceSelector.tsx'),
+      './modules/ConversionOptInBanner': path.resolve(__dirname, './src/federated-modules/ConversionOptInBanner.tsx'),
     },
-    exclude: ['react-router-dom'],
-    shared: [{ 'react-router-dom': { singleton: true, version: '^6.18.0', requiredVersion: '*' } }],
+    shared: []
   },
 };
