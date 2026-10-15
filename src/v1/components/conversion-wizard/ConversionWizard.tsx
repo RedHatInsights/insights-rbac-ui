@@ -17,7 +17,10 @@ import { TenantApiErrorResponse, TenantOptInIneligibleResponse, tenantApi } from
 export interface ConversionWizardProps {
   /** Callback when wizard is cancelled */
   onCancel: () => void;
-  /** Callback when wizard is successfully completed */
+  /**
+   * Called when the user dismisses the success screen. The tenant is on V2 by this point, so
+   * the caller is responsible for getting them onto a V2 page.
+   */
   onSuccess?: () => void;
 }
 

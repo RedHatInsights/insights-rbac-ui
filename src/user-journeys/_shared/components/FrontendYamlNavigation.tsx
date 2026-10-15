@@ -14,7 +14,7 @@ import frontendYamlRaw from '../../../../deploy/frontend.yaml?raw';
 // =============================================================================
 
 interface NavPermission {
-  method: 'loosePermissions' | 'loosePermissionsKessel' | 'isOrgAdmin' | 'featureFlag';
+  method: 'loosePermissions' | 'loosePermissionsKessel' | 'isOrgAdmin' | 'featureFlag' | 'isKesselOrgOnboarded';
   args?: (string | string[] | boolean)[];
 }
 
@@ -37,6 +37,9 @@ interface FrontendYamlStructure {
     };
   }>;
 }
+
+/** The master workspaces flag; `isKesselOrgOnboarded` in frontend.yaml is built on it. */
+const WORKSPACES_FLAG = 'platform.rbac.workspaces';
 
 // =============================================================================
 // Permission Matching Logic
@@ -107,6 +110,8 @@ interface NavigationContext {
   tenantPermissions: TenantPermissionsMap;
   isOrgAdmin: boolean;
   featureFlags: Record<string, boolean>;
+  /** Whether this tenant has converted to V2, independent of the flag. */
+  tenantOptedIn: boolean;
 }
 
 /**
@@ -144,8 +149,20 @@ function canAccessNavItem(item: NavItemConfig, ctx: NavigationContext): boolean 
       case 'loosePermissionsKessel':
         return evaluateLoosePermissionsKessel(perm.args ?? [], ctx.tenantPermissions);
 
+      case 'isKesselOrgOnboarded': {
+        // Mirrors Chrome: the workspaces flag is on, OR this tenant has converted. The two are
+        // independent — conversion is per-tenant and irreversible, the flag is per-environment —
+        // so a converted tenant gets V2 nav even with the flag off.
+        const [expectedValue = true] = (perm.args ?? []) as [boolean?];
+        const onboarded = (ctx.featureFlags[WORKSPACES_FLAG] ?? false) || ctx.tenantOptedIn;
+        return onboarded === expectedValue;
+      }
+
       default:
-        return true;
+        // Deliberately strict. Treating an unrecognised method as "allowed" lets a new
+        // frontend.yaml method render every nav item at once — V1 and V2 side by side — which
+        // surfaces as duplicate-link failures far away from the config that caused them.
+        return false;
     }
   });
 }
@@ -201,7 +218,16 @@ const allNavItems = parseNavItems();
  *
  * This ensures Storybook navigation always matches the production config.
  */
-export const FrontendYamlNavigation: React.FC = () => {
+export interface FrontendYamlNavigationProps {
+  /**
+   * Whether the tenant has converted to V2. Keep this in step with whatever the story's MSW
+   * handlers answer for `GET /api/rbac/v1/tenant/opt-in/`: the app shell reads the endpoint and
+   * the sidebar reads this, so if they disagree a story renders V2 pages under V1 nav.
+   */
+  tenantOptedIn?: boolean;
+}
+
+export const FrontendYamlNavigation: React.FC<FrontendYamlNavigationProps> = ({ tenantOptedIn = false }) => {
   const location = useLocation();
   const { permissions, isOrgAdmin, tenantPermissions } = useMockState();
   const featureFlags = useContext(FeatureFlagsContext);
@@ -214,9 +240,10 @@ export const FrontendYamlNavigation: React.FC = () => {
       tenantPermissions,
       isOrgAdmin,
       featureFlags,
+      tenantOptedIn,
     };
     return filterNavItems(allNavItems, ctx);
-  }, [permissions, isOrgAdmin, tenantPermissions, featureFlags]);
+  }, [permissions, isOrgAdmin, tenantPermissions, featureFlags, tenantOptedIn]);
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 

@@ -1,16 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { IntlProvider } from 'react-intl';
 import { BrowserRouter } from 'react-router-dom';
 import { ConversionCompleteStep } from './ConversionCompleteStep';
-
-// Conversion sends the user to V2 with a full page load, not a client-side navigation.
-const mockAssign = vi.fn();
-
-vi.stubGlobal('location', { ...window.location, assign: mockAssign });
 
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <IntlProvider locale="en">
@@ -19,10 +14,6 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 describe('ConversionCompleteStep', () => {
-  beforeEach(() => {
-    mockAssign.mockClear();
-  });
-
   it('shows loading spinner when isLoading is true', () => {
     render(<ConversionCompleteStep isLoading={true} />, { wrapper: Wrapper });
 
@@ -44,14 +35,16 @@ describe('ConversionCompleteStep', () => {
     expect(button).toBeInTheDocument();
   });
 
-  it('reloads onto the V2 overview page when dashboard button is clicked', async () => {
+  // Where the user goes next is the caller's call, so this screen only has to report the click.
+  it('reports completion when dashboard button is clicked', async () => {
     const user = userEvent.setup();
-    render(<ConversionCompleteStep isLoading={false} />, { wrapper: Wrapper });
+    const onComplete = vi.fn();
+    render(<ConversionCompleteStep isLoading={false} onComplete={onComplete} />, { wrapper: Wrapper });
 
     const button = screen.getByRole('button', { name: /go to access management dashboard/i });
     await user.click(button);
 
-    expect(mockAssign).toHaveBeenCalledWith('/iam/overview');
+    expect(onComplete).toHaveBeenCalled();
   });
 
   it('shows external link to getting started guide', () => {

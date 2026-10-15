@@ -6,20 +6,16 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import { useIntl } from 'react-intl';
 import CheckCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/check-circle-icon';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
-import { mergeToBasename } from '../../../../shared/hooks/useAppLink';
 import messages from '../../../../Messages';
-
-/**
- * Where the user lands after converting. V2 serves its overview from `/overview`, while the V1
- * page this wizard is launched from lives at `/user-access/overview`; this screen only renders
- * after a successful conversion, so V2's path is the correct target.
- */
-const POST_CONVERSION_OVERVIEW = mergeToBasename('/overview') as string;
 
 export interface ConversionCompleteStepProps {
   /** Whether the API call is still in progress */
   isLoading?: boolean;
-  /** Callback to call when user completes the success flow (clicks dashboard button) */
+  /**
+   * Called when the user clicks the dashboard button. Leaving the page is the caller's job:
+   * conversion changes which version of the app the shell renders, so the caller has to decide
+   * where to send the user, not this screen.
+   */
   onComplete?: () => void;
 }
 
@@ -43,15 +39,7 @@ export const ConversionCompleteStep: React.FC<ConversionCompleteStepProps> = ({ 
   }
 
   const handleNavigateToDashboard = () => {
-    // Call the onComplete callback to close the wizard
-    if (onComplete) {
-      onComplete();
-    }
-    // A full page load rather than a client-side navigation. Conversion decides which version
-    // of the app the shell renders, and both sides of that decision are cached for the lifetime
-    // of the page: the opt-in query here, and Chrome's memoized `isKesselOrgOnboarded` behind
-    // the navigation. Reloading re-runs both, so the user gets V2 pages and V2 nav together.
-    window.location.assign(POST_CONVERSION_OVERVIEW);
+    onComplete?.();
   };
 
   return (

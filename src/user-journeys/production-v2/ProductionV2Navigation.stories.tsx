@@ -1,6 +1,7 @@
 import { expect, userEvent, within } from 'storybook/test';
 import { waitForContentReady } from '../../test-utils/interactionHelpers';
-import { Story, TEST_TIMEOUTS, WS_ROOT, db, meta, navigateToPage, resetStoryState } from './_v2OrgAdminSetup';
+import { tenantOptInHandlers } from '../../v1/data/mocks/tenant.handlers';
+import { Story, TEST_TIMEOUTS, WS_ROOT, db, meta, mswHandlers, navigateToPage, resetStoryState } from './_v2OrgAdminSetup';
 
 export default { ...meta, title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Navigation', tags: ['prod-v2-org-admin'] };
 
@@ -128,6 +129,69 @@ Tests navigation through all V2 sidebar items visible to an Org Admin.
     await step('Navigate to Organization-Wide Access', async () => {
       await navigateToPage(user, canvas, 'Organization-Wide Access');
       await canvas.findByRole('heading', { name: /organization-wide access/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
+  },
+};
+
+/**
+ * Conversion and the feature flag are independent: conversion is per-tenant and irreversible,
+ * the flag is rolled out per environment. frontend.yaml gates the sidebar on
+ * `isKesselOrgOnboarded`, which is the OR of the two, so a converted tenant has to get V2
+ * navigation with `platform.rbac.workspaces` off.
+ */
+export const ConvertedTenantSeesV2Nav: Story = {
+  name: 'Converted tenant sees V2 nav with the flag off',
+  args: {
+    initialRoute: '/iam/access-management/users-and-user-groups',
+    'platform.rbac.workspaces': false,
+    tenantOptedIn: true,
+  },
+  parameters: {
+    // The sidebar reads `tenantOptedIn`; the app shell reads this endpoint. Both have to say
+    // "converted" or the story renders V2 pages under V1 navigation.
+    msw: { handlers: [...tenantOptInHandlers({ optedIn: true }), ...mswHandlers] },
+    docs: {
+      description: {
+        story: `
+Validates the opt-in half of \`isKesselOrgOnboarded\`, which the feature flag alone cannot cover.
+
+**Setup:** \`platform.rbac.workspaces\` is **off**, and \`GET /api/rbac/v1/tenant/opt-in/\`
+reports the tenant as converted.
+
+**Checks:**
+- ✅ V2 items ("Access Management", "Users and Groups", "Workspaces") ARE present
+- ✅ No V1 \`/iam/user-access/*\` link is rendered
+- ✅ "Roles" resolves to exactly one link, and it points at the V2 path
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Converted tenant gets the V2 sidebar', async () => {
+      expect(await canvas.findByRole('button', { name: /access management/i })).toBeInTheDocument();
+      expect(await canvas.findByRole('link', { name: /users and groups/i })).toBeInTheDocument();
+      expect(await canvas.findByRole('link', { name: /^workspaces$/i })).toBeInTheDocument();
+    });
+
+    await step('No V1 navigation is left alongside it', async () => {
+      // Gating that fails open renders both variants of every entry, which shows up first as
+      // duplicate links rather than as a missing one.
+      const v1Links = canvas.queryAllByRole('link').filter((link) => link.getAttribute('href')?.startsWith('/iam/user-access'));
+      expect(v1Links).toHaveLength(0);
+
+      const rolesLinks = canvas.getAllByRole('link', { name: /^roles$/i });
+      expect(rolesLinks).toHaveLength(1);
+      expect(rolesLinks[0]).toHaveAttribute('href', '/iam/access-management/roles');
     });
   },
 };

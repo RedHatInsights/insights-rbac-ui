@@ -8,11 +8,6 @@ import { MemoryRouter } from 'react-router-dom';
 import { ConversionWizard } from './ConversionWizard';
 import { tenantApi } from '../../../shared/data/api/tenant';
 
-// Conversion sends the user to V2 with a full page load, not a client-side navigation.
-const mockAssign = vi.fn();
-
-vi.stubGlobal('location', { ...window.location, assign: mockAssign });
-
 vi.mock('../../../shared/data/api/tenant', () => ({
   tenantApi: {
     getEligibility: vi.fn(),
@@ -93,7 +88,8 @@ describe('ConversionWizard', () => {
     expect(modalBox.contains(screen.getByRole('button', { name: /go to access management dashboard/i }))).toBe(true);
   }, 20000);
 
-  it('calls onSuccess and reloads onto the V2 overview when the dashboard button is clicked', async () => {
+  // The wizard reports success; sending the user to a V2 page is the caller's job.
+  it('calls onSuccess when the dashboard button is clicked', async () => {
     const user = userEvent.setup();
     const onSuccess = vi.fn();
     renderWizard({ onSuccess });
@@ -104,7 +100,6 @@ describe('ConversionWizard', () => {
     await user.click(screen.getByRole('button', { name: /go to access management dashboard/i }));
 
     expect(onSuccess).toHaveBeenCalled();
-    expect(mockAssign).toHaveBeenCalledWith('/iam/overview');
   }, 20000);
 
   it('checks eligibility before opting in', async () => {
