@@ -13,7 +13,7 @@ import { WorkspacesWorkspaceTypes } from '../../../../data/api/workspaces';
 import { InlineWorkspacePicker } from '../../components/managed-selector/InlineWorkspacePicker';
 import { type TreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
 import { canCreateInType } from '../../workspaceTypes';
-import { WORKSPACE_PARENT } from '../schema';
+import { WORKSPACE_PARENT } from '../constants';
 
 /**
  * DDF custom component that wraps InlineWorkspacePicker for the create-workspace wizard.

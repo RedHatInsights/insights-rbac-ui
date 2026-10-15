@@ -3,16 +3,11 @@ import { useIntl } from 'react-intl';
 import { Wizard } from '@patternfly/react-core/deprecated';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { type Access, type ResourceDefinition, type RoleWithAccess, useUpdateRoleMutation } from '../../../data/queries/roles';
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
-import AddPermissionsTable from '../add-role/AddPermissions';
-import AddRolePermissionSummaryContent from './AddRolePermissionSummaryContent';
 import AddRolePermissionSuccess from './AddRolePermissionSuccess';
-import CostResources from '../add-role/CostResources';
-import InventoryGroupsRole from '../add-role/InventoryGroupsRole';
-import { schemaBuilder } from './schema';
+import { schemaBuilder, wizardMapper } from './schema';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import messages from '../../../../Messages';
 import pathnames from '../../../utilities/pathnames';
@@ -60,13 +55,6 @@ function isAddRolePermissionFormData(data: Record<string, unknown>): data is Add
 }
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
-
-export const mapperExtension = {
-  'add-permissions-table': AddPermissionsTable,
-  'inventory-groups-role': InventoryGroupsRole,
-  'cost-resources': CostResources,
-  review: AddRolePermissionSummaryContent,
-};
 
 const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role }) => {
   const intl = useIntl();
@@ -209,7 +197,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
             'role-name': role.display_name,
             'role-description': role.description,
           }}
-          componentMapper={{ ...componentMapper, ...mapperExtension }}
+          componentMapper={wizardMapper}
           onSubmit={onSubmit}
           onCancel={(values: Record<string, unknown>) => {
             if (values && isAddRolePermissionFormData(values) && values['add-permissions-table'].length > 0) {

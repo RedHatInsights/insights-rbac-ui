@@ -1,12 +1,11 @@
 import React from 'react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import type { LegacySchema } from '@data-driven-forms/react-form-renderer/common-types/schema';
+import { type Pf4Schema, pf4Components } from '../../../shared/forms/pf4Components';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { ModalFormTemplate } from '../../../shared/components/forms/ModalFormTemplate';
 import { usePatchRoleMutation, useRoleQuery } from '../../data/queries/roles';
@@ -64,7 +63,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
     return undefined;
   };
 
-  const createEditRoleSchema = (id: string): LegacySchema => {
+  const createEditRoleSchema = (id: string): Pf4Schema => {
     return {
       fields: [
         {
@@ -133,7 +132,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
   return roleData ? (
     <FormRenderer
       schema={createEditRoleSchema(roleId!)}
-      componentMapper={componentMapper}
+      componentMapper={pf4Components}
       initialValues={roleData}
       onSubmit={(values) => handleSubmit(values as FormValues)}
       onCancel={onCancel}

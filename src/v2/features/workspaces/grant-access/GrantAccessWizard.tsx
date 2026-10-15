@@ -1,5 +1,4 @@
 import type { FormTemplateCommonProps } from '@data-driven-forms/common/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import React from 'react';
@@ -8,10 +7,7 @@ import { useIntl } from 'react-intl';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import { useGrantAccessMutation } from '../../../data/queries/workspaces';
-import { schemaBuilder } from './schema';
-import UserGroupsSelectionField from './components/UserGroupsSelectionField';
-import RolesSelectionField from './components/RolesSelectionField';
-import ReviewSelection from './components/ReviewSelection';
+import { schemaBuilder, wizardMapper } from './schema';
 
 export interface GrantAccessWizardProps {
   workspaceName: string;
@@ -22,13 +18,6 @@ export interface GrantAccessWizardProps {
 }
 
 const FormTemplate = (props: FormTemplateCommonProps) => <Pf4FormTemplate {...props} showFormControls={false} />;
-
-const customComponentMapper = {
-  ...componentMapper,
-  'user-groups-selection': UserGroupsSelectionField,
-  'roles-selection': RolesSelectionField,
-  'review-selection': ReviewSelection,
-};
 
 export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> = ({
   workspaceName,
@@ -64,7 +53,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
   return (
     <FormRenderer
       schema={schemaBuilder(intl, workspaceName, workspaceId, resourceType)}
-      componentMapper={customComponentMapper}
+      componentMapper={wizardMapper}
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}
       onCancel={onCancel || defaultOnCancel}

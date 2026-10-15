@@ -1,23 +1,11 @@
 import React, { useState } from 'react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { useIntl } from 'react-intl';
-import { schemaBuilder } from './schema';
-import { IntroductionStep } from './components/IntroductionStep';
-import { PostConversionRequirementsStep } from './components/PostConversionRequirementsStep';
-import { PreConversionChecklistStep } from './components/PreConversionChecklistStep';
-import { ConfirmConversionStep } from './components/ConfirmConversionStep';
+import { schemaBuilder, wizardMapper } from './schema';
 import { requiredCheckboxValidator } from './validators';
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
-
-const mapperExtension = {
-  IntroductionStep,
-  PostConversionRequirementsStep,
-  PreConversionChecklistStep,
-  ConfirmConversionStep,
-};
 
 export interface ConversionWizardProps {
   /** Callback when wizard is cancelled */
@@ -55,7 +43,7 @@ export const ConversionWizard: React.FC<ConversionWizardProps> = ({ onCancel, on
     <FormRenderer
       schema={schema}
       FormTemplate={FormTemplate}
-      componentMapper={{ ...componentMapper, ...mapperExtension }}
+      componentMapper={wizardMapper}
       validatorMapper={validatorMapper}
       onSubmit={onSubmit}
       onCancel={onCancel}

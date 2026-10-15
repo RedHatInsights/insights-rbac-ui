@@ -1,8 +1,9 @@
 import React, { useMemo, useReducer } from 'react';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
-import pf4ComponentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import ReactFormRender from '@data-driven-forms/react-form-renderer/form-renderer';
-import FixedDualListSelect from '../../../shared/components/forms/FixedDualListSelect';
+import { pf4Components } from '../../../shared/forms/pf4Components';
+import FixedDualListSelect, { type DualListSelectOption } from '../../../shared/components/forms/FixedDualListSelect';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
@@ -20,11 +21,15 @@ import { useInventoryGroupsQuery } from '../../../shared/data/queries/inventory'
 import type { Access, ResourceDefinition } from '../../data/api/roles';
 import messages from '../../../Messages';
 
-// Create a custom component mapper with our fixed DualListSelect
+// Component mapper with literal keys; overrides the stock dual-list-select
+// with our fixed variant. `EditResourceDefinitionsSchema` validates every
+// `component:` value the schema below uses.
 const componentMapper = {
-  ...pf4ComponentMapper,
+  ...pf4Components,
   [componentTypes.DUAL_LIST_SELECT]: FixedDualListSelect,
 };
+
+type EditResourceDefinitionsSchema = Schema<typeof componentMapper>;
 
 interface InventoryGroup {
   id: string;
@@ -89,16 +94,17 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-// Helper to extract value from JSX option elements
-const extractValueFromNode = (option: { props: { 'data-value': string } }) => option.props['data-value'];
+// Helper to extract value from JSX option elements. Options are the JSX
+// nodes created by `createOptions` below; `data-value` carries the resource id.
+const extractValueFromNode = (option: DualListSelectOption): string => (option as { props: { 'data-value': string } }).props['data-value'];
 
 const createEditResourceDefinitionsSchema = (
   resources: Resources | undefined,
   resourcesPath: string | undefined,
-  options: unknown[],
+  options: DualListSelectOption[],
   isInventory: boolean,
   intl: ReturnType<typeof useIntl>,
-) => {
+): EditResourceDefinitionsSchema => {
   return {
     fields: [
       {

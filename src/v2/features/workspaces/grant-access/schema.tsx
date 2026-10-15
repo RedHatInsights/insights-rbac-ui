@@ -1,13 +1,36 @@
 import type { IntlShape } from 'react-intl';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import messages from '../../../../Messages';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
+import UserGroupsSelectionField from './components/UserGroupsSelectionField';
+import RolesSelectionField from './components/RolesSelectionField';
+import ReviewSelection from './components/ReviewSelection';
+
+/**
+ * Component mapper for the Grant Access wizard. Assembled with literal keys so
+ * `GrantAccessWizardSchema` can validate every `component:` value the schema uses.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  'user-groups-selection': UserGroupsSelectionField,
+  'roles-selection': RolesSelectionField,
+  'review-selection': ReviewSelection,
+};
+
+export type GrantAccessWizardSchema = Schema<typeof wizardMapper>;
 
 export interface GrantAccessFormValues {
   // Add form fields here when needed
 }
 
-export const schemaBuilder = (intl: IntlShape, workspaceName: string, workspaceId?: string, resourceType?: 'workspace' | 'tenant') => {
+export const schemaBuilder = (
+  intl: IntlShape,
+  workspaceName: string,
+  workspaceId?: string,
+  resourceType?: 'workspace' | 'tenant',
+): GrantAccessWizardSchema => {
   const requireNonEmptyArray = (message: string) => (value: unknown) => (!Array.isArray(value) || value.length === 0 ? message : undefined);
 
   return {

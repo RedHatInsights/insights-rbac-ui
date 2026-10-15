@@ -19,6 +19,9 @@ const FormGroup = require('@data-driven-forms/pf4-component-mapper/form-group').
   children?: React.ReactNode;
 }>;
 
+/** Options may be JSX nodes (inventory groups render `<span data-value>` elements) or plain `{ value, label }` objects. */
+export type DualListSelectOption = React.ReactNode | { value: string; label: string; [key: string]: unknown };
+
 interface FixedDualListSelectProps extends Omit<UseFieldApiConfig, 'name'> {
   name: string;
   label?: React.ReactNode;
@@ -27,8 +30,8 @@ interface FixedDualListSelectProps extends Omit<UseFieldApiConfig, 'name'> {
   description?: React.ReactNode;
   hideLabel?: boolean;
   id?: string;
-  options: React.ReactNode[];
-  getValueFromNode?: (option: React.ReactNode) => string;
+  options: DualListSelectOption[];
+  getValueFromNode?: (option: DualListSelectOption) => string;
   isSearchable?: boolean;
   leftTitle?: string;
   rightTitle?: string;
@@ -101,7 +104,7 @@ const FixedDualListSelect: React.FC<FixedDualListSelectProps> = (props) => {
   }, []);
 
   // Helper to get display label from option (matches data-driven-forms behavior)
-  const getOptionLabel = useCallback((option: React.ReactNode): React.ReactNode => {
+  const getOptionLabel = useCallback((option: DualListSelectOption): React.ReactNode => {
     // For object options with label property (standard format)
     if (typeof option === 'object' && option !== null && 'label' in option) {
       return (option as { label: React.ReactNode }).label;
@@ -115,7 +118,7 @@ const FixedDualListSelect: React.FC<FixedDualListSelectProps> = (props) => {
 
   // Helper to get value from option
   const getOptionValue = useCallback(
-    (option: React.ReactNode): string => {
+    (option: DualListSelectOption): string => {
       if (getValueFromNode) {
         return getValueFromNode(option);
       }
@@ -134,7 +137,7 @@ const FixedDualListSelect: React.FC<FixedDualListSelectProps> = (props) => {
     const available: React.ReactNode[] = [];
     const chosen: React.ReactNode[] = [];
 
-    options.forEach((option: React.ReactNode) => {
+    options.forEach((option: DualListSelectOption) => {
       const optionValue = getOptionValue(option);
       const optionLabel = getOptionLabel(option);
       if (value.includes(optionValue)) {
@@ -151,7 +154,7 @@ const FixedDualListSelect: React.FC<FixedDualListSelectProps> = (props) => {
   // Uses getTextFromNode to properly extract text from ReactNode labels
   const labelToValueMap = useMemo(() => {
     const map = new Map<string, string>();
-    options.forEach((option: React.ReactNode) => {
+    options.forEach((option: DualListSelectOption) => {
       const optionValue = getOptionValue(option);
       const optionLabel = getOptionLabel(option);
       const labelText = getTextFromNode(optionLabel);

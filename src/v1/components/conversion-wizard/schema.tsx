@@ -1,10 +1,30 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import { IntlShape } from 'react-intl';
 import WizardButtons from '../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../shared/helpers/modal-container';
 import messages from '../../../Messages';
+import { pf4Components } from '../../../shared/forms/pf4Components';
+import { IntroductionStep } from './components/IntroductionStep';
+import { PostConversionRequirementsStep } from './components/PostConversionRequirementsStep';
+import { PreConversionChecklistStep } from './components/PreConversionChecklistStep';
+import { ConfirmConversionStep } from './components/ConfirmConversionStep';
 
-export const schemaBuilder = (intl: IntlShape) => {
+/**
+ * Component mapper for the conversion wizard. Assembled with literal keys so
+ * `ConversionWizardSchema` can validate every `component:` value the schema uses.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  IntroductionStep,
+  PostConversionRequirementsStep,
+  PreConversionChecklistStep,
+  ConfirmConversionStep,
+};
+
+export type ConversionWizardSchema = Schema<typeof wizardMapper>;
+
+export const schemaBuilder = (intl: IntlShape): ConversionWizardSchema => {
   return {
     fields: [
       {

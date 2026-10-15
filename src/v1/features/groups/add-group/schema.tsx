@@ -1,14 +1,41 @@
 import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
+import type { IntlShape } from 'react-intl';
 import messages from '../../../../Messages';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
+import { SetName } from './components/stepName/SetName';
+import { SetRoles } from './components/stepRoles/SetRoles';
+import { SetUsers } from './components/stepUsers/SetUsers';
+import SetServiceAccounts from './components/stepServiceAccounts/SetServiceAccounts';
+import { SummaryContent } from './components/stepReview/SummaryContent';
+import { AddGroupSuccess } from './AddGroupSuccess';
 
-export const schemaBuilder = (intl, enableServiceAccounts, enableRoles) => {
+/**
+ * Component mapper for the Add Group wizard. Assembled with literal keys so
+ * `AddGroupWizardSchema` can validate every `component:` value the schema uses.
+ * `add-group-success` is injected dynamically by the wizard after submission,
+ * so it has no static schema reference.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  'set-name': SetName,
+  'set-roles': SetRoles,
+  'set-users': SetUsers,
+  'set-service-accounts': SetServiceAccounts,
+  'summary-content': SummaryContent,
+  'add-group-success': AddGroupSuccess,
+};
+
+export type AddGroupWizardSchema = Schema<typeof wizardMapper>;
+
+export const schemaBuilder = (intl: IntlShape, enableServiceAccounts: boolean, enableRoles: boolean): AddGroupWizardSchema => {
   return {
     fields: [
       {
@@ -97,7 +124,10 @@ export const schemaBuilder = (intl, enableServiceAccounts, enableRoles) => {
           {
             name: 'review',
             title: intl.formatMessage(messages.reviewDetails),
-            buttons: (props) => <ReviewStepButtons {...props} context={AddGroupWizardContext} />,
+            buttons: (props: Omit<React.ComponentProps<typeof ReviewStepButtons>, 'context'>) => (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              <ReviewStepButtons {...props} context={AddGroupWizardContext as any} />
+            ),
             StepTemplate: ReviewTemplate,
             fields: [
               {

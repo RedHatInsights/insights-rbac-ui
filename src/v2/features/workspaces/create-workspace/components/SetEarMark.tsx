@@ -7,7 +7,7 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { WORKSPACE_ACCOUNT } from '../schema';
+import { WORKSPACE_ACCOUNT } from '../constants';
 import messages from '../../../../../Messages';
 
 export const SetEarMark = ({ feature, ...props }: UseFieldApiConfig) => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import AddPermissionTemplate from './AddPermissionTemplate';
 import CreateRoleStepTemplate from './CreateRoleStepTemplate';
 import ReviewTemplate from './ReviewTemplate';
@@ -11,6 +12,37 @@ import type { IntlShape } from 'react-intl';
 import messages from '../../../../Messages';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
+import BaseRoleTable from './BaseRoleTable';
+import AddPermissionsTable from './AddPermissions';
+import ReviewStep from './ReviewStep';
+import CostResources from './CostResources';
+import TypeSelector from './TypeSelector';
+import SetName from './SetName';
+
+interface DescriptionProps {
+  Content: React.ComponentType<Record<string, unknown>>;
+  [key: string]: unknown;
+}
+
+const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
+
+/**
+ * Component mapper for the V2 Add Role wizard. Assembled with literal keys so
+ * `RoleWizardSchema` can validate every `component:` value the schema uses.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  'set-name': SetName,
+  'base-role-table': BaseRoleTable,
+  'add-permissions-table': AddPermissionsTable,
+  'cost-resources': CostResources,
+  review: ReviewStep,
+  description: Description,
+  'type-selector': TypeSelector,
+};
+
+export type RoleWizardSchema = Schema<typeof wizardMapper>;
 
 interface FormValues {
   'role-type'?: string;
@@ -32,7 +64,7 @@ const validateNextAddRolePermissionStep = (currentStep: string, values: FormValu
   return 'review';
 };
 
-export const schemaBuilder = (intl: IntlShape, _featureFlag: boolean) => {
+export const schemaBuilder = (intl: IntlShape, _featureFlag: boolean): RoleWizardSchema => {
   return {
     fields: [
       {

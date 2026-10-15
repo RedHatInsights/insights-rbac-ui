@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import AddPermissionTemplate from '../add-role/AddPermissionTemplate';
 import ReviewTemplate from './ReviewTemplate';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
@@ -7,13 +8,33 @@ import messages from '../../../../Messages';
 import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from '../add-role/InventoryGroupsRoleTemplate';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { pf4Components } from '../../../../shared/forms/pf4Components';
+import AddPermissionsTable from '../add-role/AddPermissions';
+import AddRolePermissionSummaryContent from './AddRolePermissionSummaryContent';
+import CostResources from '../add-role/CostResources';
+import InventoryGroupsRole from '../add-role/InventoryGroupsRole';
+
+/**
+ * Component mapper for the Add Role Permission wizard. Assembled with literal
+ * keys so `AddRolePermissionSchema` can validate every `component:` value the
+ * schema uses.
+ */
+export const wizardMapper = {
+  ...pf4Components,
+  'add-permissions-table': AddPermissionsTable,
+  'inventory-groups-role': InventoryGroupsRole,
+  'cost-resources': CostResources,
+  review: AddRolePermissionSummaryContent,
+};
+
+export type AddRolePermissionSchema = Schema<typeof wizardMapper>;
 
 interface FormValues {
   'add-permissions-table'?: { uuid: string }[];
   [key: string]: unknown;
 }
 
-export const schemaBuilder = (intl: IntlShape, featureFlag: boolean) => {
+export const schemaBuilder = (intl: IntlShape, featureFlag: boolean): AddRolePermissionSchema => {
   return {
     fields: [
       {

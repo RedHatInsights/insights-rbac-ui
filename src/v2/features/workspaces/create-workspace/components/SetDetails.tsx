@@ -8,7 +8,7 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../../../Messages';
 import InputHelpPopover from '../../../../../shared/components/forms/InputHelpPopover';
-import { WORKSPACE_ACCOUNT } from '../schema';
+import { WORKSPACE_ACCOUNT } from '../constants';
 
 /**
  * Billing account selector — placeholder UI behind `platform.rbac.workspaces-billing-features`.

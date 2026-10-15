@@ -7,7 +7,8 @@ import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import Messages from '../../../../../../Messages';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
+import { pf4Components } from '../../../../../../shared/forms/pf4Components';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import {
   type Group,
@@ -25,6 +26,14 @@ import {
 
 import { useParams } from 'react-router-dom';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
+
+/** Component mapper with literal keys; `EditUserGroupSchema` validates the schema below. */
+const wizardMapper = {
+  ...pf4Components,
+  'users-and-service-accounts': EditGroupUsersAndServiceAccounts,
+};
+
+type EditUserGroupSchema = Schema<typeof wizardMapper>;
 import { RbacBreadcrumbs } from '../../../../../../shared/components/navigation/Breadcrumbs';
 import pathnames from '../../../../../utilities/pathnames';
 import useAppNavigate from '../../../../../../shared/hooks/useAppNavigate';
@@ -137,7 +146,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     }
   }, [group?.uuid, group?.name, group?.description, groupUsers.length, groupServiceAccounts.length, createNewGroup, initialFormData]);
 
-  const schema = useMemo(
+  const schema = useMemo<EditUserGroupSchema>(
     () => ({
       fields: [
         {
@@ -286,10 +295,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         ) : (
           <FormRenderer
             schema={schema}
-            componentMapper={{
-              ...componentMapper,
-              'users-and-service-accounts': EditGroupUsersAndServiceAccounts,
-            }}
+            componentMapper={wizardMapper}
             onSubmit={handleSubmit}
             onCancel={returnToPreviousPage}
             FormTemplate={FormTemplate}
