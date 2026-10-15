@@ -608,6 +608,7 @@ export const NonAdminOrgAdminTogglesDisabled: Story = {
 };
 
 const toggleSupportCasesSpy = fn();
+const searchUsersSpy = fn();
 
 // Resettable so the POST handler's mutation doesn't leak across play-function reruns.
 const supportCasesPermissions = createResettableMap<string, string[]>([
@@ -639,14 +640,18 @@ export const SupportCasesToggleIntegration: Story = {
           onToggleSupportCases: (userId, grant) => {
             toggleSupportCasesSpy({ userId, grant });
           },
+          onSearchUsers: (ids) => {
+            searchUsersSpy(ids);
+          },
         }),
       ],
     },
   },
-  // Reset before render so a prior rerun's granted permission doesn't leak into
-  // this run's initial GET (which fires on mount, before the play function).
+  // Reset before render so a prior rerun's granted permission doesn't leak into this run's initial
+  // bulk search (which fires on mount). searchUsersSpy resets here too — it fires before play runs.
   beforeEach: () => {
     supportCasesPermissions.reset();
+    searchUsersSpy.mockClear();
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -684,6 +689,18 @@ export const SupportCasesToggleIntegration: Story = {
         name: new RegExp(`toggle manage support cases for ${ORG_ADMIN_USER.username}`, 'i'),
       });
       await expect(adminToggle).toBeChecked();
+    });
+
+    await step('Whole page fetched support-cases permissions in ONE bulk request', async () => {
+      // Regression guard for the removed N+1: one POST /users/search per page, not per row.
+      await waitFor(() => expect(searchUsersSpy).toHaveBeenCalledTimes(1));
+      expect(searchUsersSpy).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          String(FIRST_USER.external_source_id),
+          String(ORG_ADMIN_USER.external_source_id),
+          String(mockUsers[2].external_source_id),
+        ]),
+      );
     });
   },
 };

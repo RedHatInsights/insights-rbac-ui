@@ -27,6 +27,7 @@ import { ActivateToggle } from './components/ActivateToggle';
 import { SupportCasesToggle } from '../../../shared/components/SupportCasesToggle';
 import pathnames from '../../utilities/pathnames';
 import { useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
+import { useSupportCasesPermissions } from '../../../shared/hooks/useSupportCasesPermissions';
 
 interface UsersListNotSelectableProps {
   userLinks: boolean;
@@ -131,6 +132,9 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   );
   const totalCount = usersData?.totalCount ?? 0;
 
+  // Bulk-fetch support-cases permissions for every row in one request (avoids a per-row N+1).
+  const { isLoading: isSupportCasesLoading } = useSupportCasesPermissions(users, { enabled: showSupportCases });
+
   // React Query mutation for changing user status
   const changeUserStatusMutation = useChangeUserStatusMutation();
 
@@ -199,6 +203,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
             username={user.username}
             isDisabled={!orgAdmin}
             isActive={user.is_active ?? true}
+            isPermissionsLoading={isSupportCasesLoading}
           />
         );
       },
@@ -225,7 +230,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         );
       },
     }),
-    [intl, isCommonAuthModel, orgAdmin, userLinks, currAccountId, handleToggle],
+    [intl, isCommonAuthModel, orgAdmin, userLinks, currAccountId, handleToggle, isSupportCasesLoading],
   );
 
   // Filter configuration

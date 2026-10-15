@@ -11,10 +11,14 @@ export interface AccountManagementHandlerOptions {
   onToggleOrgAdmin?: (...args: unknown[]) => void;
   onGetUserDetail?: (userId: string) => void;
   onToggleSupportCases?: (userId: string, grant: boolean) => void;
+  /** Called once per POST /users/search with the requested ids — lets stories assert the page bulk-fetches in a single request. */
+  onSearchUsers?: (ids: string[]) => void;
   /** When provided, org admin POST/DELETE updates `is_org_admin` so the next principals refetch reflects the toggle */
   users?: MockCollection<Principal>;
   /** Map from external_source_id → portal permissions array. Used for GET user detail + toggle support cases. */
   userPermissions?: ResettableMap<string, string[]> | Map<string, string[]>;
+  /** Ids for which /users/search omits the `permissions` key (the API's omitted shape) — exercises the seeding guard. */
+  omitSearchPermissionsForIds?: ReadonlyArray<string>;
 }
 
 async function applyOrgAdminUpdate(
@@ -53,6 +57,36 @@ interface UpdateUserBody {
   permissions?: string[];
 }
 
+interface SearchUsersBody {
+  by?: { ids?: Array<string | number>; logins?: string[] };
+}
+
+/** Build the POST users/search response: one `{ user, permissions }` entry per requested id. */
+async function buildUsersSearchResponse(options: AccountManagementHandlerOptions, request: Request) {
+  const body = (await request.json().catch(() => ({}))) as SearchUsersBody;
+  const ids = (body.by?.ids ?? []).map((id) => String(id));
+
+  options.onSearchUsers?.(ids);
+
+  const omitPermissions = new Set((options.omitSearchPermissionsForIds ?? []).map(String));
+  const result = ids.map((id) => {
+    const user = options.users?.all().find((u) => String(u.external_source_id) === id);
+    const entry: { user: { id: string; username: string; roles: string[] }; permissions?: string[] } = {
+      user: {
+        id,
+        username: user?.username ?? `user-${id}`,
+        roles: user?.is_org_admin ? ['organization_administrator'] : [],
+      },
+    };
+    if (!omitPermissions.has(id)) {
+      entry.permissions = options.userPermissions?.get(id) ?? [];
+    }
+    return entry;
+  });
+
+  return HttpResponse.json({ body: result });
+}
+
 /**
  * Apply a POST toggle of the portal_manage_cases permission on the account/v1 endpoint.
  * The write sends the updated `permissions` array; grant/revoke is derived from whether
@@ -88,6 +122,18 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
       const body = await request.json();
       options.onInvite?.(request, body);
       return HttpResponse.json({ success: true });
+    }),
+
+    // Bulk search — must precede the `/users/:userId` handlers, which would match `search` as a userId.
+    ...['https://api.access.stage.redhat.com', 'https://api.access.redhat.com'].map((baseUrl) =>
+      http.post(`${baseUrl}/account/v1/accounts/:accountId/users/search`, async ({ request }) => {
+        await delay(networkDelay);
+        return buildUsersSearchResponse(options, request);
+      }),
+    ),
+    http.post(/account\/v1\/accounts\/[^/]+\/users\/search$/, async ({ request }) => {
+      await delay(networkDelay);
+      return buildUsersSearchResponse(options, request);
     }),
 
     http.post('https://api.access.redhat.com/account/v1/accounts/:accountId/users/:userId/status', async ({ params, request }) => {
@@ -193,6 +239,8 @@ export function accountManagementErrorHandlers(status: number = 500) {
   const body = { error: 'Error' };
   return [
     http.post(/api\.access\.(stage\.)?redhat\.com.*\/users\/invite/, () => HttpResponse.json(body, { status })),
+    // Explicit bulk-search handler (before the generic `[^/]+$` below, which would also match it).
+    http.post(/account\/v1\/accounts\/.+\/users\/search$/, () => HttpResponse.json(body, { status })),
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/status/, () => HttpResponse.json(body, { status })),
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/roles/, () => HttpResponse.json(body, { status })),
     http.delete(/account\/v1\/accounts\/.+\/users\/.+\/roles/, () => HttpResponse.json(body, { status })),
@@ -208,7 +256,8 @@ export function accountManagementErrorHandlers(status: number = 500) {
  */
 export function supportCasesTogglePostErrorHandlers(status: number = 500) {
   const body = { error: 'Error' };
-  return [http.post(/account\/v1\/accounts\/[^/]+\/users\/[^/]+$/, () => HttpResponse.json(body, { status }))];
+  // Negative lookahead excludes `/users/search` so only the toggle POST fails, not the bulk fetch.
+  return [http.post(/account\/v1\/accounts\/[^/]+\/users\/(?!search$)[^/]+$/, () => HttpResponse.json(body, { status }))];
 }
 
 /** All account management endpoints delay forever (loading state) */
@@ -219,6 +268,8 @@ export function accountManagementLoadingHandlers() {
   };
   return [
     http.post(/api\.access\.(stage\.)?redhat\.com.*\/users\/invite/, handler),
+    // Explicit bulk-search handler (before the generic `[^/]+$` below, which would also match it).
+    http.post(/account\/v1\/accounts\/.+\/users\/search$/, handler),
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/status/, handler),
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/roles/, handler),
     http.delete(/account\/v1\/accounts\/.+\/users\/.+\/roles/, handler),
