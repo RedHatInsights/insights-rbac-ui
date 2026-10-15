@@ -4,10 +4,9 @@ import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import ResponsiveAction from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
-import ResponsiveActions from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
 import { ActionsColumn, IAction } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+import { ActionDropdown } from '../../../../../shared/components/ActionDropdown';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 import { getDateFormat } from '../../../../../shared/helpers/stringUtilities';
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
@@ -254,44 +253,53 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
 
   // Actions
   const toolbarActions = useMemo(() => {
-    return (
-      <ResponsiveActions breakpoint="lg">
-        {cantAddPermissions ? (
-          <Tooltip content={intl.formatMessage(messages.systemRolesCantBeModified)} key="role-add-permission">
-            <Button variant="primary" aria-label="Add Permission" isAriaDisabled={true} className="rbac-m-hide-on-sm">
-              {intl.formatMessage(messages.addPermissions)}
-            </Button>
-          </Tooltip>
-        ) : (
-          <ResponsiveAction isPinned onClick={onNavigateToAddPermissions} key="role-add-permission">
+    if (cantAddPermissions) {
+      return (
+        <Tooltip content={intl.formatMessage(messages.systemRolesCantBeModified)}>
+          <Button variant="primary" ouiaId="add-permissions-button" isAriaDisabled={true}>
             {intl.formatMessage(messages.addPermissions)}
-          </ResponsiveAction>
-        )}
-      </ResponsiveActions>
+          </Button>
+        </Tooltip>
+      );
+    }
+
+    return (
+      <Button variant="primary" ouiaId="add-permissions-button" onClick={onNavigateToAddPermissions}>
+        {intl.formatMessage(messages.addPermissions)}
+      </Button>
     );
   }, [cantAddPermissions, intl, onNavigateToAddPermissions]);
 
-  // Bulk actions
+  // Bulk actions — the kebab stays visible so the action is discoverable, with
+  // Remove disabled until at least one permission is selected
   const bulkActions = useMemo(() => {
+    const hasSelection = tableState.selectedRows.length > 0;
+
     return (
-      <ResponsiveAction
-        isDisabled={tableState.selectedRows.length === 0}
-        onClick={() => {
-          const multiplePermissionsSelected = tableState.selectedRows.length > 1;
-          initiateRemove(
-            tableState.selectedRows,
-            intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
-            removeModalText(
-              multiplePermissionsSelected ? tableState.selectedRows.length : tableState.selectedRows[0]?.uuid,
-              roleName,
-              multiplePermissionsSelected || false,
-            ),
-            intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
-          );
-        }}
-      >
-        {intl.formatMessage(messages.remove)}
-      </ResponsiveAction>
+      <ActionDropdown
+        ariaLabel="bulk actions"
+        ouiaId="role-permissions-bulk-actions"
+        items={[
+          {
+            key: 'remove',
+            label: intl.formatMessage(messages.remove),
+            isDisabled: !hasSelection,
+            onClick: () => {
+              const multiplePermissionsSelected = tableState.selectedRows.length > 1;
+              initiateRemove(
+                tableState.selectedRows,
+                intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
+                removeModalText(
+                  multiplePermissionsSelected ? tableState.selectedRows.length : tableState.selectedRows[0]?.permission,
+                  roleName,
+                  multiplePermissionsSelected,
+                ),
+                intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
+              );
+            },
+          },
+        ]}
+      />
     );
   }, [tableState.selectedRows, initiateRemove, intl, roleName]);
 
