@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Production/V2 (Management Fabric)/Org User" />
+
+# V2: Organization User (No Permissions)
+
+Regular user with **no RBAC permissions**. Can only use the My Access page.
+
+## Permission Configuration
+
+| Permission | Has Access? |
+|------------|-------------|
+| `rbac:principal:read` | **No** |
+| `rbac:group:read` | **No** |
+| `rbac:role:read` | **No** |
+| `inventory:groups:read` | **No** |
+| Org Admin | **No** |
+
+## V2 Navigation Context
+
+- **My Access** — visible (always available)
+- **Access Management** — hidden (no RBAC permissions)
+- **Organization Management** — hidden (not org admin)
+
+## What This Persona Can Do
+
+- View their own access via My Access page
+
+## What This Persona Cannot Do
+
+- Access Users, Groups, Workspaces, or Roles pages
+- See the Access Management sidebar section
+- See the Organization Management sidebar section
+
+## Story Catalog
+
+| Story | What it tests |
+|-------|--------------|
+| Sidebar / Only My Access visible | Access Management + Organization Management hidden |
+| Users and Groups / Direct URL - Unauthorized | Direct navigation shows unauthorized |
+| Workspaces / Direct URL - Unauthorized | Direct navigation shows unauthorized |
+| Roles / Direct URL - Unauthorized | Direct navigation shows unauthorized |

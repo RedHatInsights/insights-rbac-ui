@@ -1,12 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, waitFor, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
-import { ENVIRONMENTS } from './_shared/environments';
+import { ENVIRONMENTS, v1Db } from './_shared/environments';
 import { resetStoryState } from './_shared/helpers';
-import { createStatefulHandlers } from '../../.storybook/helpers/stateful-handlers';
-import { defaultGroups } from '../../.storybook/fixtures/groups';
-import { defaultRoles } from '../../.storybook/fixtures/roles';
-import { defaultUsers } from '../../.storybook/fixtures/users';
+import { waitForContentReady } from '../test-utils/interactionHelpers';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
 
@@ -21,11 +18,7 @@ const meta: Meta<typeof AppEntryWithRouter> = {
   parameters: {
     ...ENVIRONMENTS.PROD_ORG_ADMIN,
     msw: {
-      handlers: createStatefulHandlers({
-        groups: defaultGroups,
-        roles: defaultRoles,
-        users: defaultUsers,
-      }),
+      handlers: ENVIRONMENTS.PROD_ORG_ADMIN.msw.handlers,
     },
     docs: {
       description: {
@@ -72,7 +65,7 @@ Testing the workspaces feature flag.
 All user journey tests include:
 
 1. **Realistic Timing**: Interactions use 30ms typing delays and 200-300ms pauses between actions to simulate human behavior
-2. **State Isolation**: Each story starts with a fresh Redux store and MSW state
+2. **State Isolation**: Each story starts with a fresh React Query cache and MSW state
 3. **Comprehensive Validation**: Tests verify success notifications, UI updates, and absence of error states
 4. **MSW Integration**: All API calls are mocked with stateful handlers that persist changes within a story run
 
@@ -127,14 +120,20 @@ For automated test journeys, see the environment-specific story folders.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Simple verification that the page loads
-    await waitFor(async () => {
-      // Wait for My User Access page to load - check for the main heading
-      await expect(canvas.getByRole('heading', { name: /my user access/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify page loads', async () => {
+      const heading = await canvas.findByRole('heading', { name: /my user access/i });
+      expect(heading).toBeInTheDocument();
     });
   },
 };

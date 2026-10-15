@@ -4,77 +4,55 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Module Federation Guide
 
-This guide is for external teams consuming RBAC UI components via module federation.
+This guide is for Red Hat Console applications consuming RBAC UI components via module federation.
 
 ## 🔌 Overview
 
-The RBAC UI application exposes several components and modules that can be consumed by other Red Hat Console applications using Webpack Module Federation.
+The RBAC UI application exposes components through Scalprum/frontend-components module federation. 
+Consuming applications should use `AsyncComponent` from `@redhat-cloud-services/frontend-components`.
 
 ### Available Modules
 
-| Module Path | Component | Description |
-|------------|-----------|-------------|
-| `rbac/MyUserAccess` | My User Access Entry | Complete My User Access application view |
-| `rbac/IamUserAccess` | IAM User Access Entry | Complete IAM User Access application view |
-| `rbac/CreateWorkspaceWizardModule` | Workspace Creation Wizard | Multi-step wizard for creating workspaces |
-| `rbac/Workspaces/ManagedSelector` | Managed Workspace Selector | Smart workspace selector with API integration |
-| `rbac/Workspaces/WorkspaceSelector` | Workspace Selector Component | Presentational workspace selector component |
-
-### Shared Dependencies
-
-- **react-router-dom** - Shared as singleton (version ^6.18.0, accepts any version)
+| Module | Description |
+|--------|-------------|
+| `./modules/WorkspaceSelector` | Hierarchical workspace picker with search and automatic data fetching |
+| `./modules/CreateWorkspaceWizard` | Multi-step wizard for creating workspaces |
+| `./Iam` | Main IAM application entry point |
 
 ---
 
-## 🚀 Workspace Selector (Managed)
+## 🚀 WorkspaceSelector
 
-**Recommended for most use cases** - This is a smart component that handles everything internally.
+A self-contained workspace selector that handles data fetching, caching, and state management internally.
 
-### Module Path
-
-```javascript
-const { ManagedSelector } = await import('rbac/Workspaces/ManagedSelector');
-```
-
-### Basic Usage
+### Usage
 
 ```tsx
-import React from 'react';
+import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
 
 function MyComponent() {
   const handleWorkspaceSelect = (workspace) => {
-    console.log('Selected workspace:', workspace);
-    // Access: workspace.workspace.id
-    // Access: workspace.workspace.name
+    console.log('Selected:', workspace.workspace.id, workspace.workspace.name);
   };
 
-  return <ManagedSelector onSelect={handleWorkspaceSelect} />;
+  return (
+    <AsyncComponent
+      appName="rbac"
+      module="./modules/WorkspaceSelector"
+      onSelect={handleWorkspaceSelect}
+      fallback={<Spinner />}
+    />
+  );
 }
 ```
 
-### Props Interface
+### Props
 
-```typescript
-interface ManagedSelectorProps {
-  /**
-   * Callback function invoked when a workspace is selected
-   * Receives the full TreeViewWorkspaceItem object
-   */
-  onSelect?: (workspace: TreeViewWorkspaceItem) => void;
-  
-  /**
-   * Pre-select a workspace when the component mounts
-   * Useful for editing scenarios
-   */
-  initialSelectedWorkspace?: TreeViewWorkspaceItem;
-  
-  /**
-   * Exclude a specific workspace from the tree
-   * Useful when moving a workspace to prevent circular references
-   */
-  sourceWorkspace?: TreeViewWorkspaceItem;
-}
-```
+| Prop | Type | Description |
+|------|------|-------------|
+| `onSelect` | `(workspace: TreeViewWorkspaceItem) => void` | Callback when a workspace is selected |
+| `initialSelectedWorkspace` | `TreeViewWorkspaceItem` | Pre-select a workspace on mount |
+| `sourceWorkspace` | `TreeViewWorkspaceItem` | Exclude a workspace from the tree (for move operations) |
 
 ### Data Structure
 
@@ -83,175 +61,62 @@ The `onSelect` callback receives a `TreeViewWorkspaceItem`:
 ```typescript
 interface TreeViewWorkspaceItem {
   workspace: {
-    id: string;              // Unique workspace identifier
-    name: string;            // Display name
-    type: string;            // WorkspaceType: 'root' | 'default' | 'standard'
-    parent_id?: string;      // Parent workspace ID (null for root)
-    description?: string;    // Optional description
-    created?: string;        // ISO 8601 timestamp
-    updated?: string;        // ISO 8601 timestamp
+    id: string;
+    name: string;
+    type: 'root' | 'default' | 'standard';
+    parent_id?: string;
+    description?: string;
   };
-  parentTreeViewItem?: TreeViewWorkspaceItem;
 }
 ```
 
-### Features
-
-✅ **Self-contained** - Manages its own state via Zustand store  
-✅ **API integration** - Automatically fetches from `/api/rbac/v2/workspaces/`  
-✅ **Search/filter** - Built-in hierarchical search functionality  
-✅ **Loading states** - Automatic loading and error state handling  
-✅ **Tree navigation** - Expand/collapse hierarchical workspace display  
-✅ **Styling** - Includes all necessary PatternFly styles  
-
-### Example: Pre-selecting a Workspace
+### Example: Move Workspace Dialog
 
 ```tsx
-function EditWorkspaceForm({ currentWorkspace }) {
-  const [selectedParent, setSelectedParent] = React.useState(null);
-
-  const initialWorkspace = {
-    workspace: currentWorkspace.parent
-  };
-
+function MoveWorkspaceDialog({ workspaceToMove, onMove }) {
   return (
-    <ManagedSelector 
-      initialSelectedWorkspace={initialWorkspace}
-      onSelect={(workspace) => {
-        setSelectedParent(workspace.workspace.id);
-      }}
-    />
-  );
-}
-```
-
-### Example: Excluding a Workspace (Move Operation)
-
-```tsx
-function MoveWorkspaceDialog({ workspaceToMove }) {
-  const handleSelectNewParent = (workspace) => {
-    // Move workspaceToMove under the selected workspace
-    moveWorkspace(workspaceToMove.id, workspace.workspace.id);
-  };
-
-  return (
-    <Dialog title="Move Workspace">
+    <Modal title="Move Workspace">
       <p>Select a new parent workspace:</p>
-      <ManagedSelector 
-        sourceWorkspace={workspaceToMove}
-        onSelect={handleSelectNewParent}
-      />
-    </Dialog>
+        <AsyncComponent
+          appName="rbac"
+          module="./modules/WorkspaceSelector"
+          sourceWorkspace={workspaceToMove}
+          onSelect={(workspace) => onMove(workspace.workspace.id)}
+          fallback={<Spinner />}
+        />
+    </Modal>
   );
 }
 ```
 
-### Requirements
-
-- **API Access**: Component expects RBAC API at `/api/rbac/v2/workspaces/`
-- **Authentication**: User must be authenticated with valid RBAC permissions
-- **React Router**: Version 6.18.0+ (shared as singleton)
-
 ---
 
-## 🎨 Workspace Selector (Component)
-
-**Advanced use case** - Presentational component when you need full control over state and data fetching.
-
-### Module Path
-
-```javascript
-const { WorkspaceSelector } = await import('rbac/Workspaces/WorkspaceSelector');
-```
-
-### When to Use
-
-Use this component when:
-- You need custom state management
-- You're fetching workspace data differently
-- You need fine-grained control over the UI behavior
-- You're integrating with a custom data source
-
-### Props Interface
-
-```typescript
-interface WorkspaceSelectorProps<T extends TreeViewDataItem> {
-  // Menu state
-  isMenuExpanded: boolean;
-  setIsMenuExpanded: (expanded: boolean) => void;
-  
-  // Loading/error states
-  isLoading: boolean;
-  isError: boolean;
-  
-  // Selection state
-  selectedItem: T | null;
-  setSelectedItem: (item: T) => void;
-  
-  // Tree data
-  treeElements: T[];
-  filteredTreeElements: T[];
-  
-  // Search state
-  searchInputValue: string;
-  setSearchInputValue: (value: string) => void;
-  areElementsFiltered: boolean;
-  onSearchFilter: (searchInput: string) => void;
-  
-  // Event handlers
-  onSelectItem: (event: React.MouseEvent, selectedItem: TreeViewDataItem) => void;
-  onFetchData: () => void;
-  
-  // Render props
-  renderMenuToggle: (props: MenuToggleProps) => React.ReactNode;
-  renderTreeView: (props: TreeViewProps) => React.ReactNode;
-  
-  // Optional UI customization
-  searchPlaceholder?: string;
-  buttonText?: string;
-  onButtonClick?: () => void;
-}
-```
-
-### Usage Note
-
-**Recommended:** Use `ManagedSelector` instead unless you have specific requirements. The presentational component requires significant state management and data fetching logic.
-
----
-
-## 🧙 Create Workspace Wizard
+## 🧙 CreateWorkspaceWizard
 
 Multi-step wizard for creating new workspaces with validation and API integration.
 
-### Module Path
-
-```javascript
-const { CreateWorkspaceWizardModule } = 
-  await import('rbac/CreateWorkspaceWizardModule');
-```
-
-### Basic Usage
+### Usage
 
 ```tsx
-function MyWorkspacesPage() {
-  const [isWizardOpen, setIsWizardOpen] = React.useState(false);
+import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
 
-  const handleWorkspaceCreated = (newWorkspace) => {
-    console.log('Workspace created:', newWorkspace);
-    setIsWizardOpen(false);
-    // Refresh workspace list, navigate, etc.
-  };
+function MyWorkspacesPage() {
+  const [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <>
-      <Button onClick={() => setIsWizardOpen(true)}>
-        Create Workspace
-      </Button>
+      <Button onClick={() => setIsOpen(true)}>Create Workspace</Button>
       
-      {isWizardOpen && (
-        <CreateWorkspaceWizardModule
-          onClose={() => setIsWizardOpen(false)}
-          onSuccess={handleWorkspaceCreated}
+      {isOpen && (
+        <AsyncComponent
+          appName="rbac"
+          module="./modules/CreateWorkspaceWizard"
+          onClose={() => setIsOpen(false)}
+          onSuccess={(workspace) => {
+            console.log('Created:', workspace);
+            setIsOpen(false);
+          }}
+          fallback={<Spinner />}
         />
       )}
     </>
@@ -259,206 +124,25 @@ function MyWorkspacesPage() {
 }
 ```
 
-### Features
+### Props
 
-✅ **Multi-step workflow** - Name, description, parent selection  
-✅ **Validation** - Built-in form validation  
-✅ **API integration** - Automatic workspace creation  
-✅ **Parent selection** - Uses workspace selector internally  
-✅ **Error handling** - Comprehensive error messages  
-
----
-
-## 📱 My User Access Entry
-
-Complete My User Access application view for embedding.
-
-### Module Path
-
-```javascript
-const { default: MyUserAccess } = await import('rbac/MyUserAccess');
-```
-
-### Usage
-
-Provides a full application view showing the authenticated user's access rights across applications and resources.
-
-```tsx
-function MyAccessPage() {
-  return <MyUserAccess />;
-}
-```
+| Prop | Type | Description |
+|------|------|-------------|
+| `onClose` | `() => void` | Callback when wizard is closed/cancelled |
+| `onSuccess` | `(workspace) => void` | Callback when workspace is successfully created |
 
 ---
 
-## 👥 IAM User Access Entry
+## ✅ Features
 
-Complete IAM User Access application view for embedding.
+All federated modules are **self-contained** and include:
 
-### Module Path
+- **React Query** for data fetching and caching
+- **Service providers** for API clients
+- **Internationalization** support
+- **Error handling** and loading states
 
-```javascript
-const { default: IamUserAccess } = await import('rbac/IamUserAccess');
-```
-
-### Usage
-
-Provides a full application view for managing user access, groups, and roles (admin view).
-
-```tsx
-function AdminAccessPage() {
-  return <IamUserAccess />;
-}
-```
-
----
-
-## 🔧 Setup & Configuration
-
-### 1. Configure Module Federation
-
-In your webpack configuration:
-
-```javascript
-const { ModuleFederationPlugin } = require('webpack').container;
-
-module.exports = {
-  plugins: [
-    new ModuleFederationPlugin({
-      name: 'myApp',
-      remotes: {
-        rbac: 'rbac@https://console.redhat.com/apps/rbac/fed-mods.json'
-      },
-      shared: {
-        react: { singleton: true, requiredVersion: '^18.0.0' },
-        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
-        'react-router-dom': { singleton: true, requiredVersion: '^6.18.0' }
-      }
-    })
-  ]
-};
-```
-
-### 2. Dynamic Import
-
-Use dynamic imports to load federated modules:
-
-```tsx
-import React, { lazy, Suspense } from 'react';
-
-const ManagedSelector = lazy(() => 
-  import('rbac/Workspaces/ManagedSelector').then(module => ({
-    default: module.ManagedSelector
-  }))
-);
-
-function MyComponent() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ManagedSelector onSelect={handleSelect} />
-    </Suspense>
-  );
-}
-```
-
-### 3. Error Handling
-
-Always handle loading errors:
-
-```tsx
-import React, { lazy, Suspense } from 'react';
-
-const ManagedSelector = lazy(() => 
-  import('rbac/Workspaces/ManagedSelector')
-    .then(module => ({ default: module.ManagedSelector }))
-    .catch(err => {
-      console.error('Failed to load workspace selector:', err);
-      return { default: () => <div>Failed to load component</div> };
-    })
-);
-```
-
----
-
-## 💡 Best Practices
-
-### 1. Use Lazy Loading
-
-Always use `React.lazy()` and `Suspense` to avoid blocking your main bundle:
-
-```tsx
-const ManagedSelector = lazy(() => 
-  import('rbac/Workspaces/ManagedSelector')
-    .then(m => ({ default: m.ManagedSelector }))
-);
-
-<Suspense fallback={<Spinner />}>
-  <ManagedSelector {...props} />
-</Suspense>
-```
-
-### 2. Type Safety
-
-Create type definitions for better developer experience:
-
-```typescript
-// types/rbac-federated.d.ts
-declare module 'rbac/Workspaces/ManagedSelector' {
-  export interface TreeViewWorkspaceItem {
-    workspace: {
-      id: string;
-      name: string;
-      type: string;
-      parent_id?: string;
-      description?: string;
-      created?: string;
-      updated?: string;
-    };
-  }
-  
-  export interface ManagedSelectorProps {
-    onSelect?: (workspace: TreeViewWorkspaceItem) => void;
-    initialSelectedWorkspace?: TreeViewWorkspaceItem;
-    sourceWorkspace?: TreeViewWorkspaceItem;
-  }
-  
-  export const ManagedSelector: React.FC<ManagedSelectorProps>;
-}
-```
-
-### 3. Error Boundaries
-
-Wrap federated components in error boundaries:
-
-```tsx
-class FederatedErrorBoundary extends React.Component {
-  state = { hasError: false };
-  
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-  
-  render() {
-    if (this.state.hasError) {
-      return <div>Failed to load federated component</div>;
-    }
-    return this.props.children;
-  }
-}
-
-// Usage
-<FederatedErrorBoundary>
-  <Suspense fallback={<Spinner />}>
-    <ManagedSelector {...props} />
-  </Suspense>
-</FederatedErrorBoundary>
-```
-
-### 4. Version Compatibility
-
-- Keep React and React Router versions aligned
-- Test with major version updates
-- Monitor for breaking changes in RBAC UI releases
+Consuming applications don't need to provide any additional context or providers.
 
 ---
 
@@ -466,135 +150,23 @@ class FederatedErrorBoundary extends React.Component {
 
 ### Component Not Loading
 
-**Problem**: Module federation fails to load
-
-**Solutions**:
-1. Verify the remote URL is accessible
-2. Check browser console for CORS errors
-3. Ensure webpack config includes correct remote
-4. Verify network access to console.redhat.com
-
-### Type Errors
-
-**Problem**: TypeScript can't find module types
-
-**Solutions**:
-1. Create `.d.ts` files for federated modules
-2. Use `// @ts-ignore` as temporary workaround
-3. Check for version mismatches in shared dependencies
+1. Verify `@redhat-cloud-services/frontend-components` is installed
+2. Check browser console for module federation errors
+3. Ensure you're running in the Console platform environment
 
 ### API Errors
 
-**Problem**: Workspace data not loading
-
-**Solutions**:
 1. Verify user authentication
-2. Check RBAC API permissions
-3. Ensure `/api/rbac/v2/workspaces/` endpoint is accessible
-4. Verify VPN connection (for local development)
-
-### Styling Issues
-
-**Problem**: Component looks unstyled
-
-**Solutions**:
-1. Ensure PatternFly CSS is loaded in your app
-2. Check for CSS conflicts or overrides
-3. Verify correct PatternFly version compatibility
-
----
-
-## 📚 Examples
-
-### Complete Example: Workspace Management
-
-```tsx
-import React, { lazy, Suspense, useState } from 'react';
-import { Button } from '@patternfly/react-core';
-import { Spinner } from '@patternfly/react-core';
-
-const ManagedSelector = lazy(() => 
-  import('rbac/Workspaces/ManagedSelector')
-    .then(m => ({ default: m.ManagedSelector }))
-);
-
-const CreateWorkspaceWizard = lazy(() => 
-  import('rbac/CreateWorkspaceWizardModule')
-    .then(m => ({ default: m.CreateWorkspaceWizardModule }))
-);
-
-function WorkspaceManagement() {
-  const [selectedWorkspace, setSelectedWorkspace] = useState(null);
-  const [showCreateWizard, setShowCreateWizard] = useState(false);
-
-  const handleWorkspaceSelect = (workspace) => {
-    setSelectedWorkspace(workspace);
-    console.log('Selected:', workspace.workspace.name);
-  };
-
-  const handleWorkspaceCreated = (newWorkspace) => {
-    console.log('Created:', newWorkspace);
-    setShowCreateWizard(false);
-    // Refresh or navigate
-  };
-
-  return (
-    <div>
-      <h1>Workspace Management</h1>
-      
-      <Button onClick={() => setShowCreateWizard(true)}>
-        Create New Workspace
-      </Button>
-
-      <Suspense fallback={<Spinner />}>
-        <ManagedSelector onSelect={handleWorkspaceSelect} />
-      </Suspense>
-
-      {selectedWorkspace && (
-        <div>
-          <h2>Selected Workspace</h2>
-          <p>ID: {selectedWorkspace.workspace.id}</p>
-          <p>Name: {selectedWorkspace.workspace.name}</p>
-          <p>Type: {selectedWorkspace.workspace.type}</p>
-        </div>
-      )}
-
-      {showCreateWizard && (
-        <Suspense fallback={<Spinner />}>
-          <CreateWorkspaceWizard
-            onClose={() => setShowCreateWizard(false)}
-            onSuccess={handleWorkspaceCreated}
-          />
-        </Suspense>
-      )}
-    </div>
-  );
-}
-
-export default WorkspaceManagement;
-```
-
----
-
-## 🔗 Additional Resources
-
-- [Architecture Guide](/?path=/docs/documentation-architecture--docs) - Internal architecture and patterns
-- [Development Guide](/?path=/docs/documentation-development-guide--docs) - Development workflows
-- [Storybook Guide](/?path=/docs/documentation-storybook-guide--docs) - Component documentation
-- [Webpack Module Federation Docs](https://webpack.js.org/concepts/module-federation/)
+2. Check RBAC API permissions for `/api/rbac/v2/workspaces/`
+3. Ensure the Console platform is properly configured
 
 ---
 
 ## 📞 Support
 
-For issues or questions about consuming RBAC UI federated modules:
+For issues or questions:
 
-1. **Check this documentation** first
-2. **Review component stories** in Storybook for examples
-3. **Contact the RBAC team** via Slack or email
-4. **File an issue** in the RBAC UI repository (internal only)
-
----
-
-*Last updated: November 2025*
+1. Review component stories in Storybook under **Federated Modules**
+2. Contact the RBAC team via Slack
+3. File an issue in the RBAC UI repository
 

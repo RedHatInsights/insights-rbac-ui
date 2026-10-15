@@ -1,0 +1,147 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Patterns/API Client Patterns" />
+
+# API Client Patterns
+
+Rules for working with the `@redhat-cloud-services/rbac-client` library, which has **completely broken TypeScript types**. These patterns prevent silent runtime failures.
+
+---
+
+## Two API Clients — Different Rules
+
+| Client | TypeScript types | Parameters | Options |
+|--------|-----------------|------------|---------|
+| `@redhat-cloud-services/rbac-client` | **Broken** | `undefined` for optional | Always `undefined` |
+| `@redhat-cloud-services/rbac-client/v2` (workspaces) | Working | Use `??` defaults | `{}` objects OK |
+
+---
+
+## rbac-client Pattern (Groups, Roles, Users, Policies, Permissions)
+
+The TypeScript types do not match runtime behavior. Use `(api.method as any)` to bypass type errors, and pass `undefined` for optional parameters — never explicit defaults.
+
+```typescript
+export async function fetchRoles(params: { limit?: number; offset?: number; name?: string }) {
+  const { limit, offset, name } = params;
+
+  // NOTE: @redhat-cloud-services/rbac-client has completely broken TypeScript types.
+  // The API expects undefined for optional parameters, not explicit defaults.
+  // Using (roleApi.listRoles as any) to bypass broken type definitions.
+  return await (roleApi.listRoles as any)(
+    limit,      // undefined when not provided — do NOT use limit || 20
+    offset,     // undefined when not provided — do NOT use offset || 0
+    name,       // undefined when not provided — do NOT use name || ''
+    undefined,  // options parameter — always undefined for rbac-client
+  );
+}
+```
+
+### What NOT to do
+
+```typescript
+// ❌ Explicit defaults break the API at runtime
+return await roleApi.listRoles(
+  limit || 20,       // breaks
+  offset || 0,       // breaks
+  name || '',        // breaks
+  {},                // breaks — options must be undefined for rbac-client
+);
+
+// ❌ Type casting hides the real problem
+return await roleApi.listRoles(
+  limit as number,   // compiles but breaks runtime
+  offset as number,
+);
+
+// ❌ Accessing .data on already-unwrapped responses
+const response = await api.listRoles();
+return response.data.filter(...);  // .data doesn't exist — interceptor already unwrapped it
+```
+
+---
+
+## Workspaces API Pattern (rbac-client/v2)
+
+Types work correctly. Use `??` for defaults and `{}` for options.
+
+```typescript
+export async function fetchWorkspace(config: WorkspaceParams) {
+  return workspacesApi.someMethod(
+    config.param1 ?? defaultValue,   // nullish coalescing OK
+    config.param2 ?? 'default',
+    {},                              // options object is fine for workspaces API
+  );
+}
+```
+
+---
+
+## Response Handling
+
+The response interceptor automatically unwraps responses. Do not access `.data` on the result:
+
+```typescript
+// ✅ Direct array access (most rbac-client APIs)
+const response = await api.listGroups();
+return response.filter((group) => group.platform_default !== true);
+
+// ✅ Mixed response type (e.g., permissions endpoint)
+const response = await api.listPermissions();
+if (Array.isArray(response)) {
+  return { data: response.filter(...) };
+} else {
+  return { ...response, data: response.data.filter(...) };
+}
+
+// ❌ Double-unwrapping
+const response = await api.listGroups();
+return response.data.filter(...);  // response.data is undefined — already unwrapped
+```
+
+---
+
+## Required Comment for Workarounds
+
+Whenever you use `(api.method as any)`, include an explanatory comment:
+
+```typescript
+// NOTE: @redhat-cloud-services/rbac-client has completely broken TypeScript types
+// - listRoles expects positional args but types show keyword args
+// - Empty objects for options cause unexpected API behavior
+// Using (roleApi.listRoles as any) to bypass broken type definitions.
+return await (roleApi.listRoles as any)(limit, offset, name, undefined);
+```
+
+---
+
+## Emergency Fix Checklist
+
+When an API call breaks after changes:
+
+1. **Remove parameter defaults** — change `limit || 20` to `limit`, `name || ''` to `name`
+2. **Remove `.data` access** — check if the response is already unwrapped by the interceptor
+3. **Fix type assertions** — use `(api.method as any)` not `param as type`
+4. **Check original implementation** — `git show master:src/helpers/<file>` to see what was working
+5. **Identify the API client** — is it `rbac-client` (broken types) or `rbac-client/v2` (working)?
+
+---
+
+## Quick Reference
+
+```typescript
+// rbac-client (groups, roles, users, policies, permissions)
+return await (someApi.someMethod as any)(
+  limit,      // undefined if not provided
+  offset,     // undefined if not provided
+  name,       // undefined if not provided
+  undefined,  // options — always undefined
+);
+
+// rbac-client/v2 (workspaces)
+return workspacesApi.someMethod(
+  config.param1 ?? default1,
+  config.param2 ?? default2,
+  {},  // options object works fine
+);
+```

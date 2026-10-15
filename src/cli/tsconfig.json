@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "outDir": "../../dist/cli",
+    "rootDir": "..",
+    "baseUrl": "..",
+    "paths": {
+      "@contexts/*": ["shared/contexts/*"],
+      "@services/*": ["shared/services/*"],
+      "@data/*": ["v1/data/*", "v2/data/*", "shared/data/*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../shared/contexts/**/*.ts",
+    "../shared/contexts/**/*.tsx",
+    "../shared/services/**/*.ts",
+    "../v1/data/**/*.ts",
+    "../v1/data/**/*.tsx",
+    "../v2/data/**/*.ts",
+    "../v2/data/**/*.tsx",
+    "../shared/data/**/*.ts",
+    "../shared/data/**/*.tsx"
+  ]
+}

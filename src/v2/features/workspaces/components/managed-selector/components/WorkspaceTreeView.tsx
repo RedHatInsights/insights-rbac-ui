@@ -1,0 +1,126 @@
+import React from 'react';
+import { useIntl } from 'react-intl';
+import messages from '../../../../../../Messages';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { AlertVariant } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
+
+export interface Workspace {
+  id: string;
+  parent_id?: string;
+  type: string;
+  name: string;
+  description?: string;
+  created?: string;
+  updated?: string;
+}
+
+export interface TreeViewWorkspaceItem extends TreeViewDataItem {
+  parentTreeViewItem?: TreeViewWorkspaceItem;
+  workspace: Workspace;
+}
+
+interface WorkspaceTreeViewProps {
+  treeElements: TreeViewWorkspaceItem[];
+  areElementsFiltered: boolean;
+  selectedWorkspace?: TreeViewWorkspaceItem;
+  onSelect: (event: React.MouseEvent, item: TreeViewDataItem, parentItem: TreeViewDataItem) => void;
+  isLoading: boolean;
+  isError: boolean;
+  /** Set of workspace IDs that should be rendered as disabled (non-selectable) */
+  disabledIds?: Set<string>;
+  /** Default tooltip text shown on hover over disabled tree items */
+  disabledTooltip?: string;
+  /** Per-ID tooltip overrides — takes precedence over disabledTooltip */
+  disabledTooltipOverrides?: Map<string, string>;
+}
+
+/**
+ * Recursively annotate tree items with disabled styling and an explanatory tooltip.
+ * Disabled items get reduced opacity, a `not-allowed` cursor, and – when a tooltip
+ * message is provided – a PatternFly Tooltip that explains why the item is disabled.
+ */
+function annotateDisabledItems(
+  items: TreeViewWorkspaceItem[],
+  disabledIds: Set<string>,
+  defaultTooltip?: string,
+  tooltipOverrides?: Map<string, string>,
+): TreeViewWorkspaceItem[] {
+  return items.map((item) => {
+    const isDisabled = !!(item.id && disabledIds.has(item.id));
+    const annotatedChildren = item.children
+      ? annotateDisabledItems(item.children as TreeViewWorkspaceItem[], disabledIds, defaultTooltip, tooltipOverrides)
+      : undefined;
+
+    if (!isDisabled && !annotatedChildren) return item;
+
+    const disabledName = isDisabled
+      ? (() => {
+          const tooltip = (item.id && tooltipOverrides?.get(item.id)) || defaultTooltip;
+          const inner = React.createElement('span', { style: { opacity: 0.5, cursor: 'not-allowed' } }, item.name);
+          return tooltip ? React.createElement(Tooltip, { content: tooltip }, inner) : inner;
+        })()
+      : undefined;
+
+    return {
+      ...item,
+      ...(annotatedChildren ? { children: annotatedChildren } : {}),
+      ...(disabledName !== undefined ? { name: disabledName } : {}),
+    };
+  });
+}
+
+export const WorkspaceTreeView: React.FC<WorkspaceTreeViewProps> = ({
+  treeElements,
+  areElementsFiltered,
+  selectedWorkspace,
+  onSelect,
+  isLoading,
+  isError,
+  disabledIds,
+  disabledTooltip,
+  disabledTooltipOverrides,
+}) => {
+  const intl = useIntl();
+
+  const displayElements = React.useMemo(() => {
+    if (!disabledIds || disabledIds.size === 0) return treeElements;
+    return annotateDisabledItems(treeElements, disabledIds, disabledTooltip, disabledTooltipOverrides);
+  }, [treeElements, disabledIds, disabledTooltip, disabledTooltipOverrides]);
+
+  if (isError) {
+    return <Alert data-testid="workspace-load-error" variant={AlertVariant.danger} title={intl.formatMessage(messages.workspaceTreeViewError)} />;
+  }
+
+  if (isLoading) {
+    return (
+      <Bullseye data-testid="workspace-loading">
+        <Spinner />
+      </Bullseye>
+    );
+  }
+
+  if (displayElements.length > 0) {
+    return (
+      <TreeView
+        activeItems={selectedWorkspace ? [selectedWorkspace] : []}
+        allExpanded={areElementsFiltered}
+        data={displayElements}
+        hasGuides
+        onSelect={onSelect}
+        hasSelectableNodes={true}
+      />
+    );
+  }
+
+  return (
+    <p data-testid="workspace-empty-message">
+      {areElementsFiltered
+        ? intl.formatMessage(messages.workspaceTreeViewNoSearchResults)
+        : intl.formatMessage(messages.workspaceTreeViewNoWorkspaces)}
+    </p>
+  );
+};

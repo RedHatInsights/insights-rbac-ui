@@ -1,0 +1,25 @@
+{
+  "$schema": "./seed-schema.json",
+  "description": "V1 seed data: roles and groups only (V1 does not support workspaces)",
+  "seededUsers": [
+    { "username": "iqe_rbac_v1_normal" }
+  ],
+  "roles": [
+    {
+      "name": "Seeded Role",
+      "display_name": "Seeded Role",
+      "description": "Controlled test role for search and view tests",
+      "permissions": [
+        "notifications:*:*"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "Seeded Group",
+      "description": "Controlled test group for search and view tests",
+      "roles_list": ["Seeded Role"],
+      "user_list": [{ "username": "iqe_rbac_v1_normal" }]
+    }
+  ]
+}

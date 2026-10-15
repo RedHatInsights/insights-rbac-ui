@@ -1,0 +1,849 @@
+/**
+ * Users Tab Journey
+ * Based on: static/mocks/Users tab/
+ *
+ * Features tested:
+ * - Users table with columns: Username, Email, First name, Last name, Status, User groups, Org admin
+ * - Row click opens user details drawer
+ * - User details drawer with tabs: User groups, Assigned roles
+ * - Filter by username
+ * - Add to user group button (enabled when rows selected)
+ */
+
+import type { StoryObj } from '@storybook/react-webpack5';
+import React from 'react';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
+import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { clearAndType, clickTab, waitForContentReady, waitForDrawer, waitForModal } from '../../test-utils/interactionHelpers';
+import { verifySuccessNotification, waitForPageToLoad } from '../../test-utils/tableHelpers';
+import { accountManagementHandlers, createStatefulOrgAdminHandlers, createStatefulUserStatusHandlers, mockUsers, v2DefaultHandlers } from './_shared';
+
+const meta = {
+  component: KesselAppEntryWithRouter,
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/Users Tab',
+  tags: ['access-management', 'users'],
+  decorators: [
+    (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
+      const dynamicEnv = createDynamicEnvironment(context.args);
+      context.parameters = { ...context.parameters, ...dynamicEnv };
+      const argsKey = JSON.stringify(context.args);
+      return <Story key={argsKey} />;
+    },
+  ],
+  args: {
+    initialRoute: '/iam/access-management/users-and-user-groups/users',
+    typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
+    orgAdmin: true,
+    'platform.rbac.common-auth-model': true,
+    'platform.rbac.workspaces': true,
+  },
+  parameters: {
+    ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
+      orgAdmin: true,
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.workspaces': true,
+    }),
+    msw: {
+      handlers: v2DefaultHandlers,
+    },
+    docs: {
+      description: {
+        component: `
+# Users Tab Journey
+
+Tests the Users tab in the Users and User Groups page.
+
+## Design Reference
+
+| Users table | User details drawer |
+|:---:|:---:|
+| [![Users table](/mocks/Users%20tab/Frame%2099.png)](/mocks/Users%20tab/Frame%2099.png) | [![User details drawer](/mocks/Users%20tab/Frame%20108.png)](/mocks/Users%20tab/Frame%20108.png) |
+
+| Assigned roles tab | User selected state |
+|:---:|:---:|
+| [![Assigned roles tab](/mocks/Users%20tab/Frame%20109.png)](/mocks/Users%20tab/Frame%20109.png) | [![User selected state](/mocks/Users%20tab/Frame%20199.png)](/mocks/Users%20tab/Frame%20199.png) |
+
+## Features
+| Feature | Status | API |
+|---------|--------|-----|
+| Users table | ✅ Implemented | V1 |
+| User groups count column | ✅ Implemented | V1 |
+| User details drawer | ✅ Implemented | V1 |
+| User groups tab in drawer | ✅ Implemented | V1 |
+| Assigned roles tab in drawer | ⚠️ GAP | V2 needed |
+| Filter by username | ✅ Implemented | V1 |
+| Add to user group button | ✅ Implemented | V1 |
+        `,
+      },
+    },
+  },
+};
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+/**
+ * Default users table view
+ *
+ * Tests:
+ * - Table renders with all expected columns
+ * - Users data loads from API
+ * - User groups count displays correctly
+ */
+export const TableView: Story = {
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests the default Users table view matching \`static/mocks/Users tab/Frame 99.png\`.
+
+**Columns verified:**
+- Username (sortable)
+- Email
+- First name (sortable)
+- Last name (sortable)
+- Status
+- User groups (count)
+- Org admin
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and verify Users tab', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    });
+
+    await step('Verify users and user info displayed', async () => {
+      await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('ginger-spice')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('bwhite')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Albus')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Dumbledore')).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify status switches present', async () => {
+      const statusSwitches = await canvas.findAllByRole('switch', { name: /toggle status/i });
+      expect(statusSwitches.length).toBeGreaterThan(0);
+    });
+  },
+};
+
+/**
+ * User details drawer
+ *
+ * Tests:
+ * - Clicking a row opens the drawer
+ * - Drawer shows user name and email in header
+ * - User groups tab displays group membership
+ * - Assigned roles tab shows roles
+ */
+export const UserDetailsDrawer: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests the user details drawer matching \`static/mocks/Users tab/Frame 108.png\`.
+
+**Expected behavior:**
+1. Click on a user row
+2. Drawer opens with user name and email
+3. User groups tab shows groups user belongs to
+4. Switching to Assigned roles tab shows roles
+
+**Note:** Assigned roles uses V1 API - V2 needed for full workspace/group details.
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and open user details drawer', async () => {
+      await waitForPageToLoad(canvas, 'bwhite');
+      const bwhiteRow = await canvas.findByText('bwhite');
+      await user.click(bwhiteRow);
+    });
+
+    await step('Verify drawer content and tabs', async () => {
+      const drawerScope = await waitForDrawer();
+      await expect(drawerScope.findByText(/Betty White/i)).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByText(/bwhite@redhat.com/i)).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByRole('tab', { name: /User groups/i })).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByRole('tab', { name: /Assigned roles/i })).resolves.toBeInTheDocument();
+      const goldenGirlsCells = await drawerScope.findAllByText(/Golden girls/i);
+      expect(goldenGirlsCells.length).toBeGreaterThanOrEqual(1);
+    });
+  },
+};
+
+/**
+ * User details - Assigned roles tab
+ *
+ * Tests the Assigned roles tab in the user details drawer
+ */
+export const UserDetailsAssignedRoles: Story = {
+  name: 'User Details - Assigned Roles Tab',
+  tags: [],
+  decorators: [
+    withFeatureGap({
+      title: 'User Assigned Roles - Guessed V2 API',
+      currentState: (
+        <>
+          <p style={{ margin: '0 0 8px 0' }}>
+            <strong>Guessed Endpoint:</strong>
+          </p>
+          <code
+            style={{
+              display: 'block',
+              background: 'rgba(0,0,0,0.08)',
+              padding: '4px 8px',
+              borderRadius: '3px',
+              fontSize: '11px',
+              marginBottom: '8px',
+            }}
+          >
+            GET /api/rbac/v1/roles/?username=:username
+          </code>
+          <p style={{ margin: '8px 0 4px 0' }}>
+            <strong>Expected Response (with V2 role binding data):</strong>
+          </p>
+          <pre
+            style={{
+              background: 'rgba(0,0,0,0.08)',
+              padding: '8px',
+              borderRadius: '3px',
+              fontSize: '10px',
+              margin: '0 0 8px 0',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {`{
+  "data": [{
+    "uuid": "role-uuid-1",
+    "name": "Organization Administrator",
+    "display_name": "Organization Administrator",
+    "userGroup": "Default user access",
+    "userGroupId": "group-uuid-1",
+    "workspace": "Root workspace",
+    "workspaceId": "ws-root-123"
+  }],
+  "meta": { "count": 1 }
+}`}
+          </pre>
+          <p style={{ margin: '8px 0 0 0', fontStyle: 'italic', fontSize: '11px' }}>
+            Gap: The <code>userGroup</code>, <code>userGroupId</code>, <code>workspace</code>, and <code>workspaceId</code> fields are guessed
+            additions.
+          </p>
+        </>
+      ),
+      expectedBehavior: [
+        'User Group column shows which group grants the role to this user',
+        'Workspace column shows which workspace the role applies to',
+        'V2 API should provide role binding context per user',
+      ],
+    }),
+  ],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests the Assigned roles tab in the user details drawer.
+
+Shows roles assigned to the user with:
+- User Group column (which group grants the role)
+- Workspace column (which workspace the role applies to)
+
+**Note:** Using guessed V2 API mock data until real V2 APIs are available.
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and open user drawer', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const adumbleRow = await canvas.findByText('adumble');
+      await user.click(adumbleRow);
+    });
+
+    await step('Switch to Assigned roles tab and verify', async () => {
+      const drawerScope = await waitForDrawer();
+      await clickTab(user, drawerScope, /Assigned roles/i);
+      await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Filter by username
+ *
+ * Tests the username filter functionality
+ */
+export const FilterByUsername: Story = {
+  name: 'Filter by Username',
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests filtering users by username.
+
+**Expected behavior:**
+1. Type in the filter input
+2. Table updates to show matching users
+3. Clear filter shows all users
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and apply filter', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      await clearAndType(user, () => canvas.getByPlaceholderText(/filter by username/i) as HTMLInputElement, 'spice');
+      await user.keyboard('{Enter}');
+    });
+
+    await step('Verify filtered results', async () => {
+      await waitForPageToLoad(canvas, 'ginger-spice');
+      await expect(canvas.findByText('ginger-spice')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('posh-spice')).resolves.toBeInTheDocument();
+      expect(canvas.queryByText('adumble')).not.toBeInTheDocument();
+      expect(canvas.queryByText('bwhite')).not.toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Select users and enable Add to user group
+ *
+ * Tests the row selection and bulk action button
+ */
+export const SelectUsersForBulkAction: Story = {
+  name: 'Select Users for Bulk Action',
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests selecting users to enable bulk actions matching \`static/mocks/Users tab/Frame 199.png\`.
+
+**Expected behavior:**
+1. Select one or more users using checkboxes
+2. "Add to user group" button becomes enabled
+3. Clicking button opens the Add to user group modal
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and select users', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(2);
+      await user.click(checkboxes[1]);
+      await user.click(checkboxes[2]);
+    });
+
+    await step('Verify Add to user group button enabled', async () => {
+      const addButton = await canvas.findByText(/Add to user group/i);
+      expect(addButton).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Switching between Users and User Groups tabs
+ *
+ * Tests tab navigation preserves state
+ */
+export const TabNavigation: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests switching between Users and User Groups tabs.
+
+**Expected behavior:**
+1. Start on Users tab
+2. Click User Groups tab - groups table loads
+3. Click Users tab - users table loads again
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for Users tab and verify', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
+      await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+    });
+
+    await step('Switch to User Groups tab', async () => {
+      const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
+      await user.click(groupsTab);
+      await waitForPageToLoad(canvas, 'Default group');
+      await waitFor(() => expect(groupsTab).toHaveAttribute('aria-selected', 'true'));
+      await expect(canvas.findByText('Default group')).resolves.toBeInTheDocument();
+    });
+
+    await step('Switch back to Users tab', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await user.click(usersTab);
+      await waitForPageToLoad(canvas, 'adumble');
+      await waitFor(() => expect(usersTab).toHaveAttribute('aria-selected', 'true'));
+      await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+// API spy for invite users - tracks API calls made by the invite modal
+const inviteUsersSpy = fn();
+
+// Expected URL pattern for invite users API (stage environment in tests)
+// Format: https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite
+const EXPECTED_INVITE_URL_PATTERN = /^https:\/\/api\.access\.(stage\.)?redhat\.com\/account\/v1\/accounts\/\d+\/users\/invite$/;
+
+/**
+ * Invite Users Journey
+ *
+ * Tests the user invitation flow from the Access Management Users tab.
+ * CRITICAL: Also verifies the correct API URL is called (regression test for /management bug).
+ *
+ * Journey:
+ * 1. Start on Access Management Users tab
+ * 2. Click the "Invite users" toolbar button
+ * 3. Fill in email addresses
+ * 4. Optionally add a message and check org admin checkbox
+ * 5. Submit the invitation
+ * 6. Verify success notification
+ * 7. Verify API was called with exact expected URL format
+ */
+export const InviteUsersJourney: Story = {
+  name: 'Invite Users',
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests inviting new users to the organization from the Access Management Users tab.
+
+**What this tests:**
+- Clicking the "Invite users" toolbar button to navigate to the invite route
+- Invite modal renders as a child route (via \`<Outlet>\`)
+- Email input validation (required field)
+- Optional message field
+- Optional org admin checkbox
+- Form submission
+- Success notification
+- **API URL verification** — ensures the exact URL format is correct (regression test)
+
+**Expected API URL format:**
+\`https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite\`
+
+**NOT:**
+\`https://api.access.stage.redhat.com/management/account/v1/accounts/{accountId}/users/invite\`
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        ...accountManagementHandlers({
+          onInvite: (request, body) => {
+            const b = body as { emails?: string[]; roles?: string[] };
+            inviteUsersSpy({
+              url: request.url,
+              emails: b.emails,
+              roles: b.roles,
+            });
+          },
+        }),
+        ...v2DefaultHandlers,
+      ],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      inviteUsersSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and open invite modal', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
+      const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
+      await user.click(inviteButton);
+    });
+
+    await step('Wait for invite modal', async () => {
+      await waitForModal({
+        timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByRole('textbox', { name: /enter the e-mail addresses/i })).toBeInTheDocument();
+        },
+      });
+    });
+
+    await step('Fill email addresses', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement,
+        'newuser1@example.com, newuser2@example.com',
+      );
+    });
+
+    await step('Check org admin and submit', async () => {
+      const modal = await waitForModal();
+      await waitFor(() => {
+        expect(modal.queryByRole('checkbox', { name: /organization administrators/i })).toBeInTheDocument();
+      });
+      const orgAdminCheckbox = modal.getByRole('checkbox', { name: /organization administrators/i });
+      await user.click(orgAdminCheckbox);
+      const submitButton = await modal.findByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submitButton).toBeEnabled());
+      await user.click(submitButton);
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
+
+    await step('Verify API call and payload', async () => {
+      await waitFor(
+        () => {
+          expect(inviteUsersSpy).toHaveBeenCalled();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+      const spyCall = inviteUsersSpy.mock.calls[0][0];
+      expect(spyCall).toBeDefined();
+      expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
+      expect(spyCall.emails).toContain('newuser1@example.com');
+      expect(spyCall.emails).toContain('newuser2@example.com');
+      expect(spyCall.roles).toContain('organization_administrator');
+    });
+  },
+};
+
+const changeStatusSpy = fn();
+const toggleStatusHandlers = createStatefulUserStatusHandlers({ onToggleStatus: changeStatusSpy });
+
+/**
+ * Toggle User Status
+ *
+ * Tests toggling a user's active status via the switch in the users table.
+ * The mutation calls the external IT API (POST .../users/{userId}/status).
+ * Uses stateful handlers so the switch visually flips after the mutation.
+ */
+export const ToggleUserStatus: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests toggling a user's active status via the switch in the users table.
+
+**Expected behavior:**
+1. Find a user row's status toggle switch
+2. Record initial state (checked = active)
+3. Click the toggle
+4. Verify the IT API was called with correct status
+5. Verify the switch visually flipped
+        `,
+      },
+    },
+    msw: {
+      handlers: [...toggleStatusHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      changeStatusSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and toggle status switch', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const statusSwitch = await canvas.findByRole('switch', { name: /toggle status for adumble/i });
+      await user.click(statusSwitch);
+    });
+
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(changeStatusSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.objectContaining({ status: 'disabled' }));
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify switch reflects inactive state', async () => {
+      await waitFor(
+        () => {
+          const updatedSwitch = canvas.queryByRole('switch', { name: /toggle status for adumble/i });
+          expect(updatedSwitch).toBeInTheDocument();
+          expect(updatedSwitch).not.toBeChecked();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
+  },
+};
+
+const orgAdminSpy = fn();
+const orgAdminHandlers = createStatefulOrgAdminHandlers({ onToggleOrgAdmin: orgAdminSpy });
+
+// ginger-spice is not an org admin — ideal for testing the grant flow
+const GINGER_SPICE = mockUsers.find((u) => u.username === 'ginger-spice')!;
+
+/**
+ * Toggle Org Admin
+ *
+ * Tests toggling a user's org admin status via the switch in the users table.
+ * The mutation calls the external IT API (POST/DELETE .../users/{userId}/roles).
+ * Uses stateful handlers so the switch visually flips after the mutation.
+ */
+export const ToggleOrgAdmin: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests toggling a user's org admin status via the switch in the users table.
+
+**Expected behavior:**
+1. Find a non-admin user row's org admin toggle switch
+2. Click the toggle to grant org admin
+3. Verify the IT API was called with POST and role: organization_administrator
+4. Verify success notification appears
+5. Verify the switch visually reflects the new state
+        `,
+      },
+    },
+    msw: {
+      handlers: [...orgAdminHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      orgAdminSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and toggle org admin switch', async () => {
+      await waitForPageToLoad(canvas, GINGER_SPICE.username);
+      const orgAdminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${GINGER_SPICE.username}`, 'i'),
+      });
+      await expect(orgAdminSwitch).not.toBeChecked();
+      await user.click(orgAdminSwitch);
+    });
+
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(orgAdminSpy).toHaveBeenCalledWith(
+            expect.anything(),
+            GINGER_SPICE.external_source_id,
+            expect.objectContaining({ role: 'organization_administrator' }),
+            'POST',
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
+
+    await step('Verify switch reflects org admin state', async () => {
+      await waitFor(
+        () => {
+          const updatedSwitch = canvas.queryByRole('switch', {
+            name: new RegExp(`toggle org admin for ${GINGER_SPICE.username}`, 'i'),
+          });
+          expect(updatedSwitch).toBeInTheDocument();
+          expect(updatedSwitch).toBeChecked();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
+  },
+};
+
+const bulkDeactivateSpy = fn();
+const bulkDeactivateHandlers = createStatefulUserStatusHandlers({ onToggleStatus: bulkDeactivateSpy });
+
+/**
+ * Bulk Deactivate Users
+ *
+ * Tests selecting users and deactivating them via the toolbar overflow menu.
+ * The mutation calls the IT API once per user (POST .../users/{userId}/status).
+ * Uses stateful handlers so the table reflects deactivated status after mutation.
+ */
+export const BulkDeactivateUsers: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests the bulk deactivate flow from the Users tab with API spy verification.
+
+**Expected behavior:**
+1. Select 2 users by clicking their row checkboxes
+2. Open the toolbar overflow/kebab menu
+3. Click "Deactivate" menu item
+4. BulkDeactivateUsersModal appears
+5. Click confirmation checkbox and Deactivate button
+6. Verify IT API called once per user with status: 'disabled'
+        `,
+      },
+    },
+    msw: {
+      handlers: [...bulkDeactivateHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      bulkDeactivateSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and select users', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(2);
+      await user.click(checkboxes[1]);
+      await user.click(checkboxes[2]);
+    });
+
+    await step('Open overflow menu and click deactivate', async () => {
+      const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
+      await user.click(actionsMenu);
+      const deactivateMenuItem = await body.findByRole('menuitem', { name: /deactivate users/i });
+      await user.click(deactivateMenuItem);
+    });
+
+    await step('Confirm deactivation in modal', async () => {
+      const modal = await waitForModal();
+      await expect(modal.findByRole('heading', { name: /deactivate users/i })).resolves.toBeInTheDocument();
+      const confirmCheckbox = modal.queryByRole('checkbox');
+      if (confirmCheckbox) {
+        await user.click(confirmCheckbox);
+      }
+      const deactivateButton = await modal.findByRole('button', { name: /deactivate/i });
+      await expect(deactivateButton).toBeEnabled();
+      await user.click(deactivateButton);
+    });
+
+    await step('Verify API calls', async () => {
+      await waitFor(
+        () => {
+          expect(bulkDeactivateSpy).toHaveBeenCalledTimes(2);
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+      for (const call of bulkDeactivateSpy.mock.calls) {
+        expect(call[2]).toEqual(expect.objectContaining({ status: 'disabled' }));
+      }
+    });
+  },
+};

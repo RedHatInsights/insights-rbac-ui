@@ -1,0 +1,272 @@
+/**
+ * Kessel Domain Hooks — V2 Permission Checks
+ *
+ * UI action language (canCreate, canView, etc.) backed by Kessel SDK calls.
+ * Each domain hook makes a single bulk API call for its relations.
+ * Components consume these hooks and never call useSelfAccessCheck directly.
+ */
+
+import { useMemo } from 'react';
+import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
+import type { SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
+import { useIdentity } from '../../shared/hooks/useIdentity';
+import { useOrganizationData } from './useOrganizationData';
+
+// ============================================================================
+// Internal constants
+// ============================================================================
+
+const RBAC_REPORTER = { type: 'rbac' } as const;
+
+// Kessel >= 0.5.7 declares this tuple type locally without exporting it.
+// Re-exported here so all Kessel integration sites share one definition.
+export type NotEmptyArray<T> = [T, ...T[]];
+
+// ============================================================================
+// Tenant-scoped bulk check helper
+// ============================================================================
+
+const _RBAC_TENANT_RELATIONS = [
+  'rbac_roles_read',
+  'rbac_roles_write',
+  'rbac_groups_read',
+  'rbac_groups_write',
+  'rbac_principal_read',
+  'rbac_workspace_view',
+  'rbac_workspace_edit',
+  'rbac_workspace_create',
+  'rbac_workspace_delete',
+  'rbac_workspace_move',
+] as const;
+
+type RbacTenantRelation = (typeof _RBAC_TENANT_RELATIONS)[number];
+
+interface BulkCheckResult<R extends string> {
+  result: Record<R, boolean>;
+  isLoading: boolean;
+}
+
+/**
+ * Bulk tenant-scoped check. Sends one /checkselfbulk request
+ * for all provided relations against the tenant resource (Overload 3).
+ * Fetches organizationId internally via useOrganizationData.
+ */
+function useBulkTenantCheck<R extends RbacTenantRelation>(relations: readonly R[]): BulkCheckResult<R> {
+  const { organizationId: orgId, isLoading: orgLoading } = useOrganizationData();
+  const hasOrgId = orgId !== '';
+
+  const resourceId = hasOrgId ? `redhat/${orgId}` : '';
+
+  const resources = useMemo<NotEmptyArray<SelfAccessCheckResourceWithRelation>>(() => {
+    if (!hasOrgId) return [] as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+    return relations.map((rel) => ({
+      id: resourceId,
+      type: 'tenant' as const,
+      reporter: RBAC_REPORTER,
+      relation: rel as string,
+    })) as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+  }, [resourceId, hasOrgId, relations]);
+
+  const { data, loading } = useSelfAccessCheck({ resources });
+
+  const result = useMemo(() => {
+    const out = {} as Record<R, boolean>;
+    for (const rel of relations) {
+      out[rel] = false;
+    }
+
+    if (!hasOrgId || !Array.isArray(data)) return out;
+
+    for (const check of data) {
+      if (check.resource.id === resourceId && relations.includes(check.relation as R)) {
+        out[check.relation as R] = check.allowed;
+      }
+    }
+    return out;
+  }, [data, resourceId, hasOrgId, relations]);
+
+  return { result, isLoading: orgLoading || (hasOrgId && loading) };
+}
+
+// ============================================================================
+// Workspace-scoped bulk check helper
+// ============================================================================
+
+const _RBAC_WORKSPACE_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke'] as const;
+
+type RbacWorkspaceRelation = (typeof _RBAC_WORKSPACE_RELATIONS)[number];
+
+function useBulkWorkspaceCheck<R extends RbacWorkspaceRelation>(workspaceId: string, relations: readonly R[]): BulkCheckResult<R> {
+  const hasId = workspaceId !== '';
+
+  const resources = useMemo<NotEmptyArray<SelfAccessCheckResourceWithRelation>>(() => {
+    if (!hasId) return [] as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+    return relations.map((rel) => ({
+      id: workspaceId,
+      type: 'workspace' as const,
+      reporter: RBAC_REPORTER,
+      relation: rel as string,
+    })) as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+  }, [workspaceId, hasId, relations]);
+
+  const { data, loading } = useSelfAccessCheck({ resources });
+
+  const result = useMemo(() => {
+    const out = {} as Record<R, boolean>;
+    for (const rel of relations) {
+      out[rel] = false;
+    }
+
+    if (!hasId || !Array.isArray(data)) return out;
+
+    for (const check of data) {
+      if (check.resource.id === workspaceId && relations.includes(check.relation as R)) {
+        out[check.relation as R] = check.allowed;
+      }
+    }
+    return out;
+  }, [data, workspaceId, hasId, relations]);
+
+  return { result, isLoading: hasId && loading };
+}
+
+// ============================================================================
+// Role-scoped bulk check helper
+// ============================================================================
+
+/**
+ * Per-role write check. Sends one /checkselfbulk item per role ID against
+ * the role resource directly. Canned roles return false from the backend
+ * without any frontend org_id guard needed.
+ */
+function useBulkRoleCheck(roleIds: string[]): { writableIds: Set<string>; isLoading: boolean } {
+  const hasIds = roleIds.length > 0;
+
+  const resources = useMemo<NotEmptyArray<SelfAccessCheckResourceWithRelation>>(() => {
+    if (!hasIds) return [] as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+    return roleIds.map((id) => ({
+      id,
+      type: 'role' as const,
+      reporter: RBAC_REPORTER,
+      relation: 'rbac_roles_write',
+    })) as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+  }, [roleIds, hasIds]);
+
+  const { data, loading } = useSelfAccessCheck({ resources });
+
+  const roleIdSet = useMemo(() => new Set(roleIds), [roleIds]);
+
+  const writableIds = useMemo(() => {
+    const out = new Set<string>();
+    if (!hasIds || !Array.isArray(data)) return out;
+    for (const check of data) {
+      if (check.allowed && roleIdSet.has(check.resource.id)) out.add(check.resource.id);
+    }
+    return out;
+  }, [data, hasIds, roleIdSet]);
+
+  return { writableIds, isLoading: hasIds && loading };
+}
+
+export function useRoleWriteAccess(roleIds: string[]): { writableIds: Set<string>; isLoading: boolean } {
+  return useBulkRoleCheck(roleIds);
+}
+
+// ============================================================================
+// Domain Hooks — public API (UI action language)
+// ============================================================================
+
+const ROLES_RELATIONS = ['rbac_roles_read', 'rbac_roles_write'] as const;
+
+export function useRolesAccess() {
+  const { result, isLoading } = useBulkTenantCheck(ROLES_RELATIONS);
+  const read = result.rbac_roles_read;
+  const write = result.rbac_roles_write;
+
+  return {
+    canCreate: write,
+    canView: read,
+    canList: read,
+    canUpdate: write,
+    canDelete: write,
+    isLoading,
+  };
+}
+
+const GROUPS_RELATIONS = ['rbac_groups_read', 'rbac_groups_write'] as const;
+
+export function useGroupsAccess() {
+  const { result, isLoading } = useBulkTenantCheck(GROUPS_RELATIONS);
+  const read = result.rbac_groups_read;
+  const write = result.rbac_groups_write;
+
+  return {
+    canCreate: write,
+    canView: read,
+    canList: read,
+    canUpdate: write,
+    canDelete: write,
+    canAddMembers: write,
+    canViewMembers: read,
+    canRemoveMembers: write,
+    isLoading,
+  };
+}
+
+const ROLE_BINDINGS_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke'] as const;
+
+export function useRoleBindingsAccess(workspaceId: string) {
+  const { result, isLoading } = useBulkWorkspaceCheck(workspaceId, ROLE_BINDINGS_RELATIONS);
+
+  return {
+    canCreate: result.role_binding_grant,
+    canView: result.role_binding_view,
+    canList: result.role_binding_view,
+    /** Maps to `role_binding_grant` — BE uses same permission for grant and update (RHCLOUD-46392). */
+    canUpdate: result.role_binding_grant,
+    canRevoke: result.role_binding_revoke,
+    isLoading,
+  };
+}
+
+const WS_TENANT_RELATIONS = [
+  'rbac_workspace_view',
+  'rbac_workspace_edit',
+  'rbac_workspace_create',
+  'rbac_workspace_delete',
+  'rbac_workspace_move',
+] as const;
+
+export function useWorkspaceTenantAccess() {
+  const { result, isLoading } = useBulkTenantCheck(WS_TENANT_RELATIONS);
+
+  return {
+    canCreate: result.rbac_workspace_create,
+    canView: result.rbac_workspace_view,
+    canList: result.rbac_workspace_view,
+    canUpdate: result.rbac_workspace_edit,
+    canDelete: result.rbac_workspace_delete,
+    canMove: result.rbac_workspace_move,
+    isLoading,
+  };
+}
+
+const PRINCIPALS_RELATIONS = ['rbac_principal_read'] as const;
+
+/**
+ * Principals access combines Kessel SDK (canList) with orgAdmin flag
+ * (canInvite, canDelete, canToggleOrgAdmin). The orgAdmin source is
+ * useIdentity from shared/hooks — a Chrome identity check, not RBAC.
+ */
+export function usePrincipalsAccess() {
+  const { result, isLoading: kesselLoading } = useBulkTenantCheck(PRINCIPALS_RELATIONS);
+  const { orgAdmin, ready: orgAdminReady } = useIdentity();
+
+  return {
+    canList: result.rbac_principal_read,
+    canInvite: orgAdmin,
+    canDelete: orgAdmin,
+    canToggleOrgAdmin: orgAdmin,
+    isLoading: kesselLoading || !orgAdminReady,
+  };
+}

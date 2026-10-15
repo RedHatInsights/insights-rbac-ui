@@ -1,0 +1,110 @@
+import type { FormTemplateCommonProps } from '@data-driven-forms/common/form-template';
+import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
+import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
+import type { FormApi } from 'final-form';
+import React, { useState } from 'react';
+import { useIntl } from 'react-intl';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
+import { useLocation } from 'react-router-dom';
+import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
+import { useWorkspacesBillingFeatures } from '../../../../capabilities/useWorkspacesFlag';
+import pathnames from '../../../utilities/pathnames';
+import messages from '../../../../Messages';
+import { type WorkspacesWorkspace, useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
+import { WaitForWorkspaceReady } from './components/WaitForWorkspaceReady';
+import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT } from './constants';
+import { schemaBuilder, wizardMapper } from './schema';
+
+export interface CreateWorkspaceWizardProps {
+  afterSubmit?: () => void;
+  onCancel?: () => void;
+  /** When true, the parent selection step is skipped (parent must be provided via parentWorkspace). */
+  skipParentStep?: boolean;
+  /** Pre-selected parent workspace. Used with skipParentStep for routed sub/sibling creation. */
+  parentWorkspace?: WorkspacesWorkspace;
+}
+
+const FormTemplate = (props: FormTemplateCommonProps) => <Pf4FormTemplate {...props} showFormControls={false} />;
+
+export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = ({
+  afterSubmit,
+  onCancel,
+  skipParentStep = false,
+  parentWorkspace: parentWorkspaceProp,
+}) => {
+  const intl = useIntl();
+  const navigate = useAppNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
+  const enableFeatures = useWorkspacesBillingFeatures();
+  const addNotification = useAddNotification();
+
+  const parentWorkspace = parentWorkspaceProp ?? (location.state as { parentWorkspace?: WorkspacesWorkspace } | null)?.parentWorkspace;
+
+  const [createdWorkspace, setCreatedWorkspace] = useState<{ id: string; name: string } | null>(null);
+
+  // React Query hooks — defer side-effects so the progress step controls cache + notification timing
+  const { data: workspacesData } = useWorkspacesQuery();
+  const existingWorkspaceNames = (workspacesData?.data ?? []).map((w) => w.name).filter((n): n is string => !!n);
+  const createWorkspaceMutation = useCreateWorkspaceMutation({ deferSuccessSideEffects: true });
+
+  const handleFinish = () => {
+    queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
+    addNotification({
+      variant: 'success',
+      title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: createdWorkspace?.name }),
+    });
+    if (afterSubmit) {
+      afterSubmit();
+    } else {
+      navigate(pathnames.workspaces.link());
+    }
+  };
+
+  const handleClose = () => {
+    queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
+    if (afterSubmit) {
+      afterSubmit();
+    } else {
+      navigate(pathnames.workspaces.link());
+    }
+  };
+
+  const defaultOnCancel = () => {
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.createWorkspace),
+      description: intl.formatMessage(messages.creatingWorkspaceCancel),
+    });
+    navigate(pathnames.workspaces.link());
+  };
+
+  const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {
+    const values = form.getState().values;
+    const result = await createWorkspaceMutation.mutateAsync({
+      name: values[WORKSPACE_NAME],
+      description: values[WORKSPACE_DESCRIPTION],
+      parent_id: values[WORKSPACE_PARENT]?.id,
+    });
+    setCreatedWorkspace({ id: result.id, name: result.name ?? values[WORKSPACE_NAME] });
+  };
+
+  if (createdWorkspace) {
+    return <WaitForWorkspaceReady workspace={createdWorkspace} onFinish={handleFinish} onClose={handleClose} />;
+  }
+
+  return (
+    <FormRenderer
+      schema={schemaBuilder(intl, enableFeatures, existingWorkspaceNames, skipParentStep)}
+      componentMapper={wizardMapper}
+      FormTemplate={FormTemplate}
+      onSubmit={onSubmit}
+      onCancel={onCancel || defaultOnCancel}
+      initialValues={parentWorkspace ? ({ [WORKSPACE_PARENT]: parentWorkspace } as Record<string, unknown>) : undefined}
+    />
+  );
+};
+
+export default CreateWorkspaceWizard;

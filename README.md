@@ -1,6 +1,5 @@
 # Insights RBAC Service UI
 
-[![Build Status](https://travis-ci.org/RedHatInsights/insights-rbac-ui.svg?branch=master)](https://travis-ci.org/RedHatInsights/insights-rbac-ui)
 [![Maintainability](https://api.codeclimate.com/v1/badges/54d13cab52391734d841/maintainability)](https://codeclimate.com/github/RedHatInsights/insights-rbac-ui/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/54d13cab52391734d841/test_coverage)](https://codeclimate.com/github/RedHatInsights/insights-rbac-ui/test_coverage)
 
@@ -15,6 +14,12 @@ Stories are automatically deployed on:
 - ✅ Pushes to `master`
 - ✅ Pull requests from [@RedHatInsights/experience-ui-committers](https://github.com/orgs/RedHatInsights/teams/experience-ui-committers) team members
 - ✅ Pull requests from RedHatInsights organization admins
+
+## Federated Modules
+
+This application exposes components via module federation for use by other Red Hat Console applications.
+
+See the [Module Federation Guide](https://master--687a10bbc18d4b17063770ba.chromatic.com/?path=/docs/documentation-module-federation-guide--docs) for available modules, usage examples, and API reference.
 
 ## Contributing
 
@@ -59,25 +64,9 @@ Builds the production version of the application. The output will be placed in t
 
 Runs the unit tests suite using Jest.
 
-### `npm test:e2e`
+### `npm run e2e`
 
-Runs the e2e (end-to-end) test suite. This script requires environment variables to be set for authentication purposes, and a working VPN connection. You can use a command like:
-
-```bash
-E2E_USER=<your-e2e-user> E2E_PASSWORD=<your-e2e-password> E2E_WORKSPACES_USER=<your-workspaces-user> E2E_WORKSPACES_PASSWORD=<your-workspaces-password> npm test
-```
-
-Replace the placeholders with appropriate values.
-
-### `npm run cypress`
-
-Opens the Cypress GUI for running end-to-end tests. Similar to `npm test`, this script requires environment variables for authentication:
-
-```bash
-E2E_USER=<your-e2e-user> E2E_PASSWORD=<your-e2e-password> E2E_WORKSPACES_USER=<your-workspaces-user> E2E_WORKSPACES_PASSWORD=<your-workspaces-password> npm run cypress -- open
-```
-
-Replace the placeholders with appropriate values.
+Runs the Playwright E2E test suite against stage. See [`e2e/README.md`](./e2e/README.md) for complete setup instructions including authentication and data seeding.
 
 ### `npm run lint`
 

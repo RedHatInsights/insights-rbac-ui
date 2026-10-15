@@ -1,7 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "baseBranchPatterns": ["master"],
-  "tekton": {
-    "schedule": ["at any time"]
-  }
+  "extends": ["github>RedHatInsights/shared-workflows//renovate/frontend"]
 }

@@ -1,0 +1,118 @@
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
+
+import StatusLabel from './components/StatusLabel';
+import { bundleData } from './bundleData';
+import { UserAccessLayout } from './components/UserAccessLayout';
+import type { Entitlements } from './components/BundleCard';
+import { AccessTable } from './AccessTable';
+import { RolesTable } from './RolesTable';
+import { resolveMuaBundle } from './resolveMuaBundle';
+import { useBundleApps } from './useBundleApps';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
+import useUserData from '../../hooks/useUserData';
+
+// FilterState is now in shared types.ts file
+
+export const MyUserAccess: React.FC = () => {
+  const intl = useIntl();
+  const user = useUserData();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const bundle = searchParams.get('bundle');
+  const { userAccessAdministrator } = useUserData();
+  const displayBundle = user.ready ? resolveMuaBundle(bundle, user.entitlements) : undefined;
+
+  useEffect(() => {
+    if (!displayBundle || displayBundle === bundle) {
+      return;
+    }
+    setSearchParams({ bundle: displayBundle }, { replace: true });
+  }, [displayBundle, bundle, setSearchParams]);
+
+  const entitledBundles: Entitlements = Object.entries(user.entitlements || {}).filter(([, { is_entitled }]) => is_entitled);
+
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+  // Bundle and filter logic moved from BundleView
+  const apps = useBundleApps(displayBundle);
+  const hasAdminAccess = user.orgAdmin || userAccessAdministrator;
+
+  if (!user.ready || !displayBundle) {
+    return (
+      <PageSection>
+        <Spinner />
+      </PageSection>
+    );
+  }
+
+  return (
+    <React.Fragment>
+      <PageSection hasBodyWrapper={false}>
+        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
+          <FlexItem>
+            <Title headingLevel="h1" size="2xl">
+              {intl.formatMessage(messages.myUserAccess)}
+            </Title>
+          </FlexItem>
+          <FlexItem>
+            <StatusLabel isOrgAdmin={user.orgAdmin} isUserAccessAdmin={userAccessAdministrator} />
+          </FlexItem>
+        </Flex>
+      </PageSection>
+      {/* Mobile-only dropdown for bundle selection */}
+      {entitledBundles && (
+        <PageSection hasBodyWrapper={false} className="pf-v6-u-display-none-on-lg pf-v6-u-pt-0">
+          <Dropdown
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={() => setDropdownOpen(!isDropdownOpen)}
+                isExpanded={isDropdownOpen}
+                id="mua-bundle-dropdown"
+                data-ouia-component-id="mua-bundle-dropdown"
+                isFullWidth
+              >
+                {bundleData.find(({ entitlement }) => entitlement === displayBundle)?.title}
+              </MenuToggle>
+            )}
+            isOpen={isDropdownOpen}
+            onOpenChange={setDropdownOpen}
+          >
+            <DropdownList>
+              {bundleData.map((data) => (
+                <DropdownItem key={data.entitlement} onClick={() => setDropdownOpen(false)}>
+                  <NavLink to={{ pathname: location.pathname, search: `bundle=${data.entitlement}` }}>{data.title}</NavLink>
+                </DropdownItem>
+              ))}
+            </DropdownList>
+          </Dropdown>
+        </PageSection>
+      )}
+      <PageSection hasBodyWrapper={false}>
+        <UserAccessLayout
+          entitledBundles={entitledBundles}
+          title={intl.formatMessage(user.orgAdmin || userAccessAdministrator ? messages.yourRoles : messages.yourPermissions, {
+            name: bundleData.find(({ entitlement }) => entitlement === displayBundle)?.title,
+          })}
+          currentBundle={displayBundle}
+        >
+          {hasAdminAccess ? (
+            <RolesTable key={displayBundle} apps={apps} showResourceDefinitions={hasAdminAccess} />
+          ) : (
+            <AccessTable key={displayBundle} apps={apps} showResourceDefinitions={hasAdminAccess} />
+          )}
+        </UserAccessLayout>
+      </PageSection>
+    </React.Fragment>
+  );
+};
+
+export default MyUserAccess;

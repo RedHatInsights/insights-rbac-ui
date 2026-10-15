@@ -1,0 +1,49 @@
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { expect, within } from 'storybook/test';
+import { MemoryRouter } from 'react-router-dom';
+import { UserAccessLayout } from './UserAccessLayout';
+
+const meta: Meta<typeof UserAccessLayout> = {
+  component: UserAccessLayout,
+  tags: ['autodocs', 'custom-css'],
+  parameters: {},
+  decorators: [
+    (Story: React.ComponentType) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
+};
+
+export default meta;
+
+type Story = StoryObj<typeof UserAccessLayout>;
+
+export const Default: Story = {
+  args: {
+    entitledBundles: [
+      ['openshift', { is_entitled: true }],
+      ['rhel', { is_entitled: true }],
+      ['settings', { is_entitled: true }],
+    ],
+    title: 'Your permissions in Red Hat Enterprise Linux',
+    currentBundle: 'rhel',
+    children: (
+      <div style={{ padding: '20px', background: 'var(--pf-t--global--background--color--secondary--default)', borderRadius: '4px' }}>
+        <p>Table content would go here (AccessTable or RolesTable)</p>
+      </div>
+    ),
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify layout render', async () => {
+      // Test that layout renders correctly
+      expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
+      expect(await canvas.findByText('Your permissions in Red Hat Enterprise Linux')).toBeInTheDocument();
+      expect(await canvas.findByText('Table content would go here (AccessTable or RolesTable)')).toBeInTheDocument();
+    });
+  },
+};
