@@ -4,9 +4,12 @@ import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-re
 import isEqual from 'lodash/isEqual';
 
 // FormGroup from @data-driven-forms/pf4-component-mapper has broken TypeScript types
-// (exports interface instead of component), so we import it with type assertion
+// (exports interface instead of component), so we import it with a type assertion.
+// Static import: the previous runtime require() only worked under webpack bundling.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import FormGroupRaw from '@data-driven-forms/pf4-component-mapper/form-group';
 
-const FormGroup = require('@data-driven-forms/pf4-component-mapper/form-group').default as React.FC<{
+const FormGroup = FormGroupRaw as unknown as React.FC<{
   label?: React.ReactNode;
   isRequired?: boolean;
   helperText?: React.ReactNode;

@@ -43,6 +43,8 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
 
+      # Consumed by the Chromatic upload workflow (workflow_run trigger);
+      # the test job no longer needs it — Vitest runs stories directly.
       - name: Upload Storybook Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -53,29 +55,21 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-24.04
-    needs: [build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Download Storybook Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: storybook-static
-          path: storybook-static
 
       - uses: './.github/actions/setup-environment'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright
-        run: npx playwright install --with-deps
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
+      # The Vitest addon runs the stories directly in a browser through
+      # @vitest/browser-playwright — no built Storybook or HTTP server needed.
       - name: Run Storybook tests
-        run: |
-          npx http-server storybook-static --port 6006 --silent &
-          npx wait-on http://localhost:6006
-          npm run test-storybook:ci -- --url http://localhost:6006
+        run: npm run test:storybook
         env:
           CI: true

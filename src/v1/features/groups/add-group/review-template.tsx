@@ -1,17 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Bullseye } from '@patternfly/react-core';
+import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ButtonVariant } from '@patternfly/react-core';
-import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-
-import { EmptyStateVariant } from '@patternfly/react-core';
+import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { EmptyState, EmptyStateVariant } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { Progress } from '@patternfly/react-core/dist/dynamic/components/Progress';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import {} from '@patternfly/react-core';
 import InProgressIcon from '@patternfly/react-icons/dist/js/icons/in-progress-icon';
 import { asyncValidator } from '../validators';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
@@ -20,7 +16,12 @@ import pathnames from '../../../utilities/pathnames';
 import messages from '../../../../Messages';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 
-const ReviewTemplate = ({ formFields }) => {
+/** The wizard step's form fields, re-rendered read-only on the review step. */
+interface ReviewTemplateProps {
+  formFields?: React.ReactNode[][];
+}
+
+const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const { submittingGroup, submittingServiceAccounts, error, setWizardError } = useContext(AddGroupWizardContext);
@@ -67,7 +68,7 @@ const ReviewTemplate = ({ formFields }) => {
 
   return error ? (
     <WizardError
-      context={AddGroupWizardContext}
+      context={{ setWizardError: (e) => setWizardError?.(e as boolean | undefined) }}
       title={
         submittingGroup
           ? intl.formatMessage(messages.groupNameTakenTitle)
@@ -80,7 +81,7 @@ const ReviewTemplate = ({ formFields }) => {
       }
       customFooter={
         submittingGroup ? undefined : (
-          <Button variant={ButtonVariant.primary} onClick={() => navigate(pathnames.groups.link)}>
+          <Button variant={ButtonVariant.primary} onClick={() => navigate(pathnames.groups.link())}>
             {intl.formatMessage(messages.close)}
           </Button>
         )
@@ -91,13 +92,10 @@ const ReviewTemplate = ({ formFields }) => {
       <Title headingLevel="h1" size="xl" className="pf-v6-u-mb-lg">
         {intl.formatMessage(messages.reviewDetails)}
       </Title>
-      {[[{ ...formFields?.[0]?.[0] }]]}
+      {/* Legacy render shape carried over from the JS original: spread of the first step field. */}
+      {[[{ ...(formFields?.[0]?.[0] as unknown as Record<string, unknown>) }]]}
     </React.Fragment>
   );
-};
-
-ReviewTemplate.propTypes = {
-  formFields: PropTypes.array,
 };
 
 export default ReviewTemplate;
