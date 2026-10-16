@@ -31,13 +31,12 @@ export default defineMessages({
   inviteUsersFormManageSupportCasesFieldTitle: {
     id: 'inviteUsersFormManageSupportCasesFieldTitle',
     description: 'Invite users form manage support cases field title',
-    defaultMessage: 'Organization administrators',
+    defaultMessage: 'Manage support cases',
   },
   inviteUsersFormManageSupportCasesFieldDescription: {
     id: 'inviteUsersFormManageSupportCasesFieldDescription',
     description: 'Invite users form manage support cases field description',
-    defaultMessage:
-      'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+    defaultMessage: 'User can create and manage support cases for your organization on the Red Hat Customer Portal.',
   },
   inviteUsersFormDownloadSoftwareUpdatesFieldTitle: {
     id: 'inviteUsersFormDownloadSoftwareUpdatesFieldTitle',
@@ -48,46 +47,6 @@ export default defineMessages({
     id: 'inviteUsersFormDownloadSoftwareUpdatesFieldDescription',
     description: 'Invite users form download software and updates field description',
     defaultMessage: 'User can download software and updates from the Red Hat Customer Portal.',
-  },
-  inviteUsersFormManageSubscriptionsFieldTitle: {
-    id: 'inviteUsersFormManageSubscriptionsFieldTitle',
-    description: 'Invite users form manage subscriptions field title',
-    defaultMessage: 'Manage your subscriptions',
-  },
-  inviteUsersFormManageSubscriptionsFieldDescription: {
-    id: 'inviteUsersFormManageSubscriptionsFieldDescription',
-    description: 'Invite users form manage subscriptions field description',
-    defaultMessage: 'Grants user access to subscription management via Red Hat Subscription Management in the Red Hat Customer Portal.',
-  },
-  inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle: {
-    id: 'inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle',
-    description: 'Invite users form manage subscriptions field View edit Users only title',
-    defaultMessage: 'View/Edit users only',
-  },
-  inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription: {
-    id: 'inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription',
-    description: 'Invite users form manage subscriptions field View edit Users only description',
-    defaultMessage: 'User can view and edit only the systems that they have registered in the account.',
-  },
-  inviteUsersFormManageSubscriptionsViewAllTitle: {
-    id: 'inviteUsersFormManageSubscriptionsViewAllTitle',
-    description: 'Invite users form manage subscriptions field view all option title',
-    defaultMessage: 'User can view and edit only the systems that they have registered in the account.',
-  },
-  inviteUsersFormManageSubscriptionsViewAllDescription: {
-    id: 'inviteUsersFormManageSubscriptionsViewAllDescription',
-    description: 'Invite users form manage subscriptions field view all option description',
-    defaultMessage: 'User can view (but not edit) all systems and Subscription Management Applications in the account.',
-  },
-  inviteUsersFormManageSubscriptionsViewEditAllTitle: {
-    id: 'inviteUsersFormManageSubscriptionsViewEditAllTitle',
-    description: 'Invite users form manage subscriptions field View/Edit all option title',
-    defaultMessage: 'View/Edit all',
-  },
-  inviteUsersFormManageSubscriptionsViewEditAllDescription: {
-    id: 'inviteUsersFormManageSubscriptionsViewEditAllDescription',
-    description: 'Invite users form manage subscriptions field View/Edit all option description',
-    defaultMessage: 'User can view and edit all systems and Subscription Management Applications in the account.',
   },
   inviteUsersFormEmailsFieldTitle: {
     id: 'inviteUsersFormEmailsFieldTitle',
