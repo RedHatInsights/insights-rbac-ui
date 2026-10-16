@@ -65,8 +65,8 @@ export const mswHandlers = createV2Handlers(db, {
   users: { onChangeStatus: changeUsersStatusSpy },
   accountManagement: {
     onInvite: (request, body) => {
-      const b = body as { emails?: string[]; roles?: string[] };
-      inviteUsersSpyV2({ url: request.url, emails: b.emails, roles: b.roles });
+      const b = body as { emails?: string[]; roles?: string[]; permissions?: string[] };
+      inviteUsersSpyV2({ url: request.url, emails: b.emails, roles: b.roles, permissions: b.permissions });
     },
   },
 });
