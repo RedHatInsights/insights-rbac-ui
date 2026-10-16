@@ -16,9 +16,12 @@ export interface MockCostResourceType {
   count: number;
 }
 
+// `value` matches the resource portion of the RBAC permission
+// (`cost-management:aws.account:read` -> `aws.account`), as the real
+// cost-management resource-types API returns it.
 export const defaultCostResourceTypes: MockCostResourceType[] = [
-  { value: 'aws_accounts', path: '/api/cost-management/v1/resource-types/aws-accounts/', count: 5 },
-  { value: 'gcp_accounts', path: '/api/cost-management/v1/resource-types/gcp-accounts/', count: 3 },
+  { value: 'aws.account', path: '/api/cost-management/v1/resource-types/aws-accounts/', count: 5 },
+  { value: 'gcp.account', path: '/api/cost-management/v1/resource-types/gcp-accounts/', count: 3 },
 ];
 
 export interface MockCostResource {
