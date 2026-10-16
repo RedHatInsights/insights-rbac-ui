@@ -59,7 +59,7 @@ Use **side-by-side development** — never modify the working component in-place
 5. Verify functional equivalence by running stories:
 
    ```bash
-   npm run test-storybook:ci -- --includeTags="user-table"
+   npx vitest --project=storybook src/features/users
    ```
 
 6. Switch imports to the new component once all stories pass.
@@ -120,11 +120,11 @@ npm run lint:js
 # 3. Unit tests
 npm test
 
-# 4. Storybook interaction tests (self-contained — no dev server needed)
+# 4. Storybook interaction tests (no build, no dev server needed)
 npm run test:storybook
 ```
 
-`test:storybook` builds Storybook, serves it on port 6007, runs all interaction tests, and cleans up the server automatically. No running dev server required.
+`test:storybook` runs the stories directly in a headless Chromium through Vitest browser mode (`@storybook/addon-vitest`). There is no build step, no HTTP server, and no port to manage.
 
 All four must pass with exit code 0. Any failure means the work is not done.
 
@@ -134,26 +134,44 @@ All four must pass with exit code 0. Any failure means the work is not done.
 
 | Command | Use case | Dev server needed? |
 | --- | --- | --- |
-| `npm run test:storybook` | Full suite, self-contained (build + serve + test + cleanup) | No |
-| `npm run test-storybook:fast -- --includeTags <tag>` | Fast targeted run during iteration | Yes (port 6006) |
-| `npm run test-storybook:ci -- --includeTags <tag>` | CI-mode targeted run (snapshot failures = errors) | Yes (port 6006) |
+| `npm run test:storybook` | Full suite (Vitest browser mode, headless Chromium) | No |
+| `npx vitest --project=storybook <file-or-pattern>` | Fast targeted run during iteration | No |
 
-`test:storybook` builds Storybook, starts an HTTP server on **port 6007**, runs the full test suite, and kills the server on completion (or failure/signal). It is the recommended command for final validation and automated agents — no manual server management required.
+`test:storybook` runs every story as a Vitest browser-mode test through `@storybook/addon-vitest` — the retired jest-based `@storybook/test-runner` is gone. It is the recommended command for final validation and automated agents.
+
+#### Known matcher limitation (lint-enforced)
+
+`storybook/test` bundles its own copy of `@vitest/expect`. Under the Vitest addon, that copy fails to route **`expect.any()` used as a value inside `expect.objectContaining({ ... })`** — the assertion reports a mismatch even when the values are equal. Top-level `expect.any(...)` and `arrayContaining`/`objectContaining` with literal values are unaffected.
+
+When asserting on a spy payload, destructure the call and assert plain values instead:
+
+```ts
+// ❌ lint-banned: silently broken under the Vitest addon
+expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: expect.any(String) }));
+
+// ✅ plain values — same semantics, better failure messages
+expect(spy).toHaveBeenCalledTimes(1);
+const [payload] = spy.mock.calls[0];
+expect(typeof payload.id).toBe('string');
+```
+
+The broken shape is enforced by `no-restricted-syntax` in `eslint.config.js` (both `src/**/*.stories.tsx` and `src/user-journeys/**/*.tsx`).
 
 ### Targeted runs (fast iteration)
 
-When debugging or verifying specific stories, **always use `--includeTags`** against a running dev server to avoid running the full 900+ test suite. Full suite runs take 2+ minutes; tagged runs finish in seconds.
+When debugging or verifying specific stories, target files or test names directly to avoid running the full 1000+ test suite:
 
 ```bash
-# ✅ Run only stories tagged for a specific feature
-npm run test-storybook:fast -- --includeTags prod-v1-org-admin
-npm run test-storybook:fast -- --includeTags prod-v2-org-admin
+# ✅ Target a file, a story name, or a pattern
+npx vitest --project=storybook src/v1/features/users
+npx vitest --project=storybook -t "org admin"
+npx vitest --project=storybook --dir src/user-journeys
 
-# ✅ Combine with CI mode for non-interactive output
-npm run test-storybook:ci -- --includeTags prod-v2-org-admin
+# ✅ Target a whole feature area
+npx vitest --project=storybook src/v2/features/roles
 
 # ❌ Running the full suite when you only changed one story
-npm run test-storybook:fast   # 2+ min, tests 900+ stories
+npm run test:storybook   # tests 1000+ stories
 ```
 
 For final validation before pushing, use `npm run test:storybook` (no dev server needed).

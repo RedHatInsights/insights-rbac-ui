@@ -140,11 +140,11 @@ Tests workspace detail pages with the Roles tab, including group drawer and pare
       const parentWorkspacesTab = await canvas.findByRole('tab', { name: /roles assigned in parent workspaces/i });
       await user.click(parentWorkspacesTab);
 
-      // PF6 sets the `hidden` attribute on DrawerPanelContent when collapsed
-      await waitFor(() => {
-        const panel = within(document.body).queryByTestId('detail-drawer-panel');
-        if (panel) expect(panel).not.toBeVisible();
-      });
+      // Wait for the full close: PF6 keeps the panel mounted (hidden) during its
+      // close animation, and a reopen click that lands mid-animation is swallowed.
+      // Waiting for the unmount also guarantees the old row and drawer heading are
+      // gone, so the absence assertion below cannot see transitional duplicates.
+      await waitFor(() => expect(within(document.body).queryByTestId('detail-drawer-panel')).toBeNull());
 
       const viewersText = await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
       expect(canvas.queryByText(KESSEL_GROUP_PROD_ADMINS.name)).not.toBeInTheDocument();
@@ -293,17 +293,15 @@ End-to-end flow for granting access to a workspace via the 3-step wizard.
       await waitFor(
         () => {
           expect(batchCreateRoleBindingsSpy).toHaveBeenCalledTimes(1);
-          expect(batchCreateRoleBindingsSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
-              requests: expect.arrayContaining([
-                expect.objectContaining({
-                  subject: expect.objectContaining({ id: 'group-2', type: 'group' }),
-                  role: expect.objectContaining({ id: expect.any(String) }),
-                  resource: expect.objectContaining({ type: 'workspace' }),
-                }),
-              ]),
-            }),
-          );
+          // Plain-value assertions on the spy payload: expect.any() as a value inside
+          // objectContaining is broken in storybook/test's bundled expect under the
+          // Vitest addon (lint-banned; see DevelopmentWorkflow.mdx §storybook-tests).
+          const [{ requests }] = batchCreateRoleBindingsSpy.mock.calls[0];
+          expect(requests).toHaveLength(1);
+          expect(requests[0].subject.id).toBe(KESSEL_GROUP_DEV_TEAM.uuid);
+          expect(requests[0].subject.type).toBe('group');
+          expect(typeof requests[0].role.id).toBe('string');
+          expect(requests[0].resource.type).toBe('workspace');
         },
         { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
       );
@@ -397,13 +395,11 @@ End-to-end flow for removing a group's access via the kebab menu.
 
     await step('Verify API spy called', async () => {
       expect(updateRoleBindingsSpy).toHaveBeenCalledTimes(1);
-      expect(updateRoleBindingsSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          resourceId: expect.any(String),
-          subjectId: expect.any(String),
-          body: expect.objectContaining({ roles: [] }),
-        }),
-      );
+      // Plain-value assertions — see the note on expect.any under objectContaining above.
+      const [payload] = updateRoleBindingsSpy.mock.calls[0];
+      expect(typeof payload.resourceId).toBe('string');
+      expect(typeof payload.subjectId).toBe('string');
+      expect(payload.body.roles).toEqual([]);
     });
 
     await step('Verify removed group is gone from table', async () => {
@@ -519,17 +515,13 @@ A lighter variation of the Grant Access wizard with one group and one role.
       await waitFor(
         () => {
           expect(batchCreateRoleBindingsSpy).toHaveBeenCalledTimes(1);
-          expect(batchCreateRoleBindingsSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
-              requests: expect.arrayContaining([
-                expect.objectContaining({
-                  subject: expect.objectContaining({ id: 'group-4', type: 'group' }),
-                  role: expect.objectContaining({ id: expect.any(String) }),
-                  resource: expect.objectContaining({ type: 'workspace' }),
-                }),
-              ]),
-            }),
-          );
+          // Plain-value assertions — see the note on expect.any under objectContaining above.
+          const [{ requests }] = batchCreateRoleBindingsSpy.mock.calls[0];
+          expect(requests).toHaveLength(1);
+          expect(requests[0].subject.id).toBe(KESSEL_GROUP_MARKETING.uuid);
+          expect(requests[0].subject.type).toBe('group');
+          expect(typeof requests[0].role.id).toBe('string');
+          expect(requests[0].resource.type).toBe('workspace');
         },
         { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
       );

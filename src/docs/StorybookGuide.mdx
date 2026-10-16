@@ -18,12 +18,12 @@ For writing stories, consult the focused docs:
 ```bash
 npm run storybook        # Start dev server
 npm run build-storybook  # Build static Storybook
-npm run test-storybook:ci  # Run all play function tests
+npm run test:storybook       # Run all play function tests
 ```
 
 Test specific stories by tag:
 ```bash
-npm run test-storybook:ci -- --includeTags="my-feature"
+npx vitest --project=storybook <file-or-pattern>
 ```
 
 ---

@@ -1,4 +1,4 @@
-import type { Preview } from '@storybook/react-webpack5';
+import type { Preview } from '@storybook/react-vite';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
 import '@redhat-cloud-services/hcc-storybook-hub/css/storybook.css';

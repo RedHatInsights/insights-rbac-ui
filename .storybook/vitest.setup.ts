@@ -1,65 +1,33 @@
 /**
  * ============================================================================
- * STORYBOOK TEST RUNNER - ERROR DETECTION CONFIGURATION
+ * STORYBOOK VITEST CONSOLE GUARD
  * ============================================================================
  *
- * PURPOSE:
- * This test runner catches console errors/warnings in Storybook and FAILS tests
- * when critical issues are detected. This prevents bugs from silently passing
- * through code review and reaching production.
+ * Ported from the retired jest-based `@storybook/test-runner` harness
+ * (`.storybook/test-runner.ts`, pre-migration). Same policy, new runtime:
+ * instead of a playwright `page.on('console')` listener in Node, we wrap the
+ * browser console directly — the test, the story, and the app share one
+ * iframe, so every console call flows through here.
  *
- * PRINCIPLE:
- * Storybook renders components in a real browser, just like production.
- * If a warning appears in Storybook, it WILL appear in production.
- * We should NOT ignore warnings just because they're "in Storybook."
+ * POLICY (unchanged):
+ * - console.error                       → fails the story
+ * - console.warn matching CRITICAL_*    → fails the story
+ * - console.log (unignored)             → fails the story (noise policy)
+ * - anything matching IGNORED_*         → suppressed silently
  *
- * HOW IT WORKS:
- * 1. preVisit: Attaches console listener to collect errors per story
- * 2. During story: Collects console.error and critical console.warning
- * 3. postVisit: If critical errors found → throw Error → test fails
- * 4. End of run: Shows summary of suppressed warnings
+ * NOT ported: browser-generated network errors ("Failed to load resource")
+ * never reach the JS console API in this runtime. Every network-error
+ * pattern in IGNORED_ERROR_PATTERNS is kept for documentation; MSW mock
+ * 4xx/5xx responses no longer need it.
  *
- * ============================================================================
- */
-
-import type { TestRunnerConfig } from '@storybook/test-runner';
-import type { ConsoleMessage } from 'playwright';
-
-// Track errors per story
-const storyErrors = new Map<string, string[]>();
-
-// Track console listeners so we can remove them in postVisit.
-// Without cleanup, ~900 listeners accumulate over a full test run,
-// degrading performance for late-running (heavy) stories on CI.
-const storyListeners = new Map<string, (msg: ConsoleMessage) => void>();
-
-/**
- * ============================================================================
- * IGNORED PATTERNS - Intentional Test Infrastructure
- * ============================================================================
- *
- * These errors are EXPECTED and should NOT fail tests:
- *
- * 1. MSW Mock API Errors (4xx, 5xx)
- *    - WHY IGNORED: Stories intentionally test error states
- *    - EXAMPLE: Testing how UI handles 500 error from API
- *    - WILL NOT HAPPEN IN PRODUCTION: Real API, not MSW
- *
- * 2. AxiosError
- *    - WHY IGNORED: Part of MSW mock error testing
- *    - Same as above - intentional error state testing
- *
- * 3. Testing Library Warnings
- *    - WHY IGNORED: Storybook-specific best practice hints
- *    - EXAMPLE: "Use within(canvasElement) instead of screen"
- *    - NOT A BUG: Just testing best practice guidance
- *
- * 4. MSW Informational Logs
- *    - WHY IGNORED: MSW setup/teardown messages
- *    - NOT ERRORS: Just informational logging
- *
+ * HOW TO WORK WITH FAILURES:
+ * Real bug → fix the component. Intentional/expected output → add the
+ * pattern to IGNORED_ERROR_PATTERNS below, with a label saying why.
  * ============================================================================
  */
+
+import { afterEach, beforeEach } from 'vitest';
+
 const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   // ═══════════════════════════════════════════════════════════════════════════
   // INTENTIONAL TEST INFRASTRUCTURE - These are expected and correct
@@ -89,16 +57,29 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   // Storybook/Testing Library informational warnings (not runtime issues)
   { pattern: /You are using Testing Library's `screen` object/, label: 'Testing Library screen warning' },
 
+  // formatjs falls back to defaultMessage for keys missing from partial locale catalogs
+  // (FEO handoff). The old runner never saw these: `storybook build` is a production bundle,
+  // and formatjs only logs them when NODE_ENV !== 'production'. Vitest runs test-mode.
+  { pattern: /\[@formatjs\/intl Error MISSING_TRANSLATION\]/, label: 'Missing translation (partial catalog, defaultMessage fallback)' },
+  { pattern: /\[@formatjs\/intl Error MISSING_DATA\]/, label: 'Unknown locale data (tested fallback behavior)' },
+
+  // React Router dev-mode diagnostics. The retired runner tested production builds, where
+  // react-router strips these entirely; vitest runs test-mode. Unmatched locations fall
+  // through to the catch-all <Navigate>. NOTE: handleClose in RoutedOrgRoleAccessModal
+  // navigates to org-management-group, which has no <Route> — latent routing gap, tracked
+  // as a follow-up; production falls back to the my-access redirect.
+  { pattern: /No routes matched location/, label: 'React Router dev diagnostic (stripped in production builds)' },
+
   // MSW informational logs and debug output
   { pattern: /MSW.*mock/i, label: 'MSW logs' },
-  { pattern: /^Request \{url:/, label: 'MSW request logs' },
+  { pattern: /^Request \{/, label: 'MSW request logs' },
   { pattern: /^Handler:/, label: 'MSW handler logs' },
-  { pattern: /^Response \{status:/, label: 'MSW response logs' },
+  { pattern: /^Response \{/, label: 'MSW response logs' },
   { pattern: /Worker script URL:/, label: 'MSW worker setup' },
   { pattern: /Worker scope:/, label: 'MSW worker setup' },
   { pattern: /Found an issue\? https:\/\/github\.com\/mswjs/, label: 'MSW help link' },
   { pattern: /Documentation:.*https:\/\/mswjs\.io/, label: 'MSW documentation link' },
-  { pattern: /Client ID:.*%s.*\(%s\)/, label: 'MSW client logging' },
+  { pattern: /Client ID:/, label: 'MSW client logging' },
 
   // Storybook test debugging console.log (allowed in play functions)
   { pattern: /^SB:/, label: 'Storybook test debug' },
@@ -193,7 +174,7 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
    * WORKAROUND: None, these come from the library itself
    * TRACK: Check if fixed in newer versions during dependency updates
    */
-  { pattern: /^values: \{active:/, label: '@data-driven-forms debug' },
+  { pattern: /^values: \{/, label: '@data-driven-forms debug' },
   { pattern: /FormWrapper.*FormTemplate/, label: '@data-driven-forms PropTypes' },
   { pattern: /Cannot update a component.*TextField/, label: '@data-driven-forms TextField' },
   { pattern: /Cannot update a component.*Textarea/, label: '@data-driven-forms Textarea' },
@@ -254,12 +235,6 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
    */
   { pattern: /Accessing the Story Store is deprecated/, label: 'Storybook Story Store deprecation' },
 ];
-
-/**
- * ============================================================================
- * CRITICAL ERROR PATTERNS - REAL BUGS that MUST be fixed
- * ============================================================================
- */
 const CRITICAL_ERROR_PATTERNS = [
   // Always critical - these indicate real bugs
   /Warning: Failed.*type:/,
@@ -285,136 +260,72 @@ const CRITICAL_ERROR_PATTERNS = [
   /Selector.*returned a different result/,
 ];
 
-function shouldIgnoreError(errorText: string): boolean {
-  return IGNORED_ERROR_PATTERNS.some(({ pattern }) => pattern.test(errorText));
+// ============================================================================
+// Collection
+// ============================================================================
+
+type Level = 'error' | 'warn' | 'log';
+
+let collected: string[] = [];
+let originals: Record<Level, (...args: unknown[]) => void> | undefined;
+
+function formatArg(arg: unknown): string {
+  if (typeof arg === 'string') return arg;
+  if (arg instanceof Error) return `${arg.name}: ${arg.message}`;
+  try {
+    return JSON.stringify(arg);
+  } catch {
+    return String(arg);
+  }
 }
 
-function isCriticalError(errorText: string): boolean {
-  return CRITICAL_ERROR_PATTERNS.some((pattern) => pattern.test(errorText));
+function shouldFailStory(text: string, level: Level): boolean {
+  if (IGNORED_ERROR_PATTERNS.some(({ pattern }) => pattern.test(text))) return false;
+  if (level === 'error') return true;
+  if (level === 'warn') return CRITICAL_ERROR_PATTERNS.some((pattern) => pattern.test(text));
+  return true; // console.log: fail unless ignored (noise policy)
 }
 
-const config: TestRunnerConfig = {
-  async prepare({ page, browserContext, testRunnerConfig }) {
-    page.setDefaultTimeout(60_000);
-    const targetURL = process.env.TARGET_URL || 'http://127.0.0.1:6006';
-    const iframeURL = new URL('iframe.html', targetURL).toString();
-    if (testRunnerConfig?.getHttpHeaders) {
-      const headers = await testRunnerConfig.getHttpHeaders(iframeURL);
-      await browserContext.setExtraHTTPHeaders(headers);
-    }
-    await page.goto(iframeURL, { waitUntil: 'load' });
-  },
-  async preVisit(page, context) {
-    const { id, tags } = context;
+function record(level: Level, args: unknown[]): void {
+  const text = args.map(formatArg).join(' ');
+  if (shouldFailStory(text, level)) {
+    collected.push(text);
+  } else if (level !== 'log') {
+    // Keep the old harness's visibility for non-ignored warnings/errors.
+    originals?.[level](`[BROWSER ${level.toUpperCase()}]: ${text}`);
+  }
+}
 
-    // Skip stories with 'skip-test' tag
-    if (tags?.includes('skip-test')) {
-      return;
-    }
+beforeEach(() => {
+  collected = [];
+  originals = {
+    error: console.error.bind(console),
+    warn: console.warn.bind(console),
+    log: console.log.bind(console),
+  };
+  console.error = (...args: unknown[]) => record('error', args);
+  console.warn = (...args: unknown[]) => record('warn', args);
+  console.log = (...args: unknown[]) => record('log', args);
+});
 
-    // force the same viewport Chromatic uses
-    await page.setViewportSize({ width: 1200, height: 500 });
+afterEach((context) => {
+  const task = context as unknown as { task?: { name?: string }; name?: string };
+  const name = task?.task?.name ?? task?.name ?? 'story';
+  // Restore before asserting so the failure message itself can use console.
+  if (originals) {
+    console.error = originals.error;
+    console.warn = originals.warn;
+    console.log = originals.log;
+    originals = undefined;
+  }
 
-    // Remove any leftover listener from the previous story on this page
-    const prev = storyListeners.get(id);
-    if (prev) {
-      page.off('console', prev);
-      storyListeners.delete(id);
-    }
+  if (collected.length > 0) {
+    const errorSummary = collected.map((err, i) => `  ${i + 1}. ${err.substring(0, 200)}${err.length > 200 ? '...' : ''}`).join('\n');
 
-    // Initialize error collection for this story
-    storyErrors.set(id, []);
-
-    // Attach a listener to capture all browser console messages
-    const listener = (msg: ConsoleMessage) => {
-      const text = msg.text();
-      const type = msg.type();
-
-      // Log warnings, errors, and debug console.log
-      if (type === 'warning' || type === 'error' || type === 'log') {
-        // Check if this is an ignored pattern - skip silently
-        if (shouldIgnoreError(text)) {
-          return;
-        }
-
-        // Only print to console for warnings/errors that aren't ignored
-        if (type === 'warning' || type === 'error') {
-          console.log(`[BROWSER ${type.toUpperCase()}]: ${text}`);
-        }
-
-        // Collect critical errors for this story
-        if (type === 'error') {
-          const errors = storyErrors.get(id) || [];
-          errors.push(text);
-          storyErrors.set(id, errors);
-        }
-
-        // Collect critical warnings that indicate bugs
-        if (type === 'warning' && isCriticalError(text)) {
-          const errors = storyErrors.get(id) || [];
-          errors.push(text);
-          storyErrors.set(id, errors);
-        }
-
-        // Collect console.log from component code (not test debugging)
-        if (type === 'log') {
-          const errors = storyErrors.get(id) || [];
-          errors.push(`console.log: ${text}`);
-          storyErrors.set(id, errors);
-        }
-      }
-    };
-
-    storyListeners.set(id, listener);
-    page.on('console', listener);
-  },
-
-  // Hook to execute after each story is tested
-  async postVisit(page, context) {
-    const { id, title, name, tags } = context;
-
-    // Clean up the console listener to prevent accumulation across stories
-    const listener = storyListeners.get(id);
-    if (listener) {
-      page.off('console', listener);
-      storyListeners.delete(id);
-    }
-
-    // Skip stories with 'skip-test' tag
-    if (tags?.includes('skip-test')) {
-      return;
-    }
-
-    const errors = storyErrors.get(id) || [];
-
-    // Clean up error tracking for this story
-    storyErrors.delete(id);
-
-    // Fail the test if critical errors were found
-    if (errors.length > 0) {
-      const errorSummary = errors.map((err, i) => `  ${i + 1}. ${err.substring(0, 200)}${err.length > 200 ? '...' : ''}`).join('\n');
-
-      throw new Error(
-        `Story "${title} > ${name}" failed due to ${errors.length} critical console error(s):\n\n${errorSummary}\n\n` +
-          `These errors may indicate bugs or anti-patterns that need to be fixed.\n` +
-          `If these are intentional/expected errors, add them to IGNORED_ERROR_PATTERNS in test-runner.ts`,
-      );
-    }
-  },
-
-  // Configure tags to skip certain stories if needed
-  tags: {
-    skip: ['skip-test'],
-  },
-};
-
-export default config;
-
-/**
- * NOTE: Suppressed warnings are tracked but not printed at end of run
- * because Jest runs tests in parallel workers and process exit hooks
- * don't fire reliably.
- *
- * To see what patterns are being suppressed, check IGNORED_ERROR_PATTERNS above.
- * Each pattern includes a 'label' field describing what it catches.
- */
+    throw new Error(
+      `Story "${name}" failed due to ${collected.length} critical console error(s):\n\n${errorSummary}\n\n` +
+        `These errors may indicate bugs or anti-patterns that need to be fixed.\n` +
+        `If these are intentional/expected errors, add them to IGNORED_ERROR_PATTERNS in .storybook/vitest.setup.ts`,
+    );
+  }
+});

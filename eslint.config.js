@@ -356,6 +356,12 @@ module.exports = defineConfig(
           message:
             'delay() is banned in play functions (except inside resetStoryState). Use findBy* queries or waitFor with assertions instead. See AGENTS.md rule 19.',
         },
+        {
+          selector:
+            "CallExpression[callee.object.name='expect'][callee.property.name='objectContaining'] Property[value.callee.object.name='expect'][value.callee.property.name='any']",
+          message:
+            "expect.any() as a value inside expect.objectContaining() is broken in storybook/test's bundled expect under the Vitest addon (matches fail even when values are equal). Destructure the spy call and assert plain values instead. See DevelopmentWorkflow.mdx §storybook-tests.",
+        },
       ],
     },
   },
@@ -450,6 +456,12 @@ module.exports = defineConfig(
           selector: 'CallExpression[callee.property.name="waitForTimeout"] > Literal[raw=/^\\d+$/]',
           message:
             'Magic numbers in waitForTimeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='expect'][callee.property.name='objectContaining'] Property[value.callee.object.name='expect'][value.callee.property.name='any']",
+          message:
+            "expect.any() as a value inside expect.objectContaining() is broken in storybook/test's bundled expect under the Vitest addon (matches fail even when values are equal). Destructure the spy call and assert plain values instead. See DevelopmentWorkflow.mdx §storybook-tests.",
         },
         {
           selector: 'CallExpression[callee.object.name="document"][callee.property.name="querySelector"]',
