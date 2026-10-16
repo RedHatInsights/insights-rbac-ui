@@ -44,7 +44,7 @@ type SubmitValues = {
   };
 };
 
-const InviteUsers = () => {
+export const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
   const { advancedPermissions } = useCommonAuthModel();
   const isITLess = useFedRAMPMode();

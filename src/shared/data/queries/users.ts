@@ -391,6 +391,14 @@ export function useInviteUsersMutation(options?: MutationOptions) {
         return response;
       }
 
+      // Reaching here in a non-ITLess environment means org_id was unavailable. The fallback
+      // below (/user/invite) cannot carry portal permissions, so completing the invite would
+      // silently drop the requested grants (manage support cases, etc.) while reporting success.
+      // Reject instead, so the modal surfaces the error and stays open rather than misleading.
+      if (!isITLess) {
+        throw new Error('Cannot invite users: org_id is required for common-auth invitations.');
+      }
+
       const envUrl = await fetchEnvBaseUrl();
       const response = await fetch(`${envUrl}/user/invite`, {
         method: 'POST',
