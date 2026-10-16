@@ -1,0 +1,33 @@
+{
+  "provider": "phrase",
+  "project": {
+    "uid": "yWWEIEQgpNVK650YBQhGx6",
+    "region": "eu"
+  },
+  "state": {
+    "branch": "i18n-tms-state",
+    "directory": ".github/i18n-state/batches"
+  },
+  "sourceCatalog": {
+    "path": "deploy/locales/insights-rbac-ui-feo-frontend-en.json",
+    "filename": "insights-rbac-ui-feo-frontend-en.json",
+    "adapter": "formatjs-json",
+    "locale": "en",
+    "useProjectFileImportSettings": true
+  },
+  "targetAdapter": "formatjs-json",
+  "frontendTemplate": {
+    "path": "deploy/frontend.yaml",
+    "generateSourceCatalog": true
+  },
+  "targetLocales": [
+    {
+      "phraseLocale": "zh_cn",
+      "repositoryLocale": "zh-CN",
+      "outputPath": "deploy/locales/zh-CN.json"
+    }
+  ],
+  "completionPolicy": {
+    "default": "per-locale"
+  }
+}
