@@ -2,7 +2,6 @@ import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
 import { IntlShape } from 'react-intl';
 import WizardButtons from '../../../shared/components/wizard/WizardButtons';
-import { getModalContainer } from '../../../shared/helpers/modal-container';
 import messages from '../../../Messages';
 import { pf4Components } from '../../../shared/forms/pf4Components';
 import { IntroductionStep } from './components/IntroductionStep';
@@ -24,6 +23,9 @@ export const wizardMapper = {
 
 export type ConversionWizardSchema = Schema<typeof wizardMapper>;
 
+/** Shown in the wizard header, and on the result screens that replace the wizard. */
+export const WIZARD_TITLE = 'Convert to workspace-based access management';
+
 export const schemaBuilder = (intl: IntlShape): ConversionWizardSchema => {
   return {
     fields: [
@@ -32,10 +34,16 @@ export const schemaBuilder = (intl: IntlShape): ConversionWizardSchema => {
         name: 'conversion-wizard',
         isDynamic: true,
         'data-ouia-component-id': 'conversion-wizard',
-        inModal: true,
+        // The modal is owned by ConversionWizard, not by the wizard component. Letting the wizard
+        // manage it means it creates a detached portal host and removes it from document.body on
+        // unmount, which races with React when the wizard is swapped out for the success screen.
+        inModal: false,
         showTitles: true,
-        container: getModalContainer(),
-        title: 'Convert to workspace-based access management',
+        // The modal renders the close button, so the wizard header must not render a second one.
+        // (Letting the wizard own it instead and dropping the modal's is not an option: the wizard
+        // returns null on its first render, leaving the modal's focus trap with nothing tabbable.)
+        hideClose: true,
+        title: WIZARD_TITLE,
         fields: [
           {
             title: 'Introduction',

@@ -8,6 +8,8 @@ import { useChromeLocale } from './shared/hooks/useChromeLocale';
 import { ApiErrorProvider } from './shared/contexts/ApiErrorContext';
 import { QueryClientSetup } from './shared/components/QueryClientSetup';
 import ApiErrorBoundary from './shared/components/ui-states/ApiErrorBoundary';
+import { AppPlaceholder } from './shared/components/ui-states/LoaderPlaceholders';
+import { useTenantOptInStatusQuery } from './shared/data/queries/tenant';
 import { ServiceProvider } from './shared/contexts/ServiceContext';
 import { type AddNotificationFn, createBrowserServices } from './shared/entry/browser';
 import { useFedRAMPMode } from './capabilities/useFedRAMPMode';
@@ -58,10 +60,31 @@ const SharedProviders: React.FC<IamProps & { locale: string; children: React.Rea
 };
 
 /**
- * Version router: reads the access-management flag and renders V1 or V2.
+ * Version router: renders V2 when the access-management flag is on, or when the tenant has
+ * already converted.
+ *
+ * Conversion is irreversible and per-tenant, while the flag is rolled out per environment, so
+ * the two can disagree. A converted tenant that still lands in V1 is broken: V1 checks
+ * permissions against the V1 access API, which conversion stops populating, so every page
+ * denies them. Opt-in therefore has to be sufficient on its own.
  */
 const VersionRouter: React.FC = () => {
-  const hasAccessManagement = useWorkspacesFlag('m5');
+  const flagEnabled = useWorkspacesFlag('m5');
+
+  // Only worth asking when the flag alone would send the user to V1 — this sits in front of
+  // the whole app, so the flag path must not wait on a request.
+  const { data, isLoading } = useTenantOptInStatusQuery({ enabled: !flagEnabled });
+  const optedIn = data?.v2_opted_in === true;
+
+  const hasAccessManagement = flagEnabled || optedIn;
+  const waitingForOptInStatus = !flagEnabled && isLoading;
+
+  // Picking a version before the answer arrives would mount one app and then swap it for the
+  // other, throwing away whatever the first one had already fetched.
+  if (waitingForOptInStatus) {
+    return <AppPlaceholder />;
+  }
+
   return hasAccessManagement ? <IamV2 /> : <IamV1 />;
 };
 
