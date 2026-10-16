@@ -365,6 +365,13 @@ export function useInviteUsersMutation(options?: MutationOptions) {
       const accountId = identity?.org_id ?? null;
 
       if (accountId && !isITLess) {
+        // The IT Account API models portal permissions as a flat array of permission-code
+        // STRINGS (e.g. ["portal_manage_cases"]), the same shape the GET detail / update-details
+        // endpoints use. Sending them as top-level boolean fields (portal_manage_cases: true)
+        // makes the DTO reject the body with 400 "Failed to read request" — see the matching
+        // note on useToggleManageSupportCasesMutation below.
+        const permissions = [...(portal_manage_cases ? [PORTAL_MANAGE_CASES] : []), ...(portal_download ? [PORTAL_DOWNLOAD] : [])];
+
         const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/invite`;
         const response = await fetch(url, {
           method: 'POST',
@@ -372,8 +379,7 @@ export function useInviteUsersMutation(options?: MutationOptions) {
             emails,
             localeCode: 'en',
             ...(isAdmin && { roles: ['organization_administrator'] }),
-            ...(portal_manage_cases !== undefined && { portal_manage_cases }),
-            ...(portal_download !== undefined && { portal_download }),
+            ...(permissions.length > 0 && { permissions }),
             ...(portal_manage_subscriptions && { portal_manage_subscriptions }),
           }),
           headers: {
@@ -383,6 +389,14 @@ export function useInviteUsersMutation(options?: MutationOptions) {
         });
 
         return response;
+      }
+
+      // Reaching here in a non-ITLess environment means org_id was unavailable. The fallback
+      // below (/user/invite) cannot carry portal permissions, so completing the invite would
+      // silently drop the requested grants (manage support cases, etc.) while reporting success.
+      // Reject instead, so the modal surfaces the error and stays open rather than misleading.
+      if (!isITLess) {
+        throw new Error('Cannot invite users: org_id is required for common-auth invitations.');
       }
 
       const envUrl = await fetchEnvBaseUrl();
@@ -440,6 +454,9 @@ interface AccountUsersSearchResponse {
 
 /** The portal permission string for managing support cases */
 export const PORTAL_MANAGE_CASES = 'portal_manage_cases' as const;
+
+/** The portal permission string for downloading software/updates */
+export const PORTAL_DOWNLOAD = 'portal_download' as const;
 
 // Freshness window + read-after-write guard: don't re-seed entries written within this window (ms).
 const ACCOUNT_USER_STALE_TIME = 30_000;

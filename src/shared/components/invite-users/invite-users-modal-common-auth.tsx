@@ -1,15 +1,16 @@
 import React from 'react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
-import { ModalFormTemplate } from '../../../../shared/components/forms/ModalFormTemplate';
+import { ModalFormTemplate } from '../forms/ModalFormTemplate';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import messages from '../../../Messages';
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
-import { pf4Components } from '../../../../shared/forms/pf4Components';
-import AccordionCheckbox from '../../../../shared/components/expandable-checkbox';
-import InlineError from '../../../../shared/components/ui-states/InlineError';
-import { useCommonAuthModel } from '../../../../capabilities/useCommonAuthModel';
-import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
+import { pf4Components } from '../../forms/pf4Components';
+import AccordionCheckbox from '../expandable-checkbox';
+import InlineError from '../ui-states/InlineError';
+import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
+import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
+import { useInviteUsersMutation } from '../../data/queries/users';
 import { useOutletContext } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
@@ -43,9 +44,10 @@ type SubmitValues = {
   };
 };
 
-const InviteUsers = () => {
+export const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
   const { advancedPermissions } = useCommonAuthModel();
+  const isITLess = useFedRAMPMode();
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
   const addNotification = useAddNotification();
 
@@ -137,13 +139,19 @@ const InviteUsers = () => {
               title: intl.formatMessage(messages.inviteUsersFormIsAdminFieldTitle),
               description: intl.formatMessage(messages.inviteUsersFormIsAdminFieldDescription),
             },
-            ...(advancedPermissions
+            // Manage support cases is a shipped field: shown whenever the account API is
+            // available (i.e. not ITLess/FedRAMP), independent of the advanced-permissions flag.
+            ...(!isITLess
               ? [
                   {
                     name: 'manage-support-cases',
-                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
+                    title: intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldTitle),
+                    description: intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldDescription),
                   },
+                ]
+              : []),
+            ...(advancedPermissions
+              ? [
                   {
                     name: 'download-software-updates',
                     title: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldTitle),
@@ -178,7 +186,7 @@ const InviteUsers = () => {
         },
       ],
     }),
-    [responseError],
+    [responseError, advancedPermissions, isITLess],
   );
   return (
     <FormRenderer
