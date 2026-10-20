@@ -51,10 +51,23 @@ const [isWizardOpen, setWizardOpen] = useState(false);
     scope="rbac"
     module="./modules/ConversionWizard"
     onCancel={() => setWizardOpen(false)}
-    onSuccess={() => setWizardOpen(false)}
+    // Full page load, not setWizardOpen(false) and not a router push.
+    onSuccess={() => window.location.assign('/iam/overview')}
   />
 )}
 \`\`\`
+
+### \`onSuccess\` must be a full page load
+
+By the time \`onSuccess\` fires the tenant is on V2, but the surrounding page is not. The
+opt-in status it was built from is cached in two places — this app's tenant query, and
+Chrome's \`isKesselOrgOnboarded\` behind the nav (120s, identity-scoped). Closing the wizard
+in place strands the user on a V1 page with V1 nav until those lapse, which makes the
+breakage intermittent rather than obvious. A full load re-runs both.
+
+\`onSuccess\` is optional on the internal component but **required** on this module: the
+success screen's only button is wired straight to it, so omitting it makes that button
+silently do nothing.
 
 ### Providers Included
 
@@ -68,7 +81,7 @@ ServiceProvider or QueryClientProvider is needed.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | \`onCancel\` | \`() => void\` | – | Called when the wizard is dismissed |
-| \`onSuccess\` | \`() => void\` | – | Called when the user dismisses the success screen; the tenant is on V2 by this point |
+| \`onSuccess\` | \`() => void\` | **required** | Called when the user dismisses the success screen; the tenant is on V2 by this point, so this must navigate away with a full page load |
 | \`locale\` | \`string\` | \`'en'\` | Locale for the bundled IntlProvider |
         `,
       },
