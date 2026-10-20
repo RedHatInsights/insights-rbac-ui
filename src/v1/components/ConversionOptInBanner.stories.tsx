@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { ConversionOptInBanner, type ConversionOptInBannerProps } from './ConversionOptInBanner';
 import messages from '../../Messages';

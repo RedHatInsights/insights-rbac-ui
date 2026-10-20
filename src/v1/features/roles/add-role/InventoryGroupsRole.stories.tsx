@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';

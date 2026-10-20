@@ -11,7 +11,7 @@ How-to patterns for common story scenarios. See [StorybookMandatoryRules](?path=
 ## Presentational Component Stories
 
 ```typescript
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { StatusBadge } from './StatusBadge';
 
 const meta: Meta<typeof StatusBadge> = {
@@ -46,7 +46,7 @@ Rules:
 Feature-level components that orchestrate data fetching via MSW handlers.
 
 ```typescript
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { http, HttpResponse } from 'msw';
 import { fn } from 'storybook/test';
 import { GroupsContainer } from './GroupsContainer';

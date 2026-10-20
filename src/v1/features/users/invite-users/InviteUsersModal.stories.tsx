@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { InviteUsersModal } from './InviteUsersModal';

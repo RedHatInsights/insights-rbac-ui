@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { queryMenuToggle, queryTreeViewToggle } from '../../../../../test-utils/interactionHelpers';
 import { ManagedWorkspaceSelector } from './ManagedWorkspaceSelector';

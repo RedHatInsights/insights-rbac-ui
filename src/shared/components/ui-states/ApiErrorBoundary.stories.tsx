@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, waitFor, within } from 'storybook/test';
 import { DEFAULT_GROUPS } from '../../data/mocks/seed';
 import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.handlers';

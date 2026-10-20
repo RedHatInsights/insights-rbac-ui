@@ -1,8 +1,8 @@
-import type { Decorator, StoryContext } from '@storybook/react-webpack5';
+import type { Decorator, StoryContext } from '@storybook/react-vite';
 import React from 'react';
 import { expect, fn, waitFor } from 'storybook/test';
 import type { UserEvent } from '../../test-utils/testUtils';
-import type { StoryObj } from '@storybook/react-webpack5';
+import type { StoryObj } from '@storybook/react-vite';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { navigateToPage } from '../_shared/helpers';
 import { TEST_TIMEOUTS } from '../../test-utils/testUtils';

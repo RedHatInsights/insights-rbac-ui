@@ -6,7 +6,7 @@
  * groups but cannot invite users or toggle org admin status.
  */
 
-import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
+import type { Decorator, StoryContext, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { expect, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
