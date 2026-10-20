@@ -12,3 +12,5 @@
 export { default as Iam } from './Iam';
 export { default as CreateWorkspaceWizard } from './CreateWorkspaceWizard';
 export { default as WorkspaceSelector } from './WorkspaceSelector';
+export { default as ConversionOptInBanner } from './ConversionOptInBanner';
+export { default as ConversionWizard } from './ConversionWizard';

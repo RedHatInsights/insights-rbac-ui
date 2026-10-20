@@ -47,6 +47,13 @@ This story validates that \`ConversionOptInBanner\` renders as a federated modul
 |------|------|---------|-------------|
 | \`isOrgAdmin\` | \`boolean\` | – | Whether the current user is an org admin |
 | \`onGetStarted\` | \`() => void\` | – | Callback when "Get started now" is clicked |
+
+### Variants
+
+- **Admin** — "Get started now" (fires \`onGetStarted\`) and "Learn more about the benefits"
+- **Non-admin** — renders nothing. An informational variant exists in the v1 component as
+  \`ConversionOptInBannerNonAdmin\`, but it is out of scope for this release and is not
+  reachable through this module.
         `,
       },
     },
@@ -102,12 +109,18 @@ export const NonAdmin: Story = {
     isOrgAdmin: false,
     onGetStarted: fn(),
   },
-  play: async ({ canvasElement, step }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
     await step('Verify banner is not rendered for non-admin', async () => {
       expect(canvas.queryByText('Elevate your infrastructure with workspace-based access management')).not.toBeInTheDocument();
       expect(canvas.queryByText('Get started now')).not.toBeInTheDocument();
+      expect(args.onGetStarted).not.toHaveBeenCalled();
+    });
+
+    await step('Verify the parked non-admin variant does not leak through this module', async () => {
+      expect(canvas.queryByText('Ready for a smarter way to organize your work?')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Request from your admin')).not.toBeInTheDocument();
     });
   },
 };

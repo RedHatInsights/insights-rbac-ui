@@ -26,6 +26,7 @@ module.exports = {
       './modules/CreateWorkspaceWizard': path.resolve(__dirname, './src/federated-modules/CreateWorkspaceWizard.tsx'),
       './modules/WorkspaceSelector': path.resolve(__dirname, './src/federated-modules/WorkspaceSelector.tsx'),
       './modules/ConversionOptInBanner': path.resolve(__dirname, './src/federated-modules/ConversionOptInBanner.tsx'),
+      './modules/ConversionWizard': path.resolve(__dirname, './src/federated-modules/ConversionWizard.tsx'),
     },
     shared: []
   },
