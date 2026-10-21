@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { ConversionOptInBanner, type ConversionOptInBannerProps } from './ConversionOptInBanner';
+import { ConversionOptInBanner, ConversionOptInBannerNonAdmin, type ConversionOptInBannerProps } from './ConversionOptInBanner';
 import messages from '../../Messages';
 
 const meta: Meta<ConversionOptInBannerProps> = {
@@ -13,6 +13,9 @@ const meta: Meta<ConversionOptInBannerProps> = {
 Prompts org admins to opt-in to Workspace v2. Renders the admin banner when
 \`isOrgAdmin\` is true, nothing otherwise. Feature flag and identity gating
 live in the parent (OverviewContent), not in this component.
+
+A non-admin variant exists as \`ConversionOptInBannerNonAdmin\` but is out of scope
+for this release, so nothing renders it yet.
         `,
       },
     },
@@ -72,8 +75,36 @@ export const HiddenForNonAdmin: Story = {
   args: {
     isOrgAdmin: false,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
+    await expect(args.onGetStarted).not.toHaveBeenCalled();
+  },
+};
+
+/**
+ * The parked non-admin variant, rendered directly. Nothing ships it yet — it is out of
+ * scope for this release — so this story is what keeps it from rotting in the meantime.
+ *
+ * It is informational: it explains the change but offers no way to start one. "Request
+ * from your admin" stays plain text because there is no request flow behind it; a link or
+ * button would promise an action the component cannot perform.
+ */
+export const NonAdminVariant: StoryObj = {
+  render: () => <ConversionOptInBannerNonAdmin />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.findByText(messages.conversionBannerNonAdminTitle.defaultMessage)).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(messages.conversionBannerNonAdminBody.defaultMessage)).resolves.toBeInTheDocument();
+
+    const request = await canvas.findByText(messages.conversionBannerNonAdminRequest.defaultMessage);
+    await expect(request.closest('a')).toBeNull();
+    await expect(request.closest('button')).toBeNull();
+
+    // None of the admin affordances should leak into this variant.
+    await expect(canvas.queryByText(messages.conversionBannerAdminTitle.defaultMessage)).not.toBeInTheDocument();
+    await expect(canvas.queryByText(messages.conversionBannerAdminGetStarted.defaultMessage)).not.toBeInTheDocument();
+    await expect(canvas.queryByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false })).not.toBeInTheDocument();
   },
 };

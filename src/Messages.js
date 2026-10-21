@@ -3679,6 +3679,12 @@ export default defineMessages({
     description: 'Title for workspace v2 conversion opt-in banner shown to org admins',
     defaultMessage: 'Elevate your infrastructure with workspace-based access management',
   },
+  conversionBannerAdminBody: {
+    id: 'conversionBannerAdminBody',
+    description: 'Body text for workspace v2 conversion opt-in banner shown to org admins',
+    defaultMessage:
+      'Organize your RHEL systems into workspaces with hierarchical permission control. The new access management model introduces workspace organization, permission inheritance, and improved collaboration, all while preserving your permissions and access.',
+  },
   conversionBannerAdminGetStarted: {
     id: 'conversionBannerAdminGetStarted',
     description: 'Get started button text for admin conversion banner',
@@ -3694,7 +3700,7 @@ export default defineMessages({
     description: 'Title for workspace v2 conversion opt-in banner shown to non-admin users',
     defaultMessage: 'Ready for a smarter way to organize your work?',
   },
-  conversionBannerBody: {
+  conversionBannerNonAdminBody: {
     id: 'conversionBannerNonAdminBody',
     description: 'Body text for workspace v2 conversion opt-in banner shown to non-admin users',
     defaultMessage:
