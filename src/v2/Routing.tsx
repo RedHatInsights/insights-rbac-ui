@@ -33,7 +33,7 @@ const RoutedMoveDialog = lazy(() => import('./features/workspaces/components/Rou
 const RoutedDeleteModal = lazy(() => import('./features/workspaces/components/RoutedDeleteModal'));
 const RoutedCreateWorkspace = lazy(() => import('./features/workspaces/create-workspace/RoutedCreateWorkspace'));
 
-const InviteUsersModalCommonAuth = lazy(() => import('../v1/features/users/invite-users/invite-users-modal-common-auth'));
+const InviteUsersModalCommonAuth = lazy(() => import('../shared/components/invite-users/invite-users-modal-common-auth'));
 
 const V2Overview = lazy(() => import('./features/overview/Overview'));
 

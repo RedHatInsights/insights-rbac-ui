@@ -1,7 +1,7 @@
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { type ScopedQueries, clearAndType, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
+import { type ScopedQueries, clearAndType, queryAlert, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
 import type { UserEvent } from '../../test-utils/testUtils';
-import { accountManagementHandlers } from '../../shared/data/mocks/accountManagement.handlers';
+import { accountManagementHandlers, inviteErrorHandlers } from '../../shared/data/mocks/accountManagement.handlers';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
 import {
   GROUP_PLATFORM_ADMINS,
@@ -21,6 +21,12 @@ import {
 const inviteUsersSpy = fn();
 
 const EXPECTED_INVITE_URL_PATTERN = /^https:\/\/api\.access\.(stage\.)?redhat\.com\/account\/v1\/accounts\/\d+\/users\/invite$/;
+
+// Invitee emails used across the invite journeys. Kept as constants so the typed input
+// and the spy assertions stay in sync (non-negotiable #17 — no repeated literals).
+const INVITE_EMAIL_1 = 'newuser1@example.com';
+const INVITE_EMAIL_2 = 'newuser2@example.com';
+const INVITE_EMAILS = `${INVITE_EMAIL_1}, ${INVITE_EMAIL_2}`;
 
 async function navigateToUserDetailPage(user: UserEvent, canvas: ScopedQueries, username: string) {
   await navigateToPage(user, canvas, 'Users');
@@ -232,11 +238,12 @@ export const InviteUsersJourney: Story = {
       handlers: [
         ...accountManagementHandlers({
           onInvite: (request: Request, body: unknown) => {
-            const b = body as { emails?: string[]; roles?: string[] };
+            const b = body as { emails?: string[]; roles?: string[]; permissions?: string[] };
             inviteUsersSpy({
               url: request.url,
               emails: b.emails,
               roles: b.roles,
+              permissions: b.permissions,
             });
           },
         }),
@@ -279,20 +286,20 @@ export const InviteUsersJourney: Story = {
 
     await step('Fill email addresses', async () => {
       const modal = await waitForModal();
-      await clearAndType(
-        user,
-        () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement,
-        'newuser1@example.com, newuser2@example.com',
-      );
+      await clearAndType(user, () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement, INVITE_EMAILS);
     });
 
-    await step('Check org admin and submit', async () => {
+    await step('Check org admin, Manage Support Cases, and submit', async () => {
       const modal = await waitForModal();
       await waitFor(() => {
         expect(modal.queryByRole('checkbox', { name: /organization administrators/i })).toBeInTheDocument();
       });
       const orgAdminCheckbox = modal.getByRole('checkbox', { name: /organization administrators/i });
       await user.click(orgAdminCheckbox);
+
+      const manageCasesCheckbox = modal.getByRole('checkbox', { name: /manage support cases/i });
+      await user.click(manageCasesCheckbox);
+
       const submitButton = await modal.findByRole('button', { name: /invite new users/i });
       await waitFor(() => expect(submitButton).toBeEnabled());
       await user.click(submitButton);
@@ -313,9 +320,69 @@ export const InviteUsersJourney: Story = {
       const spyCall = inviteUsersSpy.mock.calls[0][0];
       expect(spyCall).toBeDefined();
       expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
-      expect(spyCall.emails).toContain('newuser1@example.com');
-      expect(spyCall.emails).toContain('newuser2@example.com');
+      expect(spyCall.emails).toContain(INVITE_EMAIL_1);
+      expect(spyCall.emails).toContain(INVITE_EMAIL_2);
       expect(spyCall.roles).toContain('organization_administrator');
+      expect(spyCall.permissions).toContain('portal_manage_cases');
+    });
+  },
+};
+
+export const InviteUsersFailureJourney: Story = {
+  name: 'Invite users (API failure)',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      // Prepend a failing invite handler; the users list still loads normally.
+      handlers: [...inviteErrorHandlers(500), ...accountManagementHandlers(), ...createV1Handlers(v1Db)],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for users table', async () => {
+      await navigateToPage(user, canvas, 'Users');
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+    });
+
+    await step('Open invite modal', async () => {
+      const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
+      await user.click(inviteButton);
+      await waitForModal({
+        timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByRole('textbox', { name: /enter the e-mail addresses/i })).toBeInTheDocument();
+        },
+      });
+    });
+
+    await step('Fill emails and submit', async () => {
+      const modal = await waitForModal();
+      await clearAndType(user, () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement, INVITE_EMAILS);
+      const submitButton = await modal.findByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submitButton).toBeEnabled());
+      await user.click(submitButton);
+    });
+
+    await step('Verify danger notification and modal still open', async () => {
+      await waitFor(
+        () => {
+          expect(queryAlert(document.body, 'danger')).toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+      expect(within(document.body).getByRole('dialog')).toBeInTheDocument();
     });
   },
 };
