@@ -66,7 +66,7 @@ type Story = StoryObj<typeof InviteUsers>;
 /**
  * Default (common-auth, non-ITLess, advanced permissions off):
  * the Manage Support Cases checkbox ships as a real field, while the still-stubbed
- * Download/Subscriptions fields stay hidden behind the advanced-permissions flag.
+ * Download field stays hidden behind the advanced-permissions flag.
  */
 export const Default: Story = {
   play: async ({ step }) => {
@@ -81,7 +81,6 @@ export const Default: Story = {
 
     await step('Stubbed advanced fields are hidden', async () => {
       expect(body.queryByRole('checkbox', { name: /download software and updates/i })).not.toBeInTheDocument();
-      expect(body.queryByRole('checkbox', { name: /manage your subscriptions/i })).not.toBeInTheDocument();
     });
   },
 };
@@ -109,7 +108,7 @@ export const ITLessHidesManageSupportCases: Story = {
 };
 
 /**
- * Advanced permissions flag on: the dormant Download/Subscriptions fields render
+ * Advanced permissions flag on: the dormant Download field renders
  * alongside the shipped Manage Support Cases checkbox.
  */
 export const AdvancedPermissions: Story = {
@@ -127,7 +126,6 @@ export const AdvancedPermissions: Story = {
       await body.findByRole('dialog');
       expect(body.getByRole('checkbox', { name: /manage support cases/i })).toBeInTheDocument();
       expect(body.getByRole('checkbox', { name: /download software and updates/i })).toBeInTheDocument();
-      expect(body.getByRole('checkbox', { name: /manage your subscriptions/i })).toBeInTheDocument();
     });
   },
 };

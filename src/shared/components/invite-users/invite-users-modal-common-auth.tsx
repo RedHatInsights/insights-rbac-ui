@@ -14,11 +14,6 @@ import { useInviteUsersMutation } from '../../data/queries/users';
 import { useOutletContext } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
-// Portal subscription permission levels (moved from React Query helper)
-const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view_edit_user';
-const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view_all';
-const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view_edit_all';
-
 const ExpandableCheckboxComponent = 'expandable-checkbox';
 const InlineErrorComponent = 'inline-error';
 
@@ -39,8 +34,6 @@ type SubmitValues = {
     'is-org-admin'?: boolean;
     'manage-support-cases'?: boolean;
     'download-software-updates'?: boolean;
-    'manage-subscriptions'?:
-      typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER | typeof MANAGE_SUBSCRIPTIONS_VIEW_ALL | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL;
   };
 };
 
@@ -65,7 +58,6 @@ export const InviteUsers = () => {
         isAdmin: typedValues['customer-portal-permissions']?.['is-org-admin'],
         portal_manage_cases: typedValues['customer-portal-permissions']?.['manage-support-cases'],
         portal_download: typedValues['customer-portal-permissions']?.['download-software-updates'],
-        portal_manage_subscriptions: typedValues['customer-portal-permissions']?.['manage-subscriptions'],
       });
 
       if (response.status === 200 || response.status === 204) {
@@ -156,28 +148,6 @@ export const InviteUsers = () => {
                     name: 'download-software-updates',
                     title: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldTitle),
                     description: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldDescription),
-                  },
-                  {
-                    name: 'manage-subscriptions',
-                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
-                    options: [
-                      {
-                        name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription),
-                      },
-                      {
-                        name: MANAGE_SUBSCRIPTIONS_VIEW_ALL,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllDescription),
-                      },
-                      {
-                        name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllDescription),
-                      },
-                    ],
                   },
                 ]
               : []),

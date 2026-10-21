@@ -342,7 +342,6 @@ export interface InviteUsersParams {
   isAdmin?: boolean;
   portal_manage_cases?: boolean;
   portal_download?: boolean;
-  portal_manage_subscriptions?: string;
 }
 
 /**
@@ -356,7 +355,7 @@ export function useInviteUsersMutation(options?: MutationOptions) {
   const { getToken, environment, identity, isITLess } = useAppServices();
 
   return useMutation({
-    mutationFn: async ({ emails, isAdmin, portal_manage_cases, portal_download, portal_manage_subscriptions }: InviteUsersParams) => {
+    mutationFn: async ({ emails, isAdmin, portal_manage_cases, portal_download }: InviteUsersParams) => {
       const token = await getToken();
       if (!token) {
         throw new Error('Auth token is required for invite users mutation.');
@@ -380,7 +379,6 @@ export function useInviteUsersMutation(options?: MutationOptions) {
             localeCode: 'en',
             ...(isAdmin && { roles: ['organization_administrator'] }),
             ...(permissions.length > 0 && { permissions }),
-            ...(portal_manage_subscriptions && { portal_manage_subscriptions }),
           }),
           headers: {
             'Content-Type': 'application/json',
