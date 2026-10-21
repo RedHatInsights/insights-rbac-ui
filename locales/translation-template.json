@@ -543,6 +543,10 @@
     "defaultMessage": "Continue",
     "description": "Continue label"
   },
+  "conversionBannerAdminBody": {
+    "defaultMessage": "Organize your RHEL systems into workspaces with hierarchical permission control. The new access management model introduces workspace organization, permission inheritance, and improved collaboration, all while preserving your permissions and access.",
+    "description": "Body text for workspace v2 conversion opt-in banner shown to org admins"
+  },
   "conversionBannerAdminGetStarted": {
     "defaultMessage": "Get started now",
     "description": "Get started button text for admin conversion banner"
@@ -615,6 +619,22 @@
     "defaultMessage": "I understand that all existing legacy remediation plans will be deleted",
     "description": "Pre-conversion checklist item 4"
   },
+  "conversionWizardCompleteButton": {
+    "defaultMessage": "Go to Access Management dashboard",
+    "description": "Button text to navigate to access management dashboard"
+  },
+  "conversionWizardCompleteLink": {
+    "defaultMessage": "Getting Started with Access Management",
+    "description": "Link text for getting started guide"
+  },
+  "conversionWizardCompleteMessage": {
+    "defaultMessage": "Your organization has been successfully converted to workspace-based access management.",
+    "description": "Conversion complete success message"
+  },
+  "conversionWizardCompleteTitle": {
+    "defaultMessage": "Conversion complete",
+    "description": "Conversion complete success title"
+  },
   "conversionWizardConfirmAction1": {
     "defaultMessage": "Create a workspace hierarchy (root, default, and ungrouped assets workspaces)",
     "description": "Confirm conversion action item 1"
@@ -654,6 +674,14 @@
   "conversionWizardConversionPermanentTitle": {
     "defaultMessage": "Conversion is permanent",
     "description": "Warning banner title for confirm conversion step"
+  },
+  "conversionWizardConvertingLabel": {
+    "defaultMessage": "Converting organization",
+    "description": "Accessible label for the spinner shown while the conversion request is in flight"
+  },
+  "conversionWizardConvertingMessage": {
+    "defaultMessage": "Converting your organization...",
+    "description": "Text shown while the conversion request is in flight"
   },
   "conversionWizardCustomGroups": {
     "defaultMessage": "Custom groups",
@@ -702,6 +730,38 @@
   "conversionWizardExistingWorkspacesDesc": {
     "defaultMessage": "Moved under the default workspace. Configured permissions are preserved.",
     "description": "Existing workspaces description"
+  },
+  "conversionWizardFailedButton": {
+    "defaultMessage": "Troubleshooting with Access Management",
+    "description": "Button text linking to the troubleshooting documentation"
+  },
+  "conversionWizardFailedDetailForbidden": {
+    "defaultMessage": "You must be an Organization Administrator to convert to workspace-based access management.",
+    "description": "Conversion failure detail shown when the API responds with 403"
+  },
+  "conversionWizardFailedDetailGeneric": {
+    "defaultMessage": "An error occurred while converting to workspace-based access management. Please try again.",
+    "description": "Conversion failure detail shown for any other error response"
+  },
+  "conversionWizardFailedDetailIneligible": {
+    "defaultMessage": "Your organization is not eligible to convert at this time. Please ensure you meet all the requirements.",
+    "description": "Conversion failure detail shown when the API responds with 422"
+  },
+  "conversionWizardFailedDetailIneligibleItems": {
+    "defaultMessage": "Your organization is not eligible to convert yet. Resolve the following first: {items}.",
+    "description": "Conversion failure detail naming the roles and groups that block conversion"
+  },
+  "conversionWizardFailedDetailNetwork": {
+    "defaultMessage": "A network error occurred. Please check your connection and try again.",
+    "description": "Conversion failure detail shown when the request never reached the server"
+  },
+  "conversionWizardFailedMessage": {
+    "defaultMessage": "Conversion to workspace-based access management failed due to an error. Check the troubleshooting documentation or contact support for help.",
+    "description": "Conversion failed message"
+  },
+  "conversionWizardFailedTitle": {
+    "defaultMessage": "Conversion failed",
+    "description": "Conversion failed title"
   },
   "conversionWizardGetStartedLink": {
     "defaultMessage": "Getting Started with Access Management",

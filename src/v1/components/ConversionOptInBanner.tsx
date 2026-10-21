@@ -7,6 +7,28 @@ import messages from '../../Messages';
 const LEARN_MORE_URL =
   'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=6';
 
+/**
+ * Informational variant for users who cannot start a conversion themselves.
+ *
+ * Not shipped yet: the non-admin experience is out of scope for this release, so
+ * `ConversionOptInBanner` renders nothing for non-admins rather than rendering this.
+ * Kept here, with its messages and stories, so it is ready to wire up next release.
+ */
+export const ConversionOptInBannerNonAdmin: React.FC = () => {
+  const intl = useIntl();
+
+  return (
+    <Alert variant="custom" isInline title={intl.formatMessage(messages.conversionBannerNonAdminTitle)}>
+      {intl.formatMessage(messages.conversionBannerNonAdminBody)}
+      {/*
+        Deliberately not a link or a button: there is no request flow to send them to yet,
+        so rendering it as text keeps it from looking clickable.
+      */}
+      <div className="pf-v6-u-mt-sm">{intl.formatMessage(messages.conversionBannerNonAdminRequest)}</div>
+    </Alert>
+  );
+};
+
 export interface ConversionOptInBannerProps {
   /** Whether the current user is an org admin */
   isOrgAdmin: boolean;
@@ -35,7 +57,7 @@ export const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = ({ is
         </>
       }
     >
-      {intl.formatMessage(messages.conversionBannerBody)}
+      {intl.formatMessage(messages.conversionBannerAdminBody)}
     </Alert>
   );
 };
