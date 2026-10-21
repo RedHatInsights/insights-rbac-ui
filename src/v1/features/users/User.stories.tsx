@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { expectLoadingVisible, queryBreadcrumb, queryEmptyState, queryPagination } from '../../../test-utils/interactionHelpers';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';

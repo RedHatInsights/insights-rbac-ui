@@ -8,7 +8,7 @@
  * the co-located ConversionWizard stories under src/v1/components/conversion-wizard.
  */
 
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent } from 'storybook/test';
 import { waitForModal } from '../test-utils/interactionHelpers';
 import { tenantOptInHandlers } from '../v1/data/mocks/tenant.handlers';

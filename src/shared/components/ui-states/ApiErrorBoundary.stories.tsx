@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, waitFor, within } from 'storybook/test';
 import { DEFAULT_GROUPS } from '../../data/mocks/seed';
 import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.handlers';
@@ -7,6 +7,11 @@ import { MemoryRouter } from 'react-router-dom';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { IntlMessagesProvider } from '../../i18n';
 import { ApiErrorBoundary } from './ApiErrorBoundary';
+import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
+import UnavailableContent from '@patternfly/react-component-groups/dist/dynamic/UnavailableContent';
+import { FormattedMessage } from 'react-intl';
+import { AppLink } from '../navigation/AppLink';
+import messages from '../../../Messages';
 import { useGroupsQuery } from '../../data/queries/groups';
 
 // ============================================================================
@@ -254,11 +259,6 @@ export const Visual403State: Story = {
   },
   render: () => {
     // Direct render of the 403 error component for visual testing
-    const UnauthorizedAccess = require('@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess').default;
-    const { FormattedMessage } = require('react-intl');
-    const messagesModule = require('../../../Messages').default;
-    const { AppLink } = require('../navigation/AppLink');
-
     return (
       <IntlMessagesProvider locale="en">
         <MemoryRouter>
@@ -271,7 +271,7 @@ export const Visual403State: Story = {
               serviceName="Users"
               bodyText={
                 <FormattedMessage
-                  {...messagesModule.contactOrgAdmin}
+                  {...messages.contactOrgAdmin}
                   values={{
                     link: (
                       <AppLink to="/" linkBasename="/iam">
@@ -301,8 +301,6 @@ export const Visual500State: Story = {
     },
   },
   render: () => {
-    const UnavailableContent = require('@patternfly/react-component-groups/dist/dynamic/UnavailableContent').default;
-
     return (
       <IntlMessagesProvider locale="en">
         <MemoryRouter>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, screen, userEvent, within } from 'storybook/test';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DeleteGroupModal } from './DeleteGroupModal';

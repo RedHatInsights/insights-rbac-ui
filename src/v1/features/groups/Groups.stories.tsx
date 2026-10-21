@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { Groups } from './Groups';
 import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.handlers';

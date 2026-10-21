@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import CloudIcon from '@patternfly/react-icons/dist/js/icons/cloud-icon';
 import DatabaseIcon from '@patternfly/react-icons/dist/js/icons/database-icon';

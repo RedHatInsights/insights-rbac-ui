@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';

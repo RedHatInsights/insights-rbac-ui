@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { AppPlaceholder, BreadcrumbPlaceholder, FormItemLoader, PolicyRolesLoader, ToolbarTitlePlaceholder } from './LoaderPlaceholders';
 

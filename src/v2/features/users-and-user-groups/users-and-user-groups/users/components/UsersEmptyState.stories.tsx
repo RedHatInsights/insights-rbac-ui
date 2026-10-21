@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { IntlProvider } from 'react-intl';
 import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { UsersEmptyState } from './UsersEmptyState';

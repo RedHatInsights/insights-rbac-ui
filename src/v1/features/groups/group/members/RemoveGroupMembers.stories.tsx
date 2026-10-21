@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { expect, fn, screen, userEvent, within } from 'storybook/test';
 import { RemoveGroupMembers } from './RemoveGroupMembers';

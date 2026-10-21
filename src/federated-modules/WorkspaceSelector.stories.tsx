@@ -8,7 +8,7 @@
  * ServiceProvider, and QueryClientProvider so consumers only need AsyncComponent.
  */
 
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import WorkspaceSelector, { type WorkspaceSelectorProps } from './WorkspaceSelector';
 import { workspacesHandlers } from '../v2/data/mocks/workspaces.handlers';

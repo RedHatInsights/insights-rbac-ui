@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS, v1Db } from './_shared/environments';

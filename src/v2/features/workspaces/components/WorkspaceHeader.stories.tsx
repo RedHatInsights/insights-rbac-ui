@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { getSkeletonCount } from '../../../../test-utils/interactionHelpers';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
