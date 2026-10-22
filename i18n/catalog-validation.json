@@ -22,7 +22,23 @@
       "updateCommand": "npm run translations:extract"
     }
   ],
-  "catalogDirectories": [{ "path": "locales" }, { "path": "messages" }],
+  "catalogDirectories": [
+    { "path": "locales" },
+    { "path": "messages" },
+    { "path": "deploy/locales" }
+  ],
+  "feo": [
+    {
+      "template": "deploy/frontend.yaml",
+      "source": "deploy/locales/translation-template.json",
+      "locales": {
+        "fr": "deploy/locales/fr.json",
+        "ja": "deploy/locales/ja.json",
+        "ko": "deploy/locales/ko.json",
+        "zh-CN": "deploy/locales/zh-CN.json"
+      }
+    }
+  ],
   "sourceLint": {
     "files": ["src/Messages.js"],
     "catalog": "locales/translation-template.json"

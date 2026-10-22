@@ -6,6 +6,8 @@ on:
       - i18n/**
       - locales/**
       - messages/**
+      - deploy/frontend.yaml
+      - deploy/locales/**
       - src/Messages.js
       - package.json
       - package-lock.json

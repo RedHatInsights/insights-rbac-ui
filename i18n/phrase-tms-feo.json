@@ -1,0 +1,15 @@
+{
+  "preset": "hcc-ui",
+  "state": {
+    "branch": "i18n-tms-state-feo"
+  },
+  "sourceCatalog": {
+    "path": "deploy/locales/translation-template.json",
+    "filename": "insights-rbac-ui.feo.en.json"
+  },
+  "targetOutputPath": "deploy/locales/{locale}.json",
+  "frontendTemplate": {
+    "path": "deploy/frontend.yaml",
+    "generateSourceCatalog": true
+  }
+}
