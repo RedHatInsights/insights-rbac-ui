@@ -6,7 +6,7 @@ import { Story, meta } from './_v1OrgAdminSetup';
 export default {
   ...meta,
   title: 'User Journeys/Production/V1 (Current)/Org Admin/Conversion Banner',
-  tags: ['prod-org-admin', 'ff:platform-conversion.opt-in-banner'],
+  tags: ['prod-org-admin', 'ff:platform.conversion.opt-in-banner'],
 };
 
 export const BannerVisibleForOrgAdmin: Story = {
@@ -17,7 +17,7 @@ export const BannerVisibleForOrgAdmin: Story = {
   parameters: {
     featureFlags: {
       ...meta.parameters.featureFlags,
-      'platform-conversion.opt-in-banner': true,
+      'platform.conversion.opt-in-banner': true,
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -50,7 +50,7 @@ export const BannerHiddenWhenFlagDisabled: Story = {
   parameters: {
     featureFlags: {
       ...meta.parameters.featureFlags,
-      'platform-conversion.opt-in-banner': false,
+      'platform.conversion.opt-in-banner': false,
     },
   },
   play: async ({ canvasElement, step }) => {
