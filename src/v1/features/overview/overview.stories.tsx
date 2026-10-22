@@ -48,7 +48,7 @@ export const WithConversionBanner: Story = {
   name: 'With conversion opt-in banner (org admin)',
   parameters: {
     orgAdmin: true,
-    featureFlags: { 'platform-conversion.opt-in-banner': true },
+    featureFlags: { 'platform.conversion.opt-in-banner': true },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -65,7 +65,7 @@ export const ConversionBannerHiddenNonAdmin: Story = {
   name: 'Conversion banner hidden for non-admin',
   parameters: {
     orgAdmin: false,
-    featureFlags: { 'platform-conversion.opt-in-banner': true },
+    featureFlags: { 'platform.conversion.opt-in-banner': true },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
