@@ -1,0 +1,28 @@
+name: Validate locale catalogs
+
+on:
+  pull_request:
+    paths:
+      - i18n/**
+      - locales/**
+      - messages/**
+      - src/Messages.js
+      - package.json
+      - package-lock.json
+
+permissions: {}
+
+jobs:
+  validate:
+    # Pinned to the merge commit of RedHatInsights/i18n-tooling PR #51 (reviewed, on main).
+    uses: RedHatInsights/i18n-tooling/.github/workflows/i18n-validate.yml@411ef8d03bafe3c0305900782f532d572fdf44ba
+    with:
+      package-manager: npm
+      validation-config: i18n/catalog-validation.json
+      source-glob: src/Messages.js
+      catalog-adapter: formatjs-json
+      catalog-path: locales/translation-template.json
+      catalog-role: source
+      catalog-locale: en
+    permissions:
+      contents: read
