@@ -1660,7 +1660,8 @@
     "description": "Invalid user message"
   },
   "inventoryGroupsAccessDescription": {
-    "defaultMessage": "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below."
+    "defaultMessage": "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
+    "description": "Description for adding correct group permissions to role."
   },
   "inventoryGroupsAccessTitle": {
     "defaultMessage": "Define Inventory group access",
@@ -3191,7 +3192,8 @@
     "description": "Workspaces heading"
   },
   "workspacesAccessDescription": {
-    "defaultMessage": "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below."
+    "defaultMessage": "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below.",
+    "description": "Description for adding correct workspaces permissions to role."
   },
   "workspacesAccessTitle": {
     "defaultMessage": "Define Workspaces access",
