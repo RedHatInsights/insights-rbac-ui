@@ -1632,11 +1632,6 @@ export default defineMessages({
     description: 'View Default Groups link',
     defaultMessage: 'View your default groups',
   },
-  recommendedContentTitle: {
-    id: 'recommendedContentTitle',
-    description: 'Recommended Content title',
-    defaultMessage: 'Recommended content',
-  },
   recommendedContentItem1: {
     id: 'recommendedContentItem1',
     description: 'Recommended content',
@@ -2507,12 +2502,12 @@ export default defineMessages({
   },
   inventoryGroupsAccessDescription: {
     id: 'inventoryGroupsAccessDescription',
-    descriptioin: 'Description for adding correct group permissions to role.',
+    description: 'Description for adding correct group permissions to role.',
     defaultMessage: "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   workspacesAccessDescription: {
     id: 'workspacesAccessDescription',
-    descriptioin: 'Description for adding correct workspaces permissions to role.',
+    description: 'Description for adding correct workspaces permissions to role.',
     defaultMessage: "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   createRole: {
