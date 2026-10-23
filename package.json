@@ -187,7 +187,7 @@
     "translations": "npm-run-all translations:*",
     "translations:extract": "npx formatjs extract ./src/*.js --out-file ./locales/translation-template.json",
     "verify": "npm-run-all lint build test test:storybook",
-    "postinstall": "ts-patch install && rm -rf .cache",
+    "postinstall": "patch-package && ts-patch install && rm -rf .cache",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "cli": "node dist-cli/cli.mjs",
