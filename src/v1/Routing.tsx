@@ -23,7 +23,7 @@ const Users = lazy(() => import('./features/users/users'));
 const UserDetail = lazy(() => import('./features/users/User'));
 const AddUserToGroup = lazy(() => import('./features/users/add-user-to-group/AddUserToGroup'));
 const InviteUsersModal = lazy(() => import('./features/users/invite-users/InviteUsersModal'));
-const InviteUsersModalCommonAuth = lazy(() => import('./features/users/invite-users/invite-users-modal-common-auth'));
+const InviteUsersModalCommonAuth = lazy(() => import('../shared/components/invite-users/invite-users-modal-common-auth'));
 
 const Roles = lazy(() => import('./features/roles/Roles'));
 const Role = lazy(() => import('./features/roles/role/Role'));

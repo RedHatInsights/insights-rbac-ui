@@ -1,22 +1,18 @@
 import React from 'react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
-import { ModalFormTemplate } from '../../../../shared/components/forms/ModalFormTemplate';
+import { ModalFormTemplate } from '../forms/ModalFormTemplate';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import messages from '../../../Messages';
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import type { Schema } from '@data-driven-forms/react-form-renderer/common-types/schema';
-import { pf4Components } from '../../../../shared/forms/pf4Components';
-import AccordionCheckbox from '../../../../shared/components/expandable-checkbox';
-import InlineError from '../../../../shared/components/ui-states/InlineError';
-import { useCommonAuthModel } from '../../../../capabilities/useCommonAuthModel';
-import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
+import { pf4Components } from '../../forms/pf4Components';
+import AccordionCheckbox from '../expandable-checkbox';
+import InlineError from '../ui-states/InlineError';
+import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
+import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
+import { useInviteUsersMutation } from '../../data/queries/users';
 import { useOutletContext } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-
-// Portal subscription permission levels (moved from React Query helper)
-const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view_edit_user';
-const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view_all';
-const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view_edit_all';
 
 const ExpandableCheckboxComponent = 'expandable-checkbox';
 const InlineErrorComponent = 'inline-error';
@@ -38,14 +34,13 @@ type SubmitValues = {
     'is-org-admin'?: boolean;
     'manage-support-cases'?: boolean;
     'download-software-updates'?: boolean;
-    'manage-subscriptions'?:
-      typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER | typeof MANAGE_SUBSCRIPTIONS_VIEW_ALL | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL;
   };
 };
 
-const InviteUsers = () => {
+export const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
   const { advancedPermissions } = useCommonAuthModel();
+  const isITLess = useFedRAMPMode();
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
   const addNotification = useAddNotification();
 
@@ -63,7 +58,6 @@ const InviteUsers = () => {
         isAdmin: typedValues['customer-portal-permissions']?.['is-org-admin'],
         portal_manage_cases: typedValues['customer-portal-permissions']?.['manage-support-cases'],
         portal_download: typedValues['customer-portal-permissions']?.['download-software-updates'],
-        portal_manage_subscriptions: typedValues['customer-portal-permissions']?.['manage-subscriptions'],
       });
 
       if (response.status === 200 || response.status === 204) {
@@ -137,39 +131,23 @@ const InviteUsers = () => {
               title: intl.formatMessage(messages.inviteUsersFormIsAdminFieldTitle),
               description: intl.formatMessage(messages.inviteUsersFormIsAdminFieldDescription),
             },
-            ...(advancedPermissions
+            // Manage support cases is a shipped field: shown whenever the account API is
+            // available (i.e. not ITLess/FedRAMP), independent of the advanced-permissions flag.
+            ...(!isITLess
               ? [
                   {
                     name: 'manage-support-cases',
-                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
+                    title: intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldTitle),
+                    description: intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldDescription),
                   },
+                ]
+              : []),
+            ...(advancedPermissions
+              ? [
                   {
                     name: 'download-software-updates',
                     title: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldTitle),
                     description: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldDescription),
-                  },
-                  {
-                    name: 'manage-subscriptions',
-                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
-                    options: [
-                      {
-                        name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription),
-                      },
-                      {
-                        name: MANAGE_SUBSCRIPTIONS_VIEW_ALL,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllDescription),
-                      },
-                      {
-                        name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllDescription),
-                      },
-                    ],
                   },
                 ]
               : []),
@@ -178,7 +156,7 @@ const InviteUsers = () => {
         },
       ],
     }),
-    [responseError],
+    [responseError, advancedPermissions, isITLess],
   );
   return (
     <FormRenderer
