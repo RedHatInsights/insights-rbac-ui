@@ -4,9 +4,7 @@ import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHead
 import { useIntl } from 'react-intl';
 import { useIdentity } from '../../../shared/hooks/useIdentity';
 import { useConversionOptIn } from '../../../capabilities/useConversionOptIn';
-import { useWorkspacesEligibility, useWorkspacesFlag } from '../../../capabilities/useWorkspacesFlag';
 import messages from '../../../Messages';
-import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
 import { ConversionOptInBanner } from '../../components/ConversionOptInBanner';
 import { ConversionWizard } from '../../components/conversion-wizard/ConversionWizard';
 import { GetStartedCard } from './components/GetStartedCard';
@@ -35,15 +33,12 @@ interface OverviewProps {
 
 const Overview: React.FC<OverviewProps> = ({ links }) => {
   const intl = useIntl();
-  const isWorkspacesFlag = useWorkspacesFlag('m5');
   const isConversionOptInEnabled = useConversionOptIn();
   const { orgAdmin } = useIdentity();
-  const isWorkspacesEligible = useWorkspacesEligibility();
   const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   return (
     <React.Fragment>
-      {isWorkspacesEligible && !isWorkspacesFlag && <EnableWorkspacesAlert />}
       <PageHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}
