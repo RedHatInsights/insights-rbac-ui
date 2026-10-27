@@ -9,7 +9,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../../../../Messages';
 import { ExternalLink } from '../../../../../../shared/components/navigation/ExternalLink';
-import ServiceAccountsList, { type ServiceAccount } from './ServiceAccountsList';
+import { type ServiceAccount, ServiceAccountsList } from './ServiceAccountsList';
 
 interface SetServiceAccountProps {
   name: string;

@@ -119,5 +119,3 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
     </div>
   );
 };
-
-export default ServiceAccountsList;
