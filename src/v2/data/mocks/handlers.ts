@@ -41,6 +41,7 @@ export function createV2Handlers(db: V2MockDb, spies: V2HandlerSpies = {}) {
       ...spies.groupMembers,
       groups: db.groups,
       users: db.users,
+      serviceAccounts: db.serviceAccounts,
     }),
     ...createGroupRolesHandlers(db.groupRoles, {
       ...spies.groupRoles,
@@ -55,7 +56,7 @@ export function createV2Handlers(db: V2MockDb, spies: V2HandlerSpies = {}) {
       workspaces: db.workspaces.all(),
     }),
     ...createPermissionsHandlers(db.permissions.all()),
-    ...createServiceAccountsHandlers(db.serviceAccounts.all()),
+    ...createServiceAccountsHandlers(db.serviceAccounts),
     ...createAccountManagementHandlers({ ...spies.accountManagement, users: db.users, userPermissions: db.userPermissions }),
     ...auditHandlers(),
     ...createCostHandlers(),

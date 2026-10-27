@@ -1,3 +1,6 @@
+import { useServiceAccessTokens } from '../../../../../../capabilities/useServiceAccountsFlag';
+import { ServiceAccountName } from '../../../../../../shared/components/service-account-name/ServiceAccountName';
+import { getServiceAccountIdentifier } from '../../../../../../shared/utilities/serviceAccount';
 import React, { Fragment, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
@@ -27,17 +30,18 @@ const columns = ['name', 'description', 'clientId', 'owner', 'timeCreated'] as c
 
 export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ initialSelectedServiceAccounts, onSelect }) => {
   const intl = useIntl();
+  const satEnabled = useServiceAccessTokens();
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       name: { label: intl.formatMessage(messages.name) },
       description: { label: intl.formatMessage(messages.description) },
-      clientId: { label: intl.formatMessage(messages.clientId) },
+      clientId: { label: intl.formatMessage(satEnabled ? messages.clientIdOrUsername : messages.clientId) },
       owner: { label: intl.formatMessage(messages.owner) },
       timeCreated: { label: intl.formatMessage(messages.timeCreated) },
     }),
-    [intl],
+    [intl, satEnabled],
   );
 
   // useTableState for all state management
@@ -55,7 +59,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
   const perPage = tableState.apiParams.limit;
 
   // Fetch service accounts via React Query
-  const { data: serviceAccountsData, isLoading } = useServiceAccountsQuery({ page, perPage });
+  const { data: serviceAccountsData, isLoading, error } = useServiceAccountsQuery({ page, perPage });
 
   // Map API response to add uuid field for row identification
   const serviceAccounts: ServiceAccount[] = useMemo(() => {
@@ -76,13 +80,13 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
   // Cell renderers
   const cellRenderers: CellRendererMap<typeof columns, ServiceAccount> = useMemo(
     () => ({
-      name: (sa) => sa.name,
+      name: (sa) => <ServiceAccountName name={sa.name} serviceAccountType={sa.type} satEnabled={satEnabled} />,
       description: (sa) => sa.description || '—',
-      clientId: (sa) => sa.clientId,
+      clientId: (sa) => getServiceAccountIdentifier(sa.clientId, sa.type, satEnabled),
       owner: (sa) => sa.createdBy,
       timeCreated: (sa) => (sa.createdAt ? <DateFormat date={sa.createdAt} type={getDateFormat(String(sa.createdAt))} /> : '—'),
     }),
-    [],
+    [satEnabled],
   );
 
   const ouiaId = 'group-add-service-accounts';
@@ -94,6 +98,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         columnConfig={columnConfig}
         data={isLoading ? undefined : serviceAccounts}
         totalCount={totalCount}
+        error={error}
         getRowId={(sa) => sa.uuid}
         cellRenderers={cellRenderers}
         selectable

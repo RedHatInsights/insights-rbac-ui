@@ -322,3 +322,25 @@ export function generateUsers(count: number): Principal[] {
     external_source_id: String(200 + i),
   }));
 }
+
+// SAT fixtures stay opt-in so existing service-account stories retain their baseline.
+export const SAT_SERVICE_ACCOUNT: MockServiceAccount = {
+  uuid: 'sat-ci-pipeline',
+  name: 'Release pipeline token',
+  clientId: 'sat-release-client',
+  owner: 'release-team',
+  timeCreated: '2026-10-01T10:00:00Z',
+  description: 'Service access token for release automation',
+  type: 'service_access_token',
+};
+
+export const SAT_GROUP_SERVICE_ACCOUNT: ServiceAccount = {
+  username: `service-account-${SAT_SERVICE_ACCOUNT.clientId}`,
+  type: 'service-account',
+  clientId: SAT_SERVICE_ACCOUNT.clientId,
+  name: SAT_SERVICE_ACCOUNT.name,
+  owner: SAT_SERVICE_ACCOUNT.owner,
+  description: SAT_SERVICE_ACCOUNT.description,
+  time_created: Date.parse(SAT_SERVICE_ACCOUNT.timeCreated) / 1000,
+  service_account_type: 'service_access_token',
+};

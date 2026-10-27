@@ -23,6 +23,7 @@ export interface MockServiceAccount {
   clientId: string;
   owner: string;
   timeCreated: string;
+  type?: string;
   description: string;
 }
 

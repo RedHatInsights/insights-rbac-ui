@@ -10,6 +10,7 @@ export interface ServiceAccount {
   description?: string;
   createdBy?: string;
   createdAt?: string;
+  type?: string;
 }
 
 /**

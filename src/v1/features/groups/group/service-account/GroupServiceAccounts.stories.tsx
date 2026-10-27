@@ -1,15 +1,17 @@
+import { SAT_GROUP_SERVICE_ACCOUNT } from '../../../../../shared/data/mocks/seed';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { getSkeletonCount, queryById } from '../../../../../test-utils/interactionHelpers';
+import { clearAndType, getSkeletonCount, queryById } from '../../../../../test-utils/interactionHelpers';
 import { GroupServiceAccounts } from './GroupServiceAccounts';
 import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
-import { groupMembersHandlers, groupMembersLoadingHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
+import { groupMembersErrorHandlers, groupMembersHandlers, groupMembersLoadingHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
 import type { ServiceAccount } from '../../../../../shared/data/mocks/db';
 import type { GroupOut } from '../../../../../shared/data/mocks/db';
 
 const clearFiltersSpy = fn();
+const satListSpy = fn();
 
 const storyServiceAccounts: ServiceAccount[] = [
   {
@@ -667,5 +669,36 @@ export const ActionsTest: Story = {
         expect(removeOption).toBeInTheDocument();
       }
     });
+  },
+};
+
+export const MixedServiceAccessTokens: Story = {
+  tags: ['ff:platform.service-accounts.sat'],
+  parameters: {
+    featureFlags: { 'platform.service-accounts.sat': true },
+    msw: {
+      handlers: [
+        ...groupsHandlers([testGroup]),
+        ...groupMembersHandlers({}, { 'test-group-id': [storyServiceAccounts[0], SAT_GROUP_SERVICE_ACCOUNT] }, { onListMembers: satListSpy }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByText('Token')).resolves.toBeVisible();
+    await expect(canvas.findByText(`|service-account-${SAT_GROUP_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
+    await expect(canvas.findByText(storyServiceAccounts[0].clientId)).resolves.toBeVisible();
+    const filter = await canvas.findByPlaceholderText(/filter by client id/i);
+    await clearAndType(userEvent.setup(), () => filter as HTMLInputElement, `|service-account-${SAT_GROUP_SERVICE_ACCOUNT.clientId}`);
+    await waitFor(() => expect(satListSpy.mock.lastCall?.[1].get('principal_username')).toBe(SAT_GROUP_SERVICE_ACCOUNT.clientId));
+    await expect(canvas.findByText('Token')).resolves.toBeVisible();
+    await waitFor(() => expect(canvas.queryByText(storyServiceAccounts[0].clientId)).not.toBeInTheDocument());
+  },
+};
+
+export const ServiceAccountApiError: Story = {
+  parameters: { msw: { handlers: [...groupsHandlers([testGroup]), ...groupMembersErrorHandlers(500)] } },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).findByText('Unable to load data')).resolves.toBeVisible();
   },
 };

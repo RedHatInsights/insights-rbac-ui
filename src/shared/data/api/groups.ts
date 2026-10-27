@@ -12,6 +12,13 @@ import listRolesForGroup from '@redhat-cloud-services/rbac-client/ListRolesForGr
 import addRoleToGroup from '@redhat-cloud-services/rbac-client/AddRoleToGroup';
 import deleteRoleFromGroup from '@redhat-cloud-services/rbac-client/DeleteRoleFromGroup';
 import { RBAC_API_BASE, apiClient } from './client';
+import type { ServiceAccount as RbacServiceAccount } from '@redhat-cloud-services/rbac-client/types';
+
+// shortcut: generated client predates insights-rbac PR #3524; remove the extension after regeneration.
+export interface ServiceAccount extends RbacServiceAccount {
+  service_account_type?: string;
+  time_expires?: number;
+}
 
 // Bundle all group endpoints
 const groupEndpoints = {
@@ -76,7 +83,6 @@ export type {
   GroupRolesPagination,
   RoleOut,
   GroupPrincipalIn,
-  ServiceAccount,
 } from '@redhat-cloud-services/rbac-client/types';
 export { ServiceAccountTypeEnum } from '@redhat-cloud-services/rbac-client/types';
 

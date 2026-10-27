@@ -1,5 +1,6 @@
 import { HttpResponse, delay, http } from 'msw';
-import type { Group, MockCollection, Principal, ServiceAccount } from './db';
+import type { Group, MockCollection, MockServiceAccount, Principal, ServiceAccount } from './db';
+import type { GroupPrincipalIn } from '../api/groups';
 import { DEFAULT_GROUP_MEMBERS, DEFAULT_GROUP_SERVICE_ACCOUNTS } from './seed';
 
 const MOCK_DELAY = 200;
@@ -20,6 +21,7 @@ export interface GroupMembersHandlerOptions {
   groups?: MockCollection<Group>;
   /** When provided, POST looks up users by username to add full Principal objects */
   users?: MockCollection<Principal>;
+  serviceAccounts?: MockCollection<MockServiceAccount>;
 }
 
 export function createGroupMembersHandlers(
@@ -89,7 +91,7 @@ export function createGroupMembersHandlers(
     http.post('*/api/rbac/v1/groups/:groupId/principals/', async ({ params, request }) => {
       await delay(networkDelay);
       const groupId = params.groupId as string;
-      const body = (await request.json()) as { principals: Array<{ username: string }> };
+      const body = (await request.json()) as GroupPrincipalIn;
 
       // Flip system-default group on first mutation
       if (options.groups) {
@@ -104,6 +106,28 @@ export function createGroupMembersHandlers(
             },
           });
         }
+      }
+
+      if (body.principals.every((principal) => principal.type === 'service-account')) {
+        const accounts = [...(serviceAccountsByGroupId.get(groupId) ?? [])];
+        for (const { clientId } of body.principals) {
+          if (accounts.some((account) => account.clientId === clientId)) continue;
+          const account = options.serviceAccounts?.findFirst((q) => q.where({ clientId }));
+          accounts.push({
+            username: `service-account-${clientId}`,
+            type: 'service-account',
+            clientId,
+            name: account?.name,
+            description: account?.description,
+            owner: account?.owner,
+            time_created: account ? Date.parse(account.timeCreated) / 1000 : undefined,
+            ...(account?.type ? { service_account_type: account.type } : {}),
+          });
+        }
+        serviceAccountsByGroupId.set(groupId, accounts);
+        options.onAddMembers?.(groupId, body);
+        options.onAddMembersWithRequest?.(request, { groupId });
+        return HttpResponse.json({}, { status: 200 });
       }
 
       // Add members to the map

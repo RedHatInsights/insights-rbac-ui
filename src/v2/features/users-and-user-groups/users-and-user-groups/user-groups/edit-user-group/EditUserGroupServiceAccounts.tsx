@@ -1,3 +1,6 @@
+import { useServiceAccessTokens } from '../../../../../../capabilities/useServiceAccountsFlag';
+import { ServiceAccountName } from '../../../../../../shared/components/service-account-name/ServiceAccountName';
+import { getServiceAccountIdentifier } from '../../../../../../shared/utilities/serviceAccount';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core/dist/dynamic/components/ToggleGroup';
@@ -27,6 +30,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   initialServiceAccountIds,
 }) => {
   const intl = useIntl();
+  const satEnabled = useServiceAccessTokens();
   const [selectedToggle, setSelectedToggle] = useState(TOGGLE_ALL);
   const selectedToggleRef = useRef<HTMLDivElement>(null);
 
@@ -48,23 +52,23 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       name: { label: intl.formatMessage(Messages.name), sortable: true },
-      clientId: { label: intl.formatMessage(Messages.clientId) },
+      clientId: { label: intl.formatMessage(satEnabled ? Messages.clientIdOrUsername : Messages.clientId) },
       owner: { label: intl.formatMessage(Messages.owner) },
       timeCreated: { label: intl.formatMessage(Messages.timeCreated) },
       description: { label: intl.formatMessage(Messages.description) },
     }),
-    [intl],
+    [intl, satEnabled],
   );
 
   const cellRenderers: CellRendererMap<typeof columns, ServiceAccount> = useMemo(
     () => ({
-      name: (sa) => sa.name,
-      clientId: (sa) => sa.clientId,
+      name: (sa) => <ServiceAccountName name={sa.name} serviceAccountType={sa.type} satEnabled={satEnabled} />,
+      clientId: (sa) => getServiceAccountIdentifier(sa.clientId, sa.type, satEnabled),
       owner: (sa) => sa.createdBy || '-',
       timeCreated: (sa) => (sa.createdAt ? new Date(sa.createdAt).toLocaleDateString() : '-'),
       description: (sa) => sa.description || '-',
     }),
-    [],
+    [satEnabled],
   );
 
   const filterConfig: FilterConfig[] = useMemo(
@@ -102,12 +106,20 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
 
   // Client-side filtering + pagination pipeline
   const { displayData, displayCount, displayLoading } = useMemo(() => {
-    const source = selectedToggle === TOGGLE_SELECTED ? tableState.selectedRows : allServiceAccounts;
+    const source =
+      selectedToggle === TOGGLE_SELECTED
+        ? tableState.selectedRows.map(
+            (selected) => allServiceAccounts.find((account) => getServiceAccountId(account) === getServiceAccountId(selected)) ?? selected,
+          )
+        : allServiceAccounts;
 
     let filtered = source;
     if (nameFilter) {
       const term = nameFilter.toLowerCase();
-      filtered = filtered.filter((sa) => (sa.name || '').toLowerCase().includes(term) || (sa.clientId || '').toLowerCase().includes(term));
+      filtered = filtered.filter(
+        (sa) =>
+          (sa.name || '').toLowerCase().includes(term) || getServiceAccountIdentifier(sa.clientId, sa.type, satEnabled).toLowerCase().includes(term),
+      );
     }
 
     const total = filtered.length;
@@ -117,7 +129,17 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
       displayCount: total,
       displayLoading: selectedToggle === TOGGLE_ALL && isServiceAccountsLoading,
     };
-  }, [selectedToggle, tableState.selectedRows, tableState.page, tableState.perPage, nameFilter, allServiceAccounts, isServiceAccountsLoading]);
+  }, [
+    selectedToggle,
+    tableState.selectedRows,
+    tableState.page,
+    tableState.perPage,
+    nameFilter,
+    allServiceAccounts,
+    isServiceAccountsLoading,
+    satEnabled,
+    getServiceAccountId,
+  ]);
 
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;

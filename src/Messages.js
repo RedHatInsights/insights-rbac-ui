@@ -862,6 +862,16 @@ export default defineMessages({
     description: 'Client ID column label',
     defaultMessage: 'Client ID',
   },
+  clientIdOrUsername: {
+    id: 'clientIdOrUsername',
+    description: 'Mixed service account and service access token identifier column',
+    defaultMessage: 'Client ID / Username',
+  },
+  serviceAccessTokenLabel: {
+    id: 'serviceAccessTokenLabel',
+    description: 'Label identifying a service access token principal',
+    defaultMessage: 'Token',
+  },
   owner: {
     id: 'owner',
     description: 'Owner column label',

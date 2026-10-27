@@ -1,3 +1,6 @@
+import { useServiceAccessTokens } from '../../../../../capabilities/useServiceAccountsFlag';
+import { ServiceAccountName } from '../../../../../shared/components/service-account-name/ServiceAccountName';
+import { getServiceAccountIdentifier } from '../../../../../shared/utilities/serviceAccount';
 import React, { useMemo } from 'react';
 import type { IntlShape } from 'react-intl';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
@@ -22,20 +25,21 @@ interface UseGroupServiceAccountsTableConfigReturn {
 }
 
 export function useGroupServiceAccountsTableConfig({ intl }: UseGroupServiceAccountsTableConfigOptions): UseGroupServiceAccountsTableConfigReturn {
+  const satEnabled = useServiceAccessTokens();
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       name: { label: intl.formatMessage(messages.name) },
-      clientId: { label: intl.formatMessage(messages.clientId) },
+      clientId: { label: intl.formatMessage(satEnabled ? messages.clientIdOrUsername : messages.clientId) },
       owner: { label: intl.formatMessage(messages.owner) },
       timeCreated: { label: intl.formatMessage(messages.timeCreated) },
     }),
-    [intl],
+    [intl, satEnabled],
   );
 
   // Cell renderers are pure functions with no reactive dependencies - no memoization needed
   const cellRenderers: CellRendererMap<typeof columns, ServiceAccount> = {
-    name: (account) => account.name || '—',
-    clientId: (account) => account.clientId || '—',
+    name: (account) => <ServiceAccountName name={account.name || '—'} serviceAccountType={account.service_account_type} satEnabled={satEnabled} />,
+    clientId: (account) => getServiceAccountIdentifier(account.clientId, account.service_account_type, satEnabled) || '—',
     owner: (account) => account.owner || '—',
     timeCreated: (account) => {
       // Use nullish check to handle valid epoch timestamp (0)
