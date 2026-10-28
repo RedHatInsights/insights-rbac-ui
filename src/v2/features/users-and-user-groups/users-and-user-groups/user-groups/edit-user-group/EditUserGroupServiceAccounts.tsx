@@ -112,9 +112,10 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   const { displayData, displayCount, displayLoading } = useMemo(() => {
     const source =
       selectedToggle === TOGGLE_SELECTED
-        ? tableState.selectedRows.map(
-            (selected) => allServiceAccounts.find((account) => getServiceAccountId(account) === getServiceAccountId(selected)) ?? selected,
-          )
+        ? tableState.selectedRows.map((selected) => {
+            const account = allServiceAccounts.find((item) => getServiceAccountId(item) === getServiceAccountId(selected));
+            return account ? { ...account, type: account.type || selected.type } : selected;
+          })
         : allServiceAccounts;
 
     let filtered = source;

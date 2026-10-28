@@ -56,4 +56,4 @@ The Service Accounts selection and detail tables share SAT presentation with `pl
 
 The existing SSO selection API and RBAC membership API remain separate. Type filtering across pages requires a server-side contract and is tracked independently in RHCLOUD-52279.
 
-For existing group memberships, the edit form passes RBAC `service_account_type` values separately from client IDs so preselected rows keep their Token presentation when the SSO list has no matching account. Selection diffs and mutation payloads remain client-ID strings.
+For existing group memberships, the edit form passes RBAC `service_account_type` values separately from client IDs so preselected rows keep their Token presentation when the SSO list has no matching account or omits its type. Selection diffs and mutation payloads remain client-ID strings.

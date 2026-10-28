@@ -401,7 +401,7 @@ export const SelectServiceAccessToken: Story = {
   },
 };
 
-export const PreselectedTokenWithoutSsoResult: Story = {
+export const PreselectedTokenWithUntypedSsoResult: Story = {
   args: {
     groupId: 'sat-group',
     initialServiceAccountIds: [SAT_SERVICE_ACCOUNT.clientId],
@@ -411,18 +411,19 @@ export const PreselectedTokenWithoutSsoResult: Story = {
   tags: ['ff:platform.service-accounts.sat'],
   parameters: {
     featureFlags: { 'platform.service-accounts.sat': true },
-    msw: { handlers: serviceAccountsHandlers([]) },
+    msw: { handlers: serviceAccountsHandlers([{ ...SAT_SERVICE_ACCOUNT, type: undefined }]) },
   },
   play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
-    await step('Show the preselected account without an SSO result', async () => {
+    await step('Show the preselected account with an untyped SSO result', async () => {
       await user.click(await canvas.findByRole('button', { name: /selected \(1\)/i }));
+      await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
       await expect(canvas.findByText('Token')).resolves.toBeVisible();
       await expect(canvas.findByText(`|service-account-${SAT_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
     });
     await step('Keep client IDs in selection changes', async () => {
-      await selectTableRow(user, canvas, SAT_SERVICE_ACCOUNT.clientId);
+      await selectTableRow(user, canvas, SAT_SERVICE_ACCOUNT.name);
       await waitFor(() => expect(args.onChange).toHaveBeenCalledWith({ initial: [SAT_SERVICE_ACCOUNT.clientId], updated: [] }));
     });
   },
