@@ -223,6 +223,10 @@ export async function launchBrowser(headless: boolean): Promise<BrowserSession> 
   const context = await browser.newContext({
     viewport: headless ? { width: 1280, height: 720 } : null,
     userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    // The local dev proxy terminates TLS with a self-signed cert, so navigation to it fails
+    // with ERR_CERT_AUTHORITY_INVALID otherwise. Scoped to `local` deliberately: credentials
+    // go to real SSO in stage and prod, where an untrusted cert should still be fatal.
+    ignoreHTTPSErrors: getCurrentEnv() === 'local',
   });
 
   const page = await context.newPage();

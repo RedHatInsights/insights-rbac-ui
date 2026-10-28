@@ -97,6 +97,11 @@ export default defineConfig({
       testMatch: /auth-v1-readonly\.setup\.ts/,
       timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     },
+    {
+      name: 'auth-v1-conversion',
+      testMatch: /auth-v1-conversion\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
+    },
 
     // ═══════════════════════════════════════════════════════════════════════
     // Cache Warmup (depends on auth-v1-orgadmin — needs any valid session)
@@ -139,6 +144,25 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: path.join(authDir, 'v1-readonly.json'),
+      },
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Conversion Opt-In (non-destructive)
+    //
+    // Runs against a standing org that is eligible to convert and has not opted in.
+    // Lives on the V1 side because the banner is on the V1 Overview page and the org
+    // must stay out of preview mode to see it. Nothing in this project submits the
+    // opt-in — see the spec's safety rails.
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+      name: 'v1-conversion',
+      testMatch: 'journeys/v1/**/*.spec.ts',
+      grep: /\[ConversionOrgAdmin\]/,
+      dependencies: ['auth-v1-conversion', 'cache-warmup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v1-conversion.json'),
       },
     },
 
