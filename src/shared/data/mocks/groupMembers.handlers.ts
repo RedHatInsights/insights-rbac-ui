@@ -160,11 +160,17 @@ export function createGroupMembersHandlers(
       const groupId = params.groupId as string;
       const url = new URL(request.url);
       const usernames = url.searchParams.get('usernames')?.split(',') || [];
+      const clientIds = url.searchParams.get('serviceAccounts')?.split(',') || [];
 
       // Remove members from the map
       const currentMembers = membersByGroupId.get(groupId) ?? [];
       const remaining = currentMembers.filter((m) => !usernames.includes(m.username));
       membersByGroupId.set(groupId, remaining);
+      const currentAccounts = serviceAccountsByGroupId.get(groupId) ?? [];
+      serviceAccountsByGroupId.set(
+        groupId,
+        currentAccounts.filter((account) => !clientIds.includes(account.clientId)),
+      );
 
       // Sync group principalCount
       if (options.groups) {

@@ -51,7 +51,7 @@ export function useGroupServiceAccountsTableConfig({ intl }: UseGroupServiceAcco
   };
 
   const filterConfig: FilterConfig[] = useMemo(() => {
-    const clientIdLabel = intl.formatMessage(messages.clientId);
+    const clientIdLabel = intl.formatMessage(satEnabled ? messages.clientIdOrUsername : messages.clientId);
     const nameLabel = intl.formatMessage(messages.name);
     return [
       {
@@ -67,7 +67,7 @@ export function useGroupServiceAccountsTableConfig({ intl }: UseGroupServiceAcco
         placeholder: `Filter by ${nameLabel.toLowerCase()}`,
       },
     ];
-  }, [intl]);
+  }, [intl, satEnabled]);
 
   return {
     columnConfig,

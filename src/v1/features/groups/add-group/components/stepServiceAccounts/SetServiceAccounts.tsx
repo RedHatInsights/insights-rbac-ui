@@ -15,7 +15,7 @@ interface SetServiceAccountProps {
   name: string;
 }
 
-const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ name }) => {
+export const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ name }) => {
   const { input } = useFieldApi({ name });
   const intl = useIntl();
   const formOptions = useFormApi();
@@ -55,5 +55,3 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
     </Fragment>
   );
 };
-
-export default SetServiceAccounts;

@@ -688,7 +688,8 @@ export const MixedServiceAccessTokens: Story = {
     await expect(canvas.findByText('Token')).resolves.toBeVisible();
     await expect(canvas.findByText(`|service-account-${SAT_GROUP_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
     await expect(canvas.findByText(storyServiceAccounts[0].clientId)).resolves.toBeVisible();
-    const filter = await canvas.findByPlaceholderText(/filter by client id/i);
+    const filter = await canvas.findByPlaceholderText(/filter by client id \/ username/i);
+    await expect(filter).toHaveAccessibleName('Client ID / Username filter');
     await clearAndType(userEvent.setup(), () => filter as HTMLInputElement, `|service-account-${SAT_GROUP_SERVICE_ACCOUNT.clientId}`);
     await waitFor(() => expect(satListSpy.mock.lastCall?.[1].get('principal_username')).toBe(SAT_GROUP_SERVICE_ACCOUNT.clientId));
     await expect(canvas.findByText('Token')).resolves.toBeVisible();
