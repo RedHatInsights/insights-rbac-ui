@@ -1,3 +1,5 @@
+import { DEFAULT_SERVICE_ACCOUNTS, SAT_SERVICE_ACCOUNT } from '../../../../../../shared/data/mocks/seed';
+import { clearAndType, selectTableRow } from '../../../../../../test-utils/interactionHelpers';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
@@ -372,5 +374,68 @@ export const NewGroup: Story = {
       await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('Service account for web application')).resolves.toBeInTheDocument();
     });
+  },
+};
+
+export const SelectServiceAccessToken: Story = {
+  args: { groupId: 'sat-group', initialServiceAccountIds: [], onChange: fn() },
+  tags: ['ff:platform.service-accounts.sat'],
+  parameters: {
+    featureFlags: { 'platform.service-accounts.sat': true },
+    msw: { handlers: serviceAccountsHandlers([DEFAULT_SERVICE_ACCOUNTS[0], SAT_SERVICE_ACCOUNT]) },
+  },
+  play: async ({ canvasElement, args, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await step('Verify mixed identifiers', async () => {
+      await expect(canvas.findByText('Token')).resolves.toBeVisible();
+      await expect(canvas.findByText(DEFAULT_SERVICE_ACCOUNTS[0].clientId)).resolves.toBeVisible();
+      await expect(canvas.findByText(`|service-account-${SAT_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
+    });
+    await step('Search by SAT username and select the principal', async () => {
+      const input = await canvas.findByPlaceholderText(/filter by name/i);
+      await clearAndType(user, () => input as HTMLInputElement, `|service-account-${SAT_SERVICE_ACCOUNT.clientId}`);
+      await selectTableRow(user, canvas, SAT_SERVICE_ACCOUNT.name);
+      await waitFor(() => expect(args.onChange).toHaveBeenCalledWith({ initial: [], updated: [SAT_SERVICE_ACCOUNT.clientId] }));
+    });
+  },
+};
+
+export const PreselectedTokenWithUntypedSsoResult: Story = {
+  args: {
+    groupId: 'sat-group',
+    initialServiceAccountIds: [SAT_SERVICE_ACCOUNT.clientId],
+    initialServiceAccountTypes: { [SAT_SERVICE_ACCOUNT.clientId]: 'service_access_token' },
+    onChange: fn(),
+  },
+  tags: ['ff:platform.service-accounts.sat'],
+  parameters: {
+    featureFlags: { 'platform.service-accounts.sat': true },
+    msw: { handlers: serviceAccountsHandlers([{ ...SAT_SERVICE_ACCOUNT, type: undefined }]) },
+  },
+  play: async ({ canvasElement, args, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await step('Show the preselected account with an untyped SSO result', async () => {
+      await user.click(await canvas.findByRole('button', { name: /selected \(1\)/i }));
+      await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
+      await expect(canvas.findByText('Token')).resolves.toBeVisible();
+      await expect(canvas.findByText(`|service-account-${SAT_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
+    });
+    await step('Keep client IDs in selection changes', async () => {
+      await selectTableRow(user, canvas, SAT_SERVICE_ACCOUNT.name);
+      await waitFor(() => expect(args.onChange).toHaveBeenCalledWith({ initial: [SAT_SERVICE_ACCOUNT.clientId], updated: [] }));
+    });
+  },
+};
+
+export const ServiceAccessTokensFlagOff: Story = {
+  ...SelectServiceAccessToken,
+  parameters: { ...SelectServiceAccessToken.parameters, featureFlags: { 'platform.service-accounts.sat': false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.clientId)).resolves.toBeVisible();
+    await expect(canvas.findByRole('columnheader', { name: 'Client ID' })).resolves.toBeVisible();
+    await expect(canvas.queryByText('Token')).not.toBeInTheDocument();
   },
 };

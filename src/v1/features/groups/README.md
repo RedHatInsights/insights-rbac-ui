@@ -24,3 +24,9 @@ All data fetching uses hooks from `src/data/queries/groups.ts`. See `groupsKeys`
 - The v1 API types are broken — use the `(api.method as any)` pattern. See [API Client Patterns](../../docs/APIClientPatterns.mdx).
 - The v2 equivalent is `src/features/access-management/` — near feature parity. Both islands coexist until v1 is retired. Do not merge them.
 - Permission model: `orgAdmin` gates all mutations. `isProd()` disables destructive actions.
+
+## Service access tokens
+
+The Service Accounts selection and detail tables share SAT presentation with `platform.service-accounts.sat` enabled. SSO selection responses identify SATs with `type: 'service_access_token'`; RBAC group-principal responses use `service_account_type: 'service_access_token'` (insights-rbac PR #3524). Missing and unrecognized values retain regular service-account presentation. SATs show a blue Token label and the CIAM-12578 login username (`|service-account-${clientId}`) in the Client ID / Username column. Selection and membership mutations always use the original client ID and `type: 'service-account'`; the UI never creates a second row for the underlying service account or reads credentials. Flag-off preserves existing labels and identifiers.
+
+The existing SSO selection API and RBAC membership API remain separate. Type filtering across pages requires a server-side contract and is tracked independently in RHCLOUD-52279.

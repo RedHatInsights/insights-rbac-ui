@@ -84,9 +84,10 @@ const mockServiceAccountsForGroup = [
 const TestFormWrapper: React.FC<{
   initialUsers?: string[];
   initialServiceAccounts?: string[];
+  initialServiceAccountTypes?: Record<string, string | undefined>;
   groupId?: string;
   onSubmit?: (values: Record<string, unknown>) => void;
-}> = ({ initialUsers = [], initialServiceAccounts = [], groupId = 'group-123', onSubmit = fn() }) => {
+}> = ({ initialUsers = [], initialServiceAccounts = [], initialServiceAccountTypes, groupId = 'group-123', onSubmit = fn() }) => {
   const schema = {
     fields: [
       {
@@ -95,6 +96,7 @@ const TestFormWrapper: React.FC<{
         groupId,
         initialUsers,
         initialServiceAccounts,
+        initialServiceAccountTypes,
       },
     ],
   };
@@ -166,6 +168,10 @@ The component manages a form value with the following structure:
     },
     initialServiceAccounts: {
       description: 'Array of service account IDs currently in the group',
+      control: 'object',
+    },
+    initialServiceAccountTypes: {
+      description: 'RBAC service account types keyed by client ID for selected-row display',
       control: 'object',
     },
     onSubmit: {

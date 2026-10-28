@@ -1,3 +1,4 @@
+import { DEFAULT_GROUP_SERVICE_ACCOUNTS, SAT_GROUP_SERVICE_ACCOUNT } from '../../../../../../shared/data/mocks/seed';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
@@ -248,5 +249,32 @@ export const NetworkFailure: Story = {
         await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
       ).toBeInTheDocument();
     });
+  },
+};
+
+export const MixedServiceAccessTokens: Story = {
+  args: Default.args,
+  tags: ['ff:platform.service-accounts.sat'],
+  parameters: {
+    featureFlags: { 'platform.service-accounts.sat': true },
+    msw: { handlers: createGroupMembersHandlers({}, { 'test-group-id': [DEFAULT_GROUP_SERVICE_ACCOUNTS['group-1'][0], SAT_GROUP_SERVICE_ACCOUNT] }) },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByText('Token')).resolves.toBeVisible();
+    await expect(canvas.findByText(SAT_GROUP_SERVICE_ACCOUNT.name!)).resolves.toBeVisible();
+    await expect(canvas.findByRole('columnheader', { name: 'Client ID / Username' })).resolves.toBeVisible();
+    await expect(canvas.findByText(`|service-account-${SAT_GROUP_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
+    await expect(canvas.findByText(DEFAULT_GROUP_SERVICE_ACCOUNTS['group-1'][0].clientId)).resolves.toBeVisible();
+  },
+};
+export const ServiceAccessTokensFlagOff: Story = {
+  ...MixedServiceAccessTokens,
+  parameters: { ...MixedServiceAccessTokens.parameters, featureFlags: { 'platform.service-accounts.sat': false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByText(SAT_GROUP_SERVICE_ACCOUNT.clientId)).resolves.toBeVisible();
+    await expect(canvas.findByRole('columnheader', { name: 'Client ID' })).resolves.toBeVisible();
+    await expect(canvas.queryByText('Token')).not.toBeInTheDocument();
   },
 };

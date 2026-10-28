@@ -36,6 +36,7 @@ export function createV1Handlers(db: V1MockDb, spies: V1HandlerSpies = {}) {
       ...spies.groupMembers,
       groups: db.groups,
       users: db.users,
+      serviceAccounts: db.serviceAccounts,
     }),
     ...createGroupRolesHandlers(db.groupRoles, {
       ...spies.groupRoles,
