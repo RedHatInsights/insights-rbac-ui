@@ -17,10 +17,12 @@ interface EditGroupServiceAccountsTableProps {
   onChange: (serviceAccountDiff: TableState) => void;
   groupId: string;
   initialServiceAccountIds: string[];
+  initialServiceAccountTypes?: Record<string, string | undefined>;
 }
 
 const TOGGLE_ALL = 'all';
 const TOGGLE_SELECTED = 'selected';
+const EMPTY_SERVICE_ACCOUNT_TYPES: Record<string, string | undefined> = {};
 
 const columns = ['name', 'clientId', 'owner', 'timeCreated', 'description'] as const;
 
@@ -28,6 +30,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   onChange,
   groupId: _groupId,
   initialServiceAccountIds,
+  initialServiceAccountTypes = EMPTY_SERVICE_ACCOUNT_TYPES,
 }) => {
   const intl = useIntl();
   const satEnabled = useServiceAccessTokens();
@@ -44,9 +47,10 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
             id: clientId,
             clientId,
             name: clientId,
+            type: initialServiceAccountTypes[clientId],
           }) as ServiceAccount,
       ),
-    [initialServiceAccountIds],
+    [initialServiceAccountIds, initialServiceAccountTypes],
   );
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(

@@ -400,6 +400,34 @@ export const SelectServiceAccessToken: Story = {
     });
   },
 };
+
+export const PreselectedTokenWithoutSsoResult: Story = {
+  args: {
+    groupId: 'sat-group',
+    initialServiceAccountIds: [SAT_SERVICE_ACCOUNT.clientId],
+    initialServiceAccountTypes: { [SAT_SERVICE_ACCOUNT.clientId]: 'service_access_token' },
+    onChange: fn(),
+  },
+  tags: ['ff:platform.service-accounts.sat'],
+  parameters: {
+    featureFlags: { 'platform.service-accounts.sat': true },
+    msw: { handlers: serviceAccountsHandlers([]) },
+  },
+  play: async ({ canvasElement, args, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await step('Show the preselected account without an SSO result', async () => {
+      await user.click(await canvas.findByRole('button', { name: /selected \(1\)/i }));
+      await expect(canvas.findByText('Token')).resolves.toBeVisible();
+      await expect(canvas.findByText(`|service-account-${SAT_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
+    });
+    await step('Keep client IDs in selection changes', async () => {
+      await selectTableRow(user, canvas, SAT_SERVICE_ACCOUNT.clientId);
+      await waitFor(() => expect(args.onChange).toHaveBeenCalledWith({ initial: [SAT_SERVICE_ACCOUNT.clientId], updated: [] }));
+    });
+  },
+};
+
 export const ServiceAccessTokensFlagOff: Story = {
   ...SelectServiceAccessToken,
   parameters: { ...SelectServiceAccessToken.parameters, featureFlags: { 'platform.service-accounts.sat': false } },

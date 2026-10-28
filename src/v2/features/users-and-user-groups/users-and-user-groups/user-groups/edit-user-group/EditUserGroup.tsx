@@ -71,6 +71,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     description?: string;
     users?: string[];
     serviceAccounts?: string[];
+    serviceAccountTypes?: Record<string, string | undefined>;
   } | null>(null);
 
   // Use React Query for data fetching
@@ -121,6 +122,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         description: group.description,
         users: groupUsers.map((user) => user.username),
         serviceAccounts: groupServiceAccounts.map((sa) => sa.clientId).filter(Boolean),
+        serviceAccountTypes: Object.fromEntries(groupServiceAccounts.filter((sa) => sa.clientId).map((sa) => [sa.clientId, sa.service_account_type])),
       };
 
       // Only update if the data actually changed
@@ -130,7 +132,8 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           prevData.name !== newFormData.name ||
           prevData.description !== newFormData.description ||
           JSON.stringify(prevData.users) !== JSON.stringify(newFormData.users) ||
-          JSON.stringify(prevData.serviceAccounts) !== JSON.stringify(newFormData.serviceAccounts)
+          JSON.stringify(prevData.serviceAccounts) !== JSON.stringify(newFormData.serviceAccounts) ||
+          JSON.stringify(prevData.serviceAccountTypes) !== JSON.stringify(newFormData.serviceAccountTypes)
         ) {
           return newFormData;
         }
@@ -142,9 +145,10 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         description: '',
         users: [],
         serviceAccounts: [],
+        serviceAccountTypes: {},
       });
     }
-  }, [group?.uuid, group?.name, group?.description, groupUsers.length, groupServiceAccounts.length, createNewGroup, initialFormData]);
+  }, [group?.uuid, group?.name, group?.description, groupUsers.length, serviceAccountsData?.data, createNewGroup, initialFormData]);
 
   const schema = useMemo<EditUserGroupSchema>(
     () => ({
@@ -182,6 +186,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           groupId: groupId,
           initialUsers: initialFormData?.users || [],
           initialServiceAccounts: initialFormData?.serviceAccounts || [],
+          initialServiceAccountTypes: initialFormData?.serviceAccountTypes || {},
           initialValue: {
             users: {
               initial: initialFormData?.users || [],

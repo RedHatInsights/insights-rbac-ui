@@ -7,7 +7,7 @@ import { GroupDetailsServiceAccountsView } from '../../v2/features/users-and-use
 import { createV2MockDb } from '../../v2/data/mocks/db';
 import { createV2Handlers } from '../../v2/data/mocks/handlers';
 import { defaultV2Seed } from '../../v2/data/mocks/seed';
-import { DEFAULT_GROUPS, DEFAULT_SERVICE_ACCOUNTS, SAT_SERVICE_ACCOUNT } from '../../shared/data/mocks/seed';
+import { DEFAULT_GROUPS, DEFAULT_SERVICE_ACCOUNTS, SAT_GROUP_SERVICE_ACCOUNT, SAT_SERVICE_ACCOUNT } from '../../shared/data/mocks/seed';
 import { resetStoryState } from '../_shared/helpers/resetStoryState';
 import { clearAndType, clickTab, selectTableRow } from '../../test-utils/interactionHelpers';
 import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
@@ -22,6 +22,11 @@ const db = createV2MockDb({
   ...defaultV2Seed(),
   serviceAccounts: [DEFAULT_SERVICE_ACCOUNTS[0], SAT_SERVICE_ACCOUNT],
   groupServiceAccounts: [[TARGET_GROUP.uuid, []]],
+});
+const existingTokenDb = createV2MockDb({
+  ...defaultV2Seed(),
+  serviceAccounts: [],
+  groupServiceAccounts: [[TARGET_GROUP.uuid, [SAT_GROUP_SERVICE_ACCOUNT]]],
 });
 const addMembersSpy = fn();
 
@@ -94,6 +99,29 @@ export const SaveAndReloadTokenMembership: Story = {
       await expect(canvas.findByText('Token')).resolves.toBeVisible();
       await expect(canvas.findByText(`|service-account-${SAT_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
       await expect(db.groupServiceAccounts.get(TARGET_GROUP.uuid)).toHaveLength(1);
+    });
+  },
+};
+
+export const ExistingTokenWithoutSsoResult: Story = {
+  tags: ['ff:platform.service-accounts.sat', 'perm:org-admin'],
+  parameters: {
+    msw: { handlers: createV2Handlers(existingTokenDb) },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await step('Reset membership data', async () => {
+      await resetStoryState(existingTokenDb);
+    });
+    await step('Open the selected service accounts', async () => {
+      await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeVisible();
+      await clickTab(user, canvas, /service accounts/i);
+      await user.click(await canvas.findByRole('button', { name: /selected \(1\)/i }));
+    });
+    await step('Verify the RBAC type displays for the selected token', async () => {
+      await expect(canvas.findByText('Token')).resolves.toBeVisible();
+      await expect(canvas.findByText(`|service-account-${SAT_GROUP_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
     });
   },
 };
