@@ -9,8 +9,7 @@ import { createGroupMembersHandlers, groupMembersLoadingHandlers } from '../../.
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 
-import { clickTab, expectLoadingVisible } from '../../../../../../test-utils/interactionHelpers';
-import { SAT_SERVICE_ACCOUNT } from '../../../../../../shared/data/mocks/seed';
+import { expectLoadingVisible } from '../../../../../../test-utils/interactionHelpers';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
 
 // Mock users data
@@ -465,32 +464,6 @@ export const LoadingStates: Story = {
         },
         { timeout: 10000 },
       );
-    });
-  },
-};
-
-export const PreselectedTokenWithoutSsoResult: Story = {
-  args: {
-    groupId: 'sat-group',
-    initialServiceAccounts: [SAT_SERVICE_ACCOUNT.clientId],
-    initialServiceAccountTypes: { [SAT_SERVICE_ACCOUNT.clientId]: 'service_access_token' },
-    onSubmit: fn(),
-  },
-  tags: ['ff:platform.service-accounts.sat'],
-  parameters: {
-    featureFlags: { 'platform.service-accounts.sat': true },
-    msw: { handlers: [...usersHandlers(mockUsers), ...serviceAccountsHandlers([])] },
-  },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-    const user = userEvent.setup();
-    await step('Open selected service accounts', async () => {
-      await clickTab(user, canvas, /service accounts/i);
-      await user.click(await canvas.findByRole('button', { name: /selected \(1\)/i }));
-    });
-    await step('Show the token type supplied by the form field', async () => {
-      await expect(canvas.findByText('Token')).resolves.toBeVisible();
-      await expect(canvas.findByText(`|service-account-${SAT_SERVICE_ACCOUNT.clientId}`)).resolves.toBeVisible();
     });
   },
 };

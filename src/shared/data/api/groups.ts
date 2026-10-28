@@ -17,7 +17,6 @@ import type { ServiceAccount as RbacServiceAccount } from '@redhat-cloud-service
 // shortcut: generated client predates insights-rbac PR #3524; remove the extension after regeneration.
 export interface ServiceAccount extends RbacServiceAccount {
   service_account_type?: string;
-  time_expires?: number;
 }
 
 // Bundle all group endpoints
