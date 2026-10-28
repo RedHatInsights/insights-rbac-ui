@@ -89,7 +89,7 @@ export const schemaBuilder = (
                 label: intl.formatMessage(messages.workspaceName),
                 isRequired: true,
                 FormGroupProps: {
-                  labelIcon: (
+                  labelHelp: (
                     <InputHelpPopover
                       bodyContent={
                         <Content component="p">
@@ -147,7 +147,7 @@ export const schemaBuilder = (
                 component: componentTypes.TEXTAREA,
                 label: intl.formatMessage(messages.workspaceDescription),
                 FormGroupProps: {
-                  labelIcon: (
+                  labelHelp: (
                     <InputHelpPopover
                       bodyContent={<Content component="p">{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Content>}
                       field="workspace description"

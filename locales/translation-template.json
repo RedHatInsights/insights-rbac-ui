@@ -1124,7 +1124,7 @@
     "description": "Delete button text"
   },
   "deleteCustomRoleModalBody": {
-    "defaultMessage": "Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization",
+    "defaultMessage": "Deleting the {count, plural, one {the <b>{name}</b> role} other {# roles}} may remove acess to certain user groups in your organization",
     "description": "Modal body text for deleting custom role"
   },
   "deleteCustomRoleModalHeader": {
@@ -1164,7 +1164,7 @@
     "description": "delete roles"
   },
   "deleteUserGroupModalBody": {
-    "defaultMessage": "Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.",
+    "defaultMessage": "Deleting {count, plural, one {the <b>{name}</b> user group} other {# user groups}} will impact user access configuration.",
     "description": "Modal body text for delete user group"
   },
   "deleteUserGroupModalTitle": {
@@ -1184,7 +1184,7 @@
     "description": "Delete workspace error notification title"
   },
   "deleteWorkspaceModalBody": {
-    "defaultMessage": "{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
+    "defaultMessage": "{count, plural, one {<b>{name}</b> workspace and all its} other {<b># workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
     "description": "Modal body text for deleting a workspace"
   },
   "deleteWorkspaceModalHeader": {
@@ -1204,7 +1204,7 @@
     "description": "Delete group label"
   },
   "deletingGroupsRemovesRoles": {
-    "defaultMessage": "Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.",
+    "defaultMessage": "Deleting these <b>{count, number}</b> groups removes all roles from the members inside the groups.",
     "description": "Delete groups label"
   },
   "deletingWorkspaceCanceledDescription": {
@@ -1660,7 +1660,8 @@
     "description": "Invalid user message"
   },
   "inventoryGroupsAccessDescription": {
-    "defaultMessage": "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below."
+    "defaultMessage": "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
+    "description": "Description for adding correct group permissions to role."
   },
   "inventoryGroupsAccessTitle": {
     "defaultMessage": "Define Inventory group access",
@@ -1730,38 +1731,6 @@
     "defaultMessage": "Organization Administrators",
     "description": "Invite users form is admin field title"
   },
-  "inviteUsersFormManageSubscriptionsFieldDescription": {
-    "defaultMessage": "Grants user access to subscription management via Red Hat Subscription Management in the Red Hat Customer Portal.",
-    "description": "Invite users form manage subscriptions field description"
-  },
-  "inviteUsersFormManageSubscriptionsFieldTitle": {
-    "defaultMessage": "Manage your subscriptions",
-    "description": "Invite users form manage subscriptions field title"
-  },
-  "inviteUsersFormManageSubscriptionsViewAllDescription": {
-    "defaultMessage": "User can view (but not edit) all systems and Subscription Management Applications in the account.",
-    "description": "Invite users form manage subscriptions field view all option description"
-  },
-  "inviteUsersFormManageSubscriptionsViewAllTitle": {
-    "defaultMessage": "User can view and edit only the systems that they have registered in the account.",
-    "description": "Invite users form manage subscriptions field view all option title"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditAllDescription": {
-    "defaultMessage": "User can view and edit all systems and Subscription Management Applications in the account.",
-    "description": "Invite users form manage subscriptions field View/Edit all option description"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditAllTitle": {
-    "defaultMessage": "View/Edit all",
-    "description": "Invite users form manage subscriptions field View/Edit all option title"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription": {
-    "defaultMessage": "User can view and edit only the systems that they have registered in the account.",
-    "description": "Invite users form manage subscriptions field View edit Users only description"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle": {
-    "defaultMessage": "View/Edit users only",
-    "description": "Invite users form manage subscriptions field View edit Users only title"
-  },
   "inviteUsersFormManageSupportCasesFieldDescription": {
     "defaultMessage": "User can create and manage support cases for your organization on the Red Hat Customer Portal.",
     "description": "Invite users form manage support cases field description"
@@ -1823,7 +1792,7 @@
     "description": "Manage Support Cases column header"
   },
   "maxCharactersWarning": {
-    "defaultMessage": "Can have maximum of {number} characters.",
+    "defaultMessage": "Can have maximum of {number, number} characters.",
     "description": "Maximum number of characters message"
   },
   "member": {
@@ -2515,7 +2484,7 @@
     "description": "Restore to default label"
   },
   "returnToStepNumber": {
-    "defaultMessage": "Return to step {number}",
+    "defaultMessage": "Return to step {number, number}",
     "description": "Return to step wizard label"
   },
   "review": {
@@ -2651,7 +2620,7 @@
     "description": "See more label"
   },
   "selectAll": {
-    "defaultMessage": "Select all ({length})",
+    "defaultMessage": "Select all ({length, number})",
     "description": "Select all button label"
   },
   "selectAppsToViewPermissions": {
@@ -2687,7 +2656,7 @@
     "description": "Select none button label"
   },
   "selectPage": {
-    "defaultMessage": "Select page ({length})",
+    "defaultMessage": "Select page ({length, number})",
     "description": "Select page button label"
   },
   "selectParentWorkspace": {
@@ -2811,7 +2780,7 @@
     "description": "To manage users text"
   },
   "totalAccountAvailability": {
-    "defaultMessage": "Total availability from {billingAccount}: {count} Cores",
+    "defaultMessage": "Total availability from {billingAccount}: {count, number} Cores",
     "description": "Total account availability text"
   },
   "triggerMyCatalog": {
@@ -2827,7 +2796,7 @@
     "description": "Message advising change of the filter settings"
   },
   "typeToRefineResults": {
-    "defaultMessage": "Showing {shown} of {total} — type to refine",
+    "defaultMessage": "Showing {shown, number} of {total, number} — type to refine",
     "description": "Hint shown when dropdown results are capped"
   },
   "unableToLoadRoles": {
@@ -3111,7 +3080,7 @@
     "description": "Create newworkspace action label"
   },
   "workspaceDescriptionMaxLength": {
-    "defaultMessage": "The first {count} characters will appear in the description field.",
+    "defaultMessage": "The first {count, number} characters will appear in the description field.",
     "description": "Workspace description max length helper text"
   },
   "workspaceDetails": {
@@ -3191,7 +3160,8 @@
     "description": "Workspaces heading"
   },
   "workspacesAccessDescription": {
-    "defaultMessage": "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below."
+    "defaultMessage": "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below.",
+    "description": "Description for adding correct workspaces permissions to role."
   },
   "workspacesAccessTitle": {
     "defaultMessage": "Define Workspaces access",

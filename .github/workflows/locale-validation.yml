@@ -1,0 +1,24 @@
+name: Validate locale catalogs
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/locale-validation.yml
+      - i18n/**
+      - locales/**
+      - deploy/locales/**
+      - deploy/frontend.yaml
+      - src/**/*.{js,jsx,ts,tsx}
+      - package.json
+      - package-lock.json
+
+permissions: {}
+
+jobs:
+  validate:
+    uses: RedHatInsights/i18n-tooling/.github/workflows/i18n-validate.yml@a273375c84b5c09ad95fd9ccec4a314263d9f418
+    with:
+      package-manager: npm
+      validation-config: i18n/catalog-validation.json
+    permissions:
+      contents: read
