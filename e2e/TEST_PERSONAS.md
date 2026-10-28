@@ -31,6 +31,7 @@ For workspace access, users need explicit `inventory:groups:*` permissions.
 | Persona      | Permissions             | V1 Fixture           | V2 Fixture           |
 | ------------ | ----------------------- | -------------------- | -------------------- |
 | OrgAdmin     | `rbac:*:*`              | `AUTH_V1_ORGADMIN`      | `AUTH_V2_ORGADMIN`      |
+| ConversionOrgAdmin | `rbac:*:*` (pre-conversion org) | `AUTH_V1_CONVERSION` | —           |
 | UserViewer   | `rbac:principal:read`   | `AUTH_V1_USERVIEWER` | `AUTH_V2_USERVIEWER` |
 | ReadOnlyUser | (none)                  | `AUTH_V1_READONLY`   | `AUTH_V2_READONLY`   |
 | RbacAdmin    | `rbac:*:*` (not org admin)  | —                    | `AUTH_V2_RBACADMIN`  |
@@ -74,6 +75,51 @@ test.describe('OrgAdmin', () => {
   });
 });
 ```
+
+---
+
+### ConversionOrgAdmin
+
+**Permissions**: `rbac:*:*` — an org admin exactly like OrgAdmin. What makes this persona
+distinct is the **state of its org**, not its permissions: a standing stage org that is
+eligible to convert to V2 and **has not opted in**, with `platform.conversion.opt-in-banner`
+enabled in Unleash.
+
+**V1 only.** Preview mode is forced OFF — the conversion banner lives on the V1 Overview
+page, so an org pushed into the V2 experience would never see it.
+
+> ⚠️ **Never submit the conversion wizard as this persona.** Opting in converts the tenant,
+> and conversion becomes irreversible the moment the org performs a V2 write. That burns the
+> org and disables the entire non-destructive conversion suite until a replacement is
+> provisioned. Specs using this persona must call `blockOptInWrite(page)`, which aborts the
+> opt-in `PATCH` so a stray click cannot convert.
+
+**Test Patterns**:
+
+- Banner visibility on both surfaces (V1 Overview and the console landing page)
+- Wizard traversal up to — never including — submission
+- Real-Unleash flag-key verification (see `expectConversionFlagEnabled`)
+
+```typescript
+import { AUTH_V1_CONVERSION } from '../../../utils';
+import { ConversionPage, blockOptInWrite } from '../../../pages/v1/ConversionPage';
+
+test.describe('Conversion', () => {
+  test.use({ storageState: AUTH_V1_CONVERSION });
+
+  test.beforeEach(async ({ page }) => {
+    await blockOptInWrite(page); // mandatory safety rail
+  });
+
+  test('Banner appears [ConversionOrgAdmin]', async ({ page }) => {
+    /* ... */
+  });
+});
+```
+
+E2E tests: `e2e/journeys/v1/conversion/conversion-banner.spec.ts`,
+`e2e/journeys/v2/conversion/banner-absent.spec.ts` (the already-on-V2 counterpart, which
+uses `AUTH_V2_ORGADMIN`).
 
 ---
 
@@ -279,6 +325,7 @@ All auth fixtures are stored in `e2e/.auth/` and exported from `e2e/utils/paths.
 export const AUTH_V1_ORGADMIN = path.join(AUTH_DIR, 'v1-orgadmin.json');
 export const AUTH_V1_USERVIEWER = path.join(AUTH_DIR, 'v1-userviewer.json');
 export const AUTH_V1_READONLY = path.join(AUTH_DIR, 'v1-readonly.json');
+export const AUTH_V1_CONVERSION = path.join(AUTH_DIR, 'v1-conversion.json');
 
 // V2 (Access Management routes)
 export const AUTH_V2_ORGADMIN = path.join(AUTH_DIR, 'v2-orgadmin.json');

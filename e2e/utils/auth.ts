@@ -8,7 +8,15 @@ import { execFileSync } from 'child_process';
 import path from 'path';
 
 export type Persona =
-  'v1-orgadmin' | 'v1-readonly' | 'v1-userviewer' | 'v2-orgadmin' | 'v2-readonly' | 'v2-userviewer' | 'v2-rbacadmin' | 'v2-workspaceuser';
+  | 'v1-orgadmin'
+  | 'v1-readonly'
+  | 'v1-userviewer'
+  | 'v1-conversion'
+  | 'v2-orgadmin'
+  | 'v2-readonly'
+  | 'v2-userviewer'
+  | 'v2-rbacadmin'
+  | 'v2-workspaceuser';
 
 /**
  * Authenticate a persona using the CLI login command.
