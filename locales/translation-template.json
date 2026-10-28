@@ -1731,38 +1731,6 @@
     "defaultMessage": "Organization Administrators",
     "description": "Invite users form is admin field title"
   },
-  "inviteUsersFormManageSubscriptionsFieldDescription": {
-    "defaultMessage": "Grants user access to subscription management via Red Hat Subscription Management in the Red Hat Customer Portal.",
-    "description": "Invite users form manage subscriptions field description"
-  },
-  "inviteUsersFormManageSubscriptionsFieldTitle": {
-    "defaultMessage": "Manage your subscriptions",
-    "description": "Invite users form manage subscriptions field title"
-  },
-  "inviteUsersFormManageSubscriptionsViewAllDescription": {
-    "defaultMessage": "User can view (but not edit) all systems and Subscription Management Applications in the account.",
-    "description": "Invite users form manage subscriptions field view all option description"
-  },
-  "inviteUsersFormManageSubscriptionsViewAllTitle": {
-    "defaultMessage": "User can view and edit only the systems that they have registered in the account.",
-    "description": "Invite users form manage subscriptions field view all option title"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditAllDescription": {
-    "defaultMessage": "User can view and edit all systems and Subscription Management Applications in the account.",
-    "description": "Invite users form manage subscriptions field View/Edit all option description"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditAllTitle": {
-    "defaultMessage": "View/Edit all",
-    "description": "Invite users form manage subscriptions field View/Edit all option title"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription": {
-    "defaultMessage": "User can view and edit only the systems that they have registered in the account.",
-    "description": "Invite users form manage subscriptions field View edit Users only description"
-  },
-  "inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle": {
-    "defaultMessage": "View/Edit users only",
-    "description": "Invite users form manage subscriptions field View edit Users only title"
-  },
   "inviteUsersFormManageSupportCasesFieldDescription": {
     "defaultMessage": "User can create and manage support cases for your organization on the Red Hat Customer Portal.",
     "description": "Invite users form manage support cases field description"
