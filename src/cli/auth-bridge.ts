@@ -7,6 +7,11 @@
  * Proxy Support (in order of priority):
  * - HTTPS_PROXY: CI sidecar proxy (e.g., "http://proxy:8080")
  * - RBAC_PAC_URL: Local VPN PAC file URL
+ *
+ * TLS:
+ * - RBAC_ALLOW_INSECURE_TLS: set to "true" to accept untrusted certificates when RBAC_API_URL
+ *   points at a target with a self-signed cert. Ignored for the built-in environments, which
+ *   carry their own policy (`local` already allows it; stage and prod never do).
  */
 
 import type { Browser, BrowserContext, LaunchOptions, Page } from 'playwright';
@@ -37,6 +42,14 @@ interface EnvConfig {
   loginUrl: string;
   apiUrl: string;
   name: string;
+  /**
+   * Whether to accept untrusted TLS certificates when driving a browser at this target.
+   *
+   * Login types real credentials into whatever `loginUrl` points at, so this must track the
+   * effective target rather than `RBAC_ENV` — `RBAC_API_URL` overrides the environment, and
+   * deciding from the environment alone would disable verification for a host it never named.
+   */
+  allowInsecureTLS: boolean;
 }
 
 const ENVIRONMENTS: Record<Environment, EnvConfig> = {
@@ -44,16 +57,21 @@ const ENVIRONMENTS: Record<Environment, EnvConfig> = {
     loginUrl: 'https://console.stage.redhat.com',
     apiUrl: 'https://console.stage.redhat.com',
     name: 'Staging',
+    allowInsecureTLS: false,
   },
   prod: {
     loginUrl: 'https://console.redhat.com',
     apiUrl: 'https://console.redhat.com',
     name: 'Production',
+    allowInsecureTLS: false,
   },
   local: {
+    // The dev proxy terminates TLS with a self-signed cert, so navigation fails with
+    // ERR_CERT_AUTHORITY_INVALID unless untrusted certificates are accepted.
     loginUrl: 'https://stage.foo.redhat.com:1337',
     apiUrl: 'https://stage.foo.redhat.com:1337',
     name: 'Local Dev',
+    allowInsecureTLS: true,
   },
 };
 
@@ -74,6 +92,10 @@ export function getEnvConfig(): EnvConfig {
       loginUrl: hostUrl,
       apiUrl: hostUrl,
       name: 'Custom',
+      // Secure by default. A custom target is an arbitrary host and login posts real
+      // credentials to it, so accepting untrusted certificates needs its own deliberate
+      // opt-in rather than riding on RBAC_ENV.
+      allowInsecureTLS: process.env.RBAC_ALLOW_INSECURE_TLS === 'true',
     };
   }
   return ENVIRONMENTS[getCurrentEnv()];
@@ -223,6 +245,8 @@ export async function launchBrowser(headless: boolean): Promise<BrowserSession> 
   const context = await browser.newContext({
     viewport: headless ? { width: 1280, height: 720 } : null,
     userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    // Derived from the effective login target, not RBAC_ENV — see EnvConfig.allowInsecureTLS.
+    ignoreHTTPSErrors: getEnvConfig().allowInsecureTLS,
   });
 
   const page = await context.newPage();

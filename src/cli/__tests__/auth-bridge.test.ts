@@ -23,6 +23,7 @@ describe('auth-bridge', () => {
     delete process.env.RBAC_API_URL;
     delete process.env.HTTPS_PROXY;
     delete process.env.RBAC_PAC_URL;
+    delete process.env.RBAC_ALLOW_INSECURE_TLS;
   });
 
   afterEach(() => {
@@ -97,6 +98,34 @@ describe('auth-bridge', () => {
       const config = getEnvConfig();
       expect(config.name).toBe('Custom');
       expect(config.apiUrl).toBe('https://override.example.com');
+    });
+
+    test('allows insecure TLS only for the local dev proxy', () => {
+      expect(getEnvConfig().allowInsecureTLS).toBe(false); // stage, the default
+
+      process.env.RBAC_ENV = 'prod';
+      expect(getEnvConfig().allowInsecureTLS).toBe(false);
+
+      process.env.RBAC_ENV = 'local';
+      expect(getEnvConfig().allowInsecureTLS).toBe(true);
+    });
+
+    test('a custom target is secure by default even when RBAC_ENV=local', () => {
+      // RBAC_API_URL wins over RBAC_ENV, so deciding TLS policy from the environment alone
+      // would disable certificate checks while posting credentials to this arbitrary host.
+      process.env.RBAC_ENV = 'local';
+      process.env.RBAC_API_URL = 'https://override.example.com';
+
+      const config = getEnvConfig();
+      expect(config.loginUrl).toBe('https://override.example.com');
+      expect(config.allowInsecureTLS).toBe(false);
+    });
+
+    test('a custom target accepts untrusted certificates only via explicit opt-in', () => {
+      process.env.RBAC_API_URL = 'https://self-signed.example.com';
+      process.env.RBAC_ALLOW_INSECURE_TLS = 'true';
+
+      expect(getEnvConfig().allowInsecureTLS).toBe(true);
     });
   });
 

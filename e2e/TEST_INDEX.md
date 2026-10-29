@@ -228,6 +228,36 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 ---
 
+## V2 Conversion Opt-In (non-destructive)
+
+> 🛑 **Never submit the wizard in these specs.** Submitting converts the tenant, and
+> conversion becomes irreversible once the org performs a V2 write — that burns the standing
+> test org and disables this whole suite. Every spec here must call `blockOptInWrite(page)`,
+> locate the submit control by **exact** accessible name (never `/next|submit/i`), and exit
+> the wizard via Cancel with closure asserted. Performing the opt-in is a separate,
+> explicitly-armed tier (RHCLOUD-52135).
+
+This tier exists for values that cross a process boundary — the real Unleash flag key, real
+federated-module loading, real assets. It is **not** for re-testing gating logic Storybook
+already covers deterministically and far more cheaply.
+
+| Scenario                                          | File                                 | Describe Block                            | Setup Notes                                               |
+| ------------------------------------------------- | ------------------------------------ | ----------------------------------------- | --------------------------------------------------------- |
+| Banner on V1 Overview + real-Unleash flag-key guard | `v1/conversion/conversion-banner.spec.ts` | `Conversion Opt-In Banner & Wizard`  | `expectConversionFlagEnabled` first; failure = wrong key   |
+| Banner on console landing page (federated module) | `v1/conversion/conversion-banner.spec.ts` | `Conversion Opt-In Banner & Wizard`  | Failure here but not on Overview = module federation issue |
+| Get started opens the wizard                      | `v1/conversion/conversion-banner.spec.ts` | `Conversion Opt-In Banner & Wizard`  | Overview surface only                                      |
+| Wizard traverses all four steps                   | `v1/conversion/conversion-banner.spec.ts` | `Conversion Opt-In Banner & Wizard`  | Verifies real SVG diagrams load; cancels out               |
+| Cancel preserves the banner (both surfaces)       | `v1/conversion/conversion-banner.spec.ts` | `Conversion Opt-In Banner & Wizard`  | ConversionOrgAdmin persona                                 |
+| Banner absent for an org already on V2            | `v2/conversion/banner-absent.spec.ts`     | `Conversion Opt-In Banner - already on V2` | Uses `AUTH_V2_ORGADMIN`; flag-enabled route only       |
+
+**Not covered, blocked upstream:** the non-admin banner variant (not implemented; also needs
+RHCLOUD-51470) and the landing-page "Get started" behaviour (Chrome has not defined the
+callback, and the wizard is not exposed as a federated module).
+
+Run with `npm run e2e:conversion`. No seeding required — these are read-only.
+
+---
+
 ## Data Setup Reference
 
 | Data Type                   | How to Get                                   | When to Use                                |
