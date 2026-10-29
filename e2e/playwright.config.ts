@@ -157,7 +157,9 @@ export default defineConfig({
     // ═══════════════════════════════════════════════════════════════════════
     {
       name: 'v1-conversion',
-      testMatch: 'journeys/v1/**/*.spec.ts',
+      // Scoped to the conversion directory rather than all of journeys/v1: these tests need
+      // no seed data, and the broader glob would import specs that throw without TEST_PREFIX_V1.
+      testMatch: 'journeys/v1/conversion/**/*.spec.ts',
       grep: /\[ConversionOrgAdmin\]/,
       dependencies: ['auth-v1-conversion', 'cache-warmup'],
       use: {

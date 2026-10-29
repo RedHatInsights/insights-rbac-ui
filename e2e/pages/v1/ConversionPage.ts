@@ -141,6 +141,14 @@ export class ConversionPage {
     await expect(this.page.getByRole('button', { name: /add widgets/i })).toBeVisible({
       timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     });
+
+    // "Add widgets" is local to the dashboard shell and renders before any remote does. The
+    // widget cards are federated modules, so waiting for one means Scalprum has resolved
+    // remotes — without this, an absence assertion can pass simply because the banner module
+    // had not loaded yet.
+    await expect(this.page.getByRole('button', { name: 'Widget actions' }).first()).toBeVisible({
+      timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD,
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -216,6 +224,11 @@ export class ConversionPage {
     await expect(this.learnMoreLink).toBeVisible();
   }
 
+  /**
+   * Only meaningful once the surface has settled: `toHaveCount(0)` resolves immediately
+   * against a page that has not finished rendering, so it would pass for the wrong reason.
+   * The `goto*` helpers above own that wait — call one of them first.
+   */
   async verifyBannerAbsent(): Promise<void> {
     await expect(this.bannerHeading).toHaveCount(0);
     await expect(this.getStartedButton).toHaveCount(0);
