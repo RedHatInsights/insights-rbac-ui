@@ -72,6 +72,12 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
 
   const clientIdFilter = (tableState.apiParams.filters.clientId as string) || '';
 
+  const satUsernamePrefix = '|service-account-';
+  const clientIdQuery =
+    satEnabled && satUsernamePrefix.startsWith(clientIdFilter.toLowerCase())
+      ? undefined
+      : (satEnabled ? clientIdFilter.replace(/^\|service-account-/i, '') : clientIdFilter) || undefined;
+
   // Fetch service accounts using apiParams from tableState
   const {
     data: serviceAccountsData,
@@ -82,7 +88,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     {
       limit: tableState.apiParams.limit,
       offset: tableState.apiParams.offset,
-      clientId: (satEnabled ? clientIdFilter.replace(/^\|service-account-/, '') : clientIdFilter) || undefined,
+      clientId: clientIdQuery,
       name: (tableState.apiParams.filters.name as string) || undefined,
     },
     { enabled: !!actualGroupId },

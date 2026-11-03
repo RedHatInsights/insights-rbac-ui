@@ -694,6 +694,10 @@ export const MixedServiceAccessTokens: Story = {
     await waitFor(() => expect(satListSpy.mock.lastCall?.[1].get('principal_username')).toBe(SAT_GROUP_SERVICE_ACCOUNT.clientId));
     await expect(canvas.findByText('Token')).resolves.toBeVisible();
     await waitFor(() => expect(canvas.queryByText(storyServiceAccounts[0].clientId)).not.toBeInTheDocument());
+    await clearAndType(userEvent.setup(), () => filter as HTMLInputElement, '|service-acc');
+    await waitFor(() => expect(satListSpy.mock.lastCall?.[1].get('principal_username')).toBeNull());
+    await expect(canvas.findByText('Token')).resolves.toBeVisible();
+    await expect(canvas.findByText(storyServiceAccounts[0].clientId)).resolves.toBeVisible();
   },
 };
 
