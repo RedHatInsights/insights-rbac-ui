@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "key": "ebed7ea68cdc9416d56f1cfd5d69b55c7edfa575e82417689febef6509d55989",
-  "phase": "creating",
+  "phase": "importing",
   "repository": "RedHatInsights/insights-rbac-ui",
   "baseRef": "master",
   "sourceCommit": "1085e780a8cfe4fec17a0a0fab04f2660dcfe046",
@@ -44,7 +44,100 @@
     }
   },
   "createdAt": "2026-11-03T12:28:50.631Z",
-  "jobs": [],
+  "jobs": [
+    {
+      "uid": "sMmodj8Inlpy1GOJ4GUdV1",
+      "status": "NEW",
+      "providers": [],
+      "targetLang": "zh_cn",
+      "workflowLevel": 1,
+      "workflowStep": {
+        "name": "Translation",
+        "id": "225677",
+        "uid": "Vm1j1nqsDSxM343cSZb17g",
+        "order": 10,
+        "lqaEnabled": true
+      },
+      "filename": "insights-rbac-ui.ui.en.json",
+      "dateDue": null,
+      "dateCreated": "2026-11-03T12:28:56+0000",
+      "updateSourceDate": null,
+      "imported": false,
+      "jobAssignedEmailTemplate": null,
+      "notificationIntervalInMinutes": 0,
+      "continuous": false,
+      "sourceFileUid": "HMKRwg3OrUWrehz1H3mUA7"
+    },
+    {
+      "uid": "cf8waFumYfrb6NI4lIITv3",
+      "status": "NEW",
+      "providers": [],
+      "targetLang": "fr",
+      "workflowLevel": 1,
+      "workflowStep": {
+        "name": "Translation",
+        "id": "225677",
+        "uid": "Vm1j1nqsDSxM343cSZb17g",
+        "order": 10,
+        "lqaEnabled": true
+      },
+      "filename": "insights-rbac-ui.ui.en.json",
+      "dateDue": null,
+      "dateCreated": "2026-11-03T12:28:56+0000",
+      "updateSourceDate": null,
+      "imported": false,
+      "jobAssignedEmailTemplate": null,
+      "notificationIntervalInMinutes": 0,
+      "continuous": false,
+      "sourceFileUid": "HMKRwg3OrUWrehz1H3mUA7"
+    },
+    {
+      "uid": "KJ5OW6sNttqFcRB1fNTB0b",
+      "status": "NEW",
+      "providers": [],
+      "targetLang": "ko",
+      "workflowLevel": 1,
+      "workflowStep": {
+        "name": "Translation",
+        "id": "225677",
+        "uid": "Vm1j1nqsDSxM343cSZb17g",
+        "order": 10,
+        "lqaEnabled": true
+      },
+      "filename": "insights-rbac-ui.ui.en.json",
+      "dateDue": null,
+      "dateCreated": "2026-11-03T12:28:56+0000",
+      "updateSourceDate": null,
+      "imported": false,
+      "jobAssignedEmailTemplate": null,
+      "notificationIntervalInMinutes": 0,
+      "continuous": false,
+      "sourceFileUid": "HMKRwg3OrUWrehz1H3mUA7"
+    },
+    {
+      "uid": "eUcFvxg4nmqz4lgyttJRX1",
+      "status": "NEW",
+      "providers": [],
+      "targetLang": "ja",
+      "workflowLevel": 1,
+      "workflowStep": {
+        "name": "Translation",
+        "id": "225677",
+        "uid": "Vm1j1nqsDSxM343cSZb17g",
+        "order": 10,
+        "lqaEnabled": true
+      },
+      "filename": "insights-rbac-ui.ui.en.json",
+      "dateDue": null,
+      "dateCreated": "2026-11-03T12:28:56+0000",
+      "updateSourceDate": null,
+      "imported": false,
+      "jobAssignedEmailTemplate": null,
+      "notificationIntervalInMinutes": 0,
+      "continuous": false,
+      "sourceFileUid": "HMKRwg3OrUWrehz1H3mUA7"
+    }
+  ],
   "warningCount": 0,
   "locales": {
     "fr": {
@@ -59,5 +152,6 @@
     "zh_cn": {
       "phase": "pending"
     }
-  }
+  },
+  "importAsyncRequestId": "1904266249"
 }
