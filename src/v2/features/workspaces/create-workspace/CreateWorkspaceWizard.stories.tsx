@@ -178,6 +178,51 @@ export const WithBillingFeatures: Story = {
   },
 };
 
+/**
+ * Opens the description field's help popover on the details step and verifies
+ * the max-length hint. The count comes from the workspaceDescriptionMaxLength
+ * message's {count, number} argument, so this story pins the locale-aware
+ * number formatting ("255" — not a raw argument) in the popover wiring from
+ * create-workspace/schema.tsx.
+ */
+export const DescriptionHelpPopover: Story = {
+  args: {
+    afterSubmit: fn(),
+    onCancel: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Opens the workspace description field help popover on the details step and verifies the 255-character max-length hint.',
+      },
+    },
+    featureFlags: {
+      'platform.rbac.workspaces-billing-features': false,
+      'platform.rbac.workspace-hierarchy': true,
+      'platform.rbac.workspaces': true,
+    },
+    msw: {
+      handlers: [...workspacesHandlers(DEFAULT_WORKSPACES, { onCreate: createWorkspaceSpy })],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('Open wizard and the description help popover', async () => {
+      const wizard = await openWizardDialog(user, canvas);
+
+      await expect(wizard.findByRole('textbox', { name: /workspace description/i })).resolves.toBeInTheDocument();
+
+      const helpButton = await wizard.findByRole('button', { name: /more info for workspace description/i });
+      await user.click(helpButton);
+
+      const body = within(document.body);
+      await expect(body.findByText(/The first 255 characters will appear in the description field/)).resolves.toBeInTheDocument();
+    });
+  },
+};
+
 export const LoadingWorkspaces: Story = {
   args: {
     afterSubmit: fn(),

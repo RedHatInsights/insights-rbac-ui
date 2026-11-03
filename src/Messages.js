@@ -344,12 +344,12 @@ export default defineMessages({
   selectPage: {
     id: 'selectPage',
     description: 'Select page button label',
-    defaultMessage: 'Select page ({length})',
+    defaultMessage: 'Select page ({length, number})',
   },
   selectAll: {
     id: 'selectAll',
     description: 'Select all button label',
-    defaultMessage: 'Select all ({length})',
+    defaultMessage: 'Select all ({length, number})',
   },
   ungroupedSystems: {
     id: 'ungroupedSystems',
@@ -745,7 +745,7 @@ export default defineMessages({
   returnToStepNumber: {
     id: 'returnToStepNumber',
     description: 'Return to step wizard label',
-    defaultMessage: 'Return to step {number}',
+    defaultMessage: 'Return to step {number, number}',
   },
   addingGroupTitle: {
     id: 'addingGroupTitle',
@@ -986,7 +986,7 @@ export default defineMessages({
   maxCharactersWarning: {
     id: 'maxCharactersWarning',
     description: 'Maximum number of characters message',
-    defaultMessage: 'Can have maximum of {number} characters.',
+    defaultMessage: 'Can have maximum of {number, number} characters.',
   },
   selectRolesForGroupText: {
     id: 'selectRolesForGroupText',
@@ -1148,7 +1148,7 @@ export default defineMessages({
   totalAccountAvailability: {
     id: 'totalAccountAvailability',
     description: 'Total account availability text',
-    defaultMessage: 'Total availability from {billingAccount}: {count} Cores',
+    defaultMessage: 'Total availability from {billingAccount}: {count, number} Cores',
   },
   billingAccount: {
     id: 'billingAccount',
@@ -1440,7 +1440,7 @@ export default defineMessages({
   workspaceDescriptionMaxLength: {
     id: 'workspaceDescriptionMaxLength',
     description: 'Workspace description max length helper text',
-    defaultMessage: 'The first {count} characters will appear in the description field.',
+    defaultMessage: 'The first {count, number} characters will appear in the description field.',
   },
   selectParentWorkspace: {
     id: 'selectParentWorkspace',
@@ -1590,11 +1590,6 @@ export default defineMessages({
     id: 'viewDefaultGroupsLink',
     description: 'View Default Groups link',
     defaultMessage: 'View your default groups',
-  },
-  recommendedContentTitle: {
-    id: 'recommendedContentTitle',
-    description: 'Recommended Content title',
-    defaultMessage: 'Recommended content',
   },
   recommendedContentItem1: {
     id: 'recommendedContentItem1',
@@ -2045,7 +2040,7 @@ export default defineMessages({
   deletingGroupsRemovesRoles: {
     id: 'deletingGroupsRemovesRoles',
     description: 'Delete groups label',
-    defaultMessage: 'Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.',
+    defaultMessage: 'Deleting these <b>{count, number}</b> groups removes all roles from the members inside the groups.',
   },
   understandActionIrreversible: {
     id: 'understandActionIrreversible',
@@ -2317,7 +2312,7 @@ export default defineMessages({
   typeToRefineResults: {
     id: 'typeToRefineResults',
     description: 'Hint shown when dropdown results are capped',
-    defaultMessage: 'Showing {shown} of {total} — type to refine',
+    defaultMessage: 'Showing {shown, number} of {total, number} — type to refine',
   },
   roleCreatedSuccessfully: {
     id: 'roleCreatedSuccessfully',
@@ -2466,12 +2461,12 @@ export default defineMessages({
   },
   inventoryGroupsAccessDescription: {
     id: 'inventoryGroupsAccessDescription',
-    descriptioin: 'Description for adding correct group permissions to role.',
+    description: 'Description for adding correct group permissions to role.',
     defaultMessage: "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   workspacesAccessDescription: {
     id: 'workspacesAccessDescription',
-    descriptioin: 'Description for adding correct workspaces permissions to role.',
+    description: 'Description for adding correct workspaces permissions to role.',
     defaultMessage: "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   createRole: {
@@ -3155,7 +3150,7 @@ export default defineMessages({
   deleteUserGroupModalBody: {
     id: 'deleteUserGroupModalBody',
     description: 'Modal body text for delete user group',
-    defaultMessage: 'Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.',
+    defaultMessage: 'Deleting {count, plural, one {the <b>{name}</b> user group} other {# user groups}} will impact user access configuration.',
   },
   addToUserGroup: {
     id: 'addToUserGroup',
@@ -3216,7 +3211,7 @@ export default defineMessages({
     id: 'deleteCustomRoleModalBody',
     description: 'Modal body text for deleting custom role',
     defaultMessage:
-      'Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization',
+      'Deleting the {count, plural, one {the <b>{name}</b> role} other {# roles}} may remove acess to certain user groups in your organization',
   },
   deleteRoleConfirm: {
     id: 'deleteRoleConfirm',
@@ -3257,7 +3252,7 @@ export default defineMessages({
     id: 'deleteWorkspaceModalBody',
     description: 'Modal body text for deleting a workspace',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
+      '{count, plural, one {<b>{name}</b> workspace and all its} other {<b># workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
   },
   workspaceNotEmptyWarning: {
     id: 'workspaceNotEmptyWarning',
