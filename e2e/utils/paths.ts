@@ -30,10 +30,13 @@ export const AUTH_DIR = path.join(E2E_ROOT, 'auth');
  * - readonly: No RBAC permissions (should see "unauthorized")
  * - rbacadmin: (V2 only) Has rbac:*:* but is NOT an org admin
  * - workspaceuser: (V2 only) Non-admin with explicit workspace access
+ * - conversion: (V1 only) Org admin of a standing org that is eligible to convert to V2
+ *   and has NOT opted in. Converting this org burns it for the whole conversion suite.
  */
 export const AUTH_V1_ORGADMIN = path.join(AUTH_DIR, 'v1-orgadmin.json');
 export const AUTH_V1_USERVIEWER = path.join(AUTH_DIR, 'v1-userviewer.json');
 export const AUTH_V1_READONLY = path.join(AUTH_DIR, 'v1-readonly.json');
+export const AUTH_V1_CONVERSION = path.join(AUTH_DIR, 'v1-conversion.json');
 
 export const AUTH_V2_ORGADMIN = path.join(AUTH_DIR, 'v2-orgadmin.json');
 export const AUTH_V2_USERVIEWER = path.join(AUTH_DIR, 'v2-userviewer.json');
