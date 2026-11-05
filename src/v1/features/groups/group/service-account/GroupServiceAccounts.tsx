@@ -1,3 +1,4 @@
+import { useServiceAccessTokens } from '../../../../../capabilities/useServiceAccountsFlag';
 import useUserData from '../../../../hooks/useUserData';
 import React, { Fragment, Suspense, useCallback, useEffect, useMemo } from 'react';
 import { Outlet, createSearchParams, useParams } from 'react-router-dom';
@@ -28,6 +29,7 @@ import type { GroupServiceAccountsProps, ServiceAccount } from './types';
  */
 export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props) => {
   const intl = useIntl();
+  const satEnabled = useServiceAccessTokens();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
 
@@ -68,13 +70,25 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     syncWithUrl: false,
   });
 
+  const clientIdFilter = (tableState.apiParams.filters.clientId as string) || '';
+
+  const satUsernamePrefix = '|service-account-';
+  const clientIdQuery =
+    satEnabled && satUsernamePrefix.startsWith(clientIdFilter.toLowerCase())
+      ? undefined
+      : (satEnabled ? clientIdFilter.replace(/^\|service-account-/i, '') : clientIdFilter) || undefined;
+
   // Fetch service accounts using apiParams from tableState
-  const { data: serviceAccountsData, isLoading: isServiceAccountsLoading } = useGroupServiceAccountsQuery(
+  const {
+    data: serviceAccountsData,
+    isLoading: isServiceAccountsLoading,
+    error: serviceAccountsError,
+  } = useGroupServiceAccountsQuery(
     actualGroupId ?? '',
     {
       limit: tableState.apiParams.limit,
       offset: tableState.apiParams.offset,
-      clientId: (tableState.apiParams.filters.clientId as string) || undefined,
+      clientId: clientIdQuery,
       name: (tableState.apiParams.filters.name as string) || undefined,
     },
     { enabled: !!actualGroupId },
@@ -193,6 +207,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
           columnConfig={columnConfig}
           data={isServiceAccountsLoading ? undefined : serviceAccounts}
           totalCount={totalCount}
+          error={serviceAccountsError}
           getRowId={(account) => account.uuid}
           cellRenderers={cellRenderers}
           selectable={selectable}

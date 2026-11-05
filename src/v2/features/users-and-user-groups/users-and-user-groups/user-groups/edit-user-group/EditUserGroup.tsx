@@ -96,6 +96,10 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   const group = groupData;
   const groupUsers = membersData?.members ?? [];
   const groupServiceAccounts = serviceAccountsData?.data ?? [];
+  const initialServiceAccountTypes = useMemo<Record<string, string | undefined>>(
+    () => Object.fromEntries((serviceAccountsData?.data ?? []).filter((sa) => sa.clientId).map((sa) => [sa.clientId, sa.service_account_type])),
+    [serviceAccountsData?.data],
+  );
 
   const isLoading = isGroupsLoading || (groupId && !createNewGroup && (isGroupLoading || isMembersLoading || isServiceAccountsLoading));
 
@@ -182,6 +186,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           groupId: groupId,
           initialUsers: initialFormData?.users || [],
           initialServiceAccounts: initialFormData?.serviceAccounts || [],
+          initialServiceAccountTypes,
           initialValue: {
             users: {
               initial: initialFormData?.users || [],
@@ -195,7 +200,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         },
       ],
     }),
-    [initialFormData, allGroups, groupId, intl],
+    [initialFormData, allGroups, groupId, intl, initialServiceAccountTypes],
   );
 
   const returnToPreviousPage = useCallback(() => {
@@ -233,7 +238,6 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         const removedUsers = users.initial.filter((user: string) => !users.updated.includes(user));
 
         // Add new users to the group
-        // GAP: Using guessed V1 API - POST /api/rbac/v1/groups/:uuid/principals/
         if (addedUsers.length > 0) {
           await addMembersMutation.mutateAsync({
             groupId: targetGroupId,
@@ -242,7 +246,6 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         }
 
         // Remove users from the group
-        // GAP: Using guessed V1 API - DELETE /api/rbac/v1/groups/:uuid/principals/
         if (removedUsers.length > 0) {
           await removeMembersMutation.mutateAsync({
             groupId: targetGroupId,
@@ -255,7 +258,6 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         const removedServiceAccounts = serviceAccounts.initial.filter((serviceAccount: string) => !serviceAccounts.updated.includes(serviceAccount));
 
         // Add new service accounts to the group
-        // GAP: Using guessed V1-style API - POST /api/rbac/v1/groups/:uuid/service-accounts/
         if (addedServiceAccounts.length > 0) {
           await addServiceAccountsMutation.mutateAsync({
             groupId: targetGroupId,
@@ -264,7 +266,6 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         }
 
         // Remove service accounts from the group
-        // GAP: Using guessed V1-style API - DELETE /api/rbac/v1/groups/:uuid/service-accounts/
         if (removedServiceAccounts.length > 0) {
           await removeServiceAccountsMutation.mutateAsync({
             groupId: targetGroupId,
