@@ -327,6 +327,16 @@ export function queryByOuiaId(root: HTMLElement, ouiaId: string): HTMLElement | 
 }
 
 /**
+ * Find the `<section class="rbac-c-root">` that `IamV1` and `IamV2` each mount around their
+ * routing. Both versions use the same class, so this answers "did the shell commit to a
+ * version yet?" rather than "which one" — `null` means neither app is mounted.
+ * Returns `null` if not found.
+ */
+export function queryAppRoot(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.rbac-c-root');
+}
+
+/**
  * Find a PatternFly empty state container in the tree.
  * Returns `null` if not found.
  */

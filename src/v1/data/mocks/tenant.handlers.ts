@@ -24,6 +24,12 @@ export interface TenantOptInHandlerOptions {
    * Defaults to false — the state a tenant is in before it converts.
    */
   optedIn?: boolean;
+  /**
+   * Called on every status GET. The app shell gates this request on the feature flag, and the
+   * query retries once inside its own `queryFn`, so the call *count* is the only way a story
+   * can tell "never asked" from "asked once" from "asked, failed, asked again".
+   */
+  onStatus?: () => void;
 }
 
 export interface TenantOptInErrorOptions extends TenantOptInHandlerOptions {
@@ -52,8 +58,54 @@ const errorBody = (status: number, detail: string | null): TenantApiErrorRespons
 const optInStatusHandler = (options: TenantOptInHandlerOptions) =>
   http.get(OPT_IN_PATH, async () => {
     await delay(options.networkDelay ?? MOCK_DELAY);
+    options.onStatus?.();
     return HttpResponse.json<TenantOptInResponse>({ v2_opted_in: options.optedIn ?? false });
   });
+
+/**
+ * Only `GET /tenant/opt-in/`. The app shell reads the status to pick V1 or V2 and never
+ * touches eligibility or the PATCH, so shell stories register just this one rather than
+ * {@link tenantOptInHandlers}' full wizard set.
+ */
+export function tenantOptInStatusHandlers(options: TenantOptInHandlerOptions = {}) {
+  return [optInStatusHandler(options)];
+}
+
+/**
+ * The status GET fails, every time.
+ *
+ * `useTenantOptInStatusQuery` swallows this and reports "not opted in" rather than rejecting,
+ * because rejecting would reach `QueryCache.onError` and replace the whole app with an error
+ * page for any user who cannot read this endpoint. The status code decides how it gets there:
+ * a 403 or 404 is a definitive refusal and is answered after one request, anything else is
+ * retried once inside `queryFn`, so a story sees two.
+ */
+export function tenantOptInStatusErrorHandlers(status: number = 500, options: TenantOptInErrorOptions = {}) {
+  const networkDelay = options.networkDelay ?? MOCK_DELAY;
+  const detail = options.detail === undefined ? 'Unable to read tenant opt-in status.' : options.detail;
+
+  return [
+    http.get(OPT_IN_PATH, async () => {
+      await delay(networkDelay);
+      options.onStatus?.();
+      return HttpResponse.json(errorBody(status, detail), { status });
+    }),
+  ];
+}
+
+/**
+ * The status GET never answers. Holds the app shell in its loading placeholder for as long as
+ * the story runs, which is the only way to observe the branch that renders neither version.
+ */
+export function tenantOptInStatusLoadingHandlers(options: TenantOptInHandlerOptions = {}) {
+  return [
+    http.get(OPT_IN_PATH, async () => {
+      options.onStatus?.();
+      await delay('infinite');
+      return new HttpResponse(null);
+    }),
+  ];
+}
 
 /**
  * Eligibility and opt-in endpoints for a tenant that converts cleanly.
