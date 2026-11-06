@@ -13,7 +13,7 @@ import { pf4Components } from '../../../../shared/forms/pf4Components';
 import { SetName } from './components/stepName/SetName';
 import { SetRoles } from './components/stepRoles/SetRoles';
 import { SetUsers } from './components/stepUsers/SetUsers';
-import SetServiceAccounts from './components/stepServiceAccounts/SetServiceAccounts';
+import { SetServiceAccounts } from './components/stepServiceAccounts/SetServiceAccounts';
 import { SummaryContent } from './components/stepReview/SummaryContent';
 import { AddGroupSuccess } from './AddGroupSuccess';
 

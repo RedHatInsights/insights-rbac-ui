@@ -487,6 +487,14 @@
     "defaultMessage": "Client ID",
     "description": "Client ID column label"
   },
+  "clientIdOrUsername": {
+    "defaultMessage": "Client ID / Username",
+    "description": "Mixed service account and service access token identifier column"
+  },
+  "serviceAccessTokenLabel": {
+    "defaultMessage": "Token",
+    "description": "Label identifying a service access token principal"
+  },
   "close": {
     "defaultMessage": "Close",
     "description": "Close button text"

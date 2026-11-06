@@ -9,13 +9,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../../../../Messages';
 import { ExternalLink } from '../../../../../../shared/components/navigation/ExternalLink';
-import ServiceAccountsList, { type ServiceAccount } from './ServiceAccountsList';
+import { type ServiceAccount, ServiceAccountsList } from './ServiceAccountsList';
 
 interface SetServiceAccountProps {
   name: string;
 }
 
-const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ name }) => {
+export const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ name }) => {
   const { input } = useFieldApi({ name });
   const intl = useIntl();
   const formOptions = useFormApi();
@@ -55,5 +55,3 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
     </Fragment>
   );
 };
-
-export default SetServiceAccounts;

@@ -12,12 +12,13 @@ import Messages from '../../../../../../Messages';
 interface ExtendedUseFieldApiConfig extends UseFieldApiConfig {
   initialUsers?: string[];
   initialServiceAccounts?: string[];
+  initialServiceAccountTypes?: Record<string, string | undefined>;
 }
 
 export const EditGroupUsersAndServiceAccounts: React.FunctionComponent<ExtendedUseFieldApiConfig> = (props) => {
   const [activeTabKey, setActiveTabKey] = useState(0);
   const formOptions = useFormApi();
-  const { input, groupId, initialUsers = [], initialServiceAccounts = [] } = useFieldApi(props);
+  const { input, groupId, initialUsers = [], initialServiceAccounts = [], initialServiceAccountTypes } = useFieldApi(props);
   const intl = useIntl();
 
   // Initialize form values once when the component mounts
@@ -75,7 +76,12 @@ export const EditGroupUsersAndServiceAccounts: React.FunctionComponent<ExtendedU
           <EditGroupUsersTable groupId={groupId} onChange={handleUserChange} initialUserIds={initialUsers} />
         </div>
         <div className="pf-v6-u-pt-md" style={{ display: activeTabKey === 1 ? 'block' : 'none' }}>
-          <EditGroupServiceAccountsTable groupId={groupId} onChange={handleServiceAccountsChange} initialServiceAccountIds={initialServiceAccounts} />
+          <EditGroupServiceAccountsTable
+            groupId={groupId}
+            onChange={handleServiceAccountsChange}
+            initialServiceAccountIds={initialServiceAccounts}
+            initialServiceAccountTypes={initialServiceAccountTypes}
+          />
         </div>
       </FormGroup>
     </div>

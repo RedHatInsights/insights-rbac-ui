@@ -126,6 +126,7 @@ export interface ServiceAccount {
   owner?: string;
   description?: string;
   time_created?: number; // Unix timestamp in milliseconds (normalized from API's seconds)
+  service_account_type?: string;
 }
 
 /**
@@ -140,6 +141,7 @@ export interface RawServiceAccountFromApi {
   owner?: string;
   description?: string;
   time_created?: number; // Unix timestamp in SECONDS (API format)
+  service_account_type?: string;
 }
 
 /**
@@ -556,6 +558,7 @@ export function useGroupServiceAccountsQuery(
         name: principal.name || principal.username,
         owner: principal.owner,
         description: principal.description,
+        service_account_type: principal.service_account_type,
         // API returns Unix timestamp in seconds, convert to milliseconds for JS Date
         // Use explicit null check to handle valid epoch timestamp (0)
         time_created: principal.time_created != null ? principal.time_created * 1000 : undefined,

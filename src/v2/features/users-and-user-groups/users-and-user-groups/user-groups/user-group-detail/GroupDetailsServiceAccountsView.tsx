@@ -1,3 +1,6 @@
+import { useServiceAccessTokens } from '../../../../../../capabilities/useServiceAccountsFlag';
+import { ServiceAccountName } from '../../../../../../shared/components/service-account-name/ServiceAccountName';
+import { getServiceAccountIdentifier } from '../../../../../../shared/utilities/serviceAccount';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
@@ -21,29 +24,31 @@ interface ServiceAccountData {
   name: string;
   clientId?: string;
   owner?: string;
+  service_account_type?: string;
 }
 
 const columns = ['name', 'clientId', 'owner'] as const;
 
 const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({ groupId, ouiaId }) => {
   const intl = useIntl();
+  const satEnabled = useServiceAccessTokens();
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       name: { label: intl.formatMessage(messages.name) },
-      clientId: { label: intl.formatMessage(messages.clientId) },
+      clientId: { label: intl.formatMessage(satEnabled ? messages.clientIdOrUsername : messages.clientId) },
       owner: { label: intl.formatMessage(messages.owner) },
     }),
-    [intl],
+    [intl, satEnabled],
   );
 
   const cellRenderers: CellRendererMap<typeof columns, ServiceAccountData> = useMemo(
     () => ({
-      name: (account) => account.name,
-      clientId: (account) => account.clientId || '',
+      name: (account) => <ServiceAccountName name={account.name} serviceAccountType={account.service_account_type} satEnabled={satEnabled} />,
+      clientId: (account) => getServiceAccountIdentifier(account.clientId || '', account.service_account_type, satEnabled),
       owner: (account) => account.owner || '',
     }),
-    [],
+    [satEnabled],
   );
 
   // Use useTableState for table state management
@@ -86,6 +91,7 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
     name: account.name || account.clientId,
     clientId: account.clientId,
     owner: account.owner,
+    service_account_type: account.service_account_type,
   }));
 
   return (
