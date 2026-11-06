@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "key": "ebed7ea68cdc9416d56f1cfd5d69b55c7edfa575e82417689febef6509d55989",
-  "phase": "ready",
+  "phase": "superseded",
   "repository": "RedHatInsights/insights-rbac-ui",
   "baseRef": "master",
   "sourceCommit": "1085e780a8cfe4fec17a0a0fab04f2660dcfe046",
@@ -237,5 +237,6 @@
       "phase": "pending"
     }
   },
-  "importAsyncRequestId": "1904266249"
+  "importAsyncRequestId": "1904266249",
+  "failureReason": "Source catalog changed on the recorded PR base ref"
 }
