@@ -26,50 +26,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-  build:
-    name: build
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - uses: './.github/actions/setup-environment'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Storybook
-        run: npm run build-storybook
-
-      # Consumed by the Chromatic upload workflow (workflow_run trigger);
-      # the test job no longer needs it — Vitest runs stories directly.
-      - name: Upload Storybook Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: storybook-static
-          path: storybook-static
-          retention-days: 3
-
-  test:
-    name: test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - uses: './.github/actions/setup-environment'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      # The Vitest addon runs the stories directly in a browser through
-      # @vitest/browser-playwright — no built Storybook or HTTP server needed.
-      - name: Run Storybook tests
-        run: npm run test:storybook
-        env:
-          CI: true
+  storybook:
+    uses: riccardo-forina/shared-workflows/.github/workflows/reusable-storybook.yml@f8ea0df0cc6785c571535ed190d469139e7394a1
+    with:
+      node-version: '24.15.0'
