@@ -11,6 +11,8 @@ export interface AccountManagementHandlerOptions {
   onToggleOrgAdmin?: (...args: unknown[]) => void;
   onGetUserDetail?: (userId: string) => void;
   onToggleSupportCases?: (userId: string, grant: boolean) => void;
+  /** Called with (userId, email) when an update-user-details POST carries an `email` field. */
+  onUpdateEmail?: (userId: string, email: string) => void;
   /** Called once per POST /users/search with the requested ids — lets stories assert the page bulk-fetches in a single request. */
   onSearchUsers?: (ids: string[]) => void;
   /** When provided, org admin POST/DELETE updates `is_org_admin` so the next principals refetch reflects the toggle */
@@ -52,9 +54,10 @@ function buildUserDetailResponse(options: AccountManagementHandlerOptions, userI
   });
 }
 
-/** Shape of the account/v1 update-user request body (the full user object with permissions array). */
+/** Shape of the account/v1 update-user request body (minimal single-field writes). */
 interface UpdateUserBody {
   permissions?: string[];
+  email?: string;
 }
 
 interface SearchUsersBody {
@@ -88,12 +91,33 @@ async function buildUsersSearchResponse(options: AccountManagementHandlerOptions
 }
 
 /**
- * Apply a POST toggle of the portal_manage_cases permission on the account/v1 endpoint.
- * The write sends the updated `permissions` array; grant/revoke is derived from whether
- * the array contains portal_manage_cases.
+ * Dispatch an update-user-details POST. The endpoint is shared across single-field writes:
+ * an `email` field is an email correction; a `permissions` array is the support-cases toggle.
  */
-async function applySupportCasesToggle(options: AccountManagementHandlerOptions, userId: string, request: Request) {
-  const body = (await request.json()) as UpdateUserBody;
+async function applyUserDetailUpdate(options: AccountManagementHandlerOptions, userId: string, request: Request) {
+  const body = (await request.json().catch(() => ({}))) as UpdateUserBody;
+
+  if (typeof body.email === 'string') {
+    options.onUpdateEmail?.(userId, body.email);
+    const user = options.users?.all().find((u) => String(u.external_source_id) === userId);
+    if (options.users && user) {
+      await options.users.update((q) => q.where({ username: user.username }), {
+        data(u) {
+          (u as unknown as { email?: string }).email = body.email;
+        },
+      });
+    }
+    return HttpResponse.json({ body: { id: userId, email: body.email } });
+  }
+
+  return applySupportCasesToggle(options, userId, body);
+}
+
+/**
+ * Apply a POST toggle of the portal_manage_cases permission. Grant/revoke is derived from
+ * whether the updated `permissions` array contains portal_manage_cases.
+ */
+async function applySupportCasesToggle(options: AccountManagementHandlerOptions, userId: string, body: UpdateUserBody) {
   const grant = (body.permissions ?? []).includes('portal_manage_cases');
 
   options.onToggleSupportCases?.(userId, grant);
@@ -193,10 +217,10 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
         return buildUserDetailResponse(options, String(params.userId));
       }),
 
-      // POST toggle portal_manage_cases — updated permissions array on the same user resource
+      // POST update-user-details — email correction or portal_manage_cases toggle on the same resource
       http.post(`${baseUrl}/account/v1/accounts/:accountId/users/:userId`, async ({ params, request }) => {
         await delay(networkDelay);
-        return applySupportCasesToggle(options, String(params.userId), request);
+        return applyUserDetailUpdate(options, String(params.userId), request);
       }),
     ]),
 
@@ -225,12 +249,12 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
       return buildUserDetailResponse(options, userId);
     }),
 
-    // Fallback: POST toggle portal_manage_cases (regex — catches any origin)
+    // Fallback: POST update-user-details (regex — catches any origin)
     // Uses [^/]+$ to avoid matching .../status or .../roles sub-paths
     http.post(/account\/v1\/accounts\/[^/]+\/users\/[^/]+$/, async ({ request }) => {
       await delay(networkDelay);
       const userId = new URL(request.url).pathname.split('/').pop() ?? '';
-      return applySupportCasesToggle(options, userId, request);
+      return applyUserDetailUpdate(options, userId, request);
     }),
   ];
 }
