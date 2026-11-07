@@ -4,9 +4,11 @@ import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
+import PencilAltIcon from '@patternfly/react-icons/dist/js/icons/pencil-alt-icon';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
@@ -28,6 +30,9 @@ import { useUsersQuery } from '../../../shared/data/queries/users';
 import { useAddRolesToGroupMutation } from '../../../shared/data/queries/groups';
 import { GroupsNestedTable } from './components/GroupsNestedTable';
 import { PermissionsNestedTable } from './components/PermissionsNestedTable';
+import { EditUserEmailModal } from './EditUserEmailModal';
+import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
+import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
 import type { Access, RoleOutDynamic } from '../../data/api/roles';
 
 // RoleWithGroupsIn uses the RoleOutDynamic type from the API
@@ -50,10 +55,13 @@ const User: React.FC = () => {
   const { username } = useParams<{ username: string }>();
   const [selectedAddRoles, setSelectedAddRoles] = useState<string[]>([]);
   const [expandedRoleId, setExpandedRoleId] = useState<string | null>(null);
+  const [isEditEmailOpen, setIsEditEmailOpen] = useState(false);
   const toAppLink = useAppLink();
 
   const { orgAdmin, userAccessAdministrator } = useUserData();
   const isAdmin = orgAdmin || userAccessAdministrator;
+  const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
+  const isITLess = useFedRAMPMode();
 
   // Table state via useTableState
   const tableState = useTableState<typeof columns, RoleWithGroupsIn, never, CompoundColumnId>({
@@ -67,6 +75,11 @@ const User: React.FC = () => {
   const { data: usersData, isLoading: isLoadingUsers } = useUsersQuery({ username, limit: 1, status: 'all' }, { enabled: !!username });
   const user = usersData?.users?.[0];
   const userExists = !!user || isLoadingUsers; // Assume exists while loading
+
+  // Email editing goes through the IT Account API, which requires org admin and is absent in
+  // ITLess/FedRAMP. Gate behind the same common-auth model as the other account-API actions.
+  const accountUserId = user?.external_source_id != null ? String(user.external_source_id) : undefined;
+  const canEditEmail = orgAdmin && isCommonAuthModel && !isITLess && !!accountUserId;
 
   // Fetch roles for this user via React Query
   const { data: rolesData, isLoading: isLoadingRoles } = useRolesQuery(
@@ -191,13 +204,34 @@ const User: React.FC = () => {
                     )}
                     {intl.formatMessage(user?.is_org_admin ? messages.yes : messages.no)}
                   </span>
-                  {user?.email && <span>{` | ${intl.formatMessage(messages.email)}: ${user.email}`}</span>}
                   {user?.username && <span>{` | ${intl.formatMessage(messages.username)}: ${user.username}`}</span>}
                 </Fragment>
               ) : undefined,
           }}
         >
           <Section type="content" className="rbac-c-user-roles">
+            <Flex
+              alignItems={{ default: 'alignItemsCenter' }}
+              spaceItems={{ default: 'spaceItemsSm' }}
+              className="pf-v6-u-mb-md"
+              data-ouia-component-id="user-email-field"
+            >
+              <FlexItem>
+                <strong>{`${intl.formatMessage(messages.email)}:`}</strong>
+              </FlexItem>
+              <FlexItem>{isLoadingUsers ? <Skeleton size={SkeletonSize.xs} /> : user?.email || '-'}</FlexItem>
+              {canEditEmail && (
+                <FlexItem>
+                  <Button
+                    variant="plain"
+                    icon={<PencilAltIcon />}
+                    aria-label={intl.formatMessage(messages.editEmailAriaLabel)}
+                    ouiaId="edit-user-email-button"
+                    onClick={() => setIsEditEmailOpen(true)}
+                  />
+                </FlexItem>
+              )}
+            </Flex>
             <TableView<typeof columns, RoleWithGroupsIn, never, CompoundColumnId>
               columns={columns}
               columnConfig={columnConfig}
@@ -250,6 +284,15 @@ const User: React.FC = () => {
                 }}
               />
             </Suspense>
+            {canEditEmail && isEditEmailOpen && (
+              <EditUserEmailModal
+                isOpen={isEditEmailOpen}
+                username={username!}
+                userId={accountUserId!}
+                currentEmail={user?.email ?? ''}
+                onClose={() => setIsEditEmailOpen(false)}
+              />
+            )}
           </Section>
         </PageLayout>
       ) : (

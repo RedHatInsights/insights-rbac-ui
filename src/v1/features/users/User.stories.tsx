@@ -5,6 +5,8 @@ import { expectLoadingVisible, queryBreadcrumb, queryEmptyState, queryPagination
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { User } from './User';
 import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
+import { accountManagementErrorHandlers, accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
+import { clearAndType, waitForModal, waitForModalClose, waitForNotification } from '../../../test-utils/interactionHelpers';
 import type { Principal } from '../../../shared/data/mocks/db';
 import { v1RolesErrorHandlers, v1RolesHandlers, v1RolesLoadingHandlers } from '../../data/mocks/roles.handlers';
 import { groupsHandlers, groupsLoadingHandlers } from '../../../shared/data/mocks/groups.handlers';
@@ -15,6 +17,7 @@ const fetchUsersSpy = fn();
 const fetchRolesSpy = fn();
 const fetchAdminGroupSpy = fn();
 const fetchRoleForUserSpy = fn();
+const updateEmailSpy = fn();
 
 // Mock user data
 const mockActiveUser = {
@@ -650,6 +653,136 @@ export const EmptyRoles: Story = {
       // Verify there are no role rows in the table
       const roleRows = canvas.queryByText(mockRoles[0].display_name);
       expect(roleRows).not.toBeInTheDocument();
+    });
+  },
+};
+
+// Org admin user with an account id — required for the editable-email affordance.
+const mockEditableUser = {
+  username: 'john.doe',
+  email: 'john.doe@redhat.com',
+  first_name: 'John',
+  last_name: 'Doe',
+  is_active: true,
+  is_org_admin: false,
+  external_source_id: '53159986',
+};
+
+const editEmailParameters = {
+  routeUsername: mockEditableUser.username,
+  orgAdmin: true,
+  permissions: ['rbac:*:*'],
+  featureFlags: {
+    'platform.rbac.common-auth-model': true,
+    'platform.rbac.itless': false,
+  },
+};
+
+/**
+ * EditEmail - An org admin corrects a user's email address from the details view.
+ * Covers the full journey: open the dialog from the pencil affordance, edit the prepopulated
+ * value, save through the account API, and see the updated address reflected after save.
+ */
+export const EditEmail: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [
+        ...createDefaultHandlers(mockEditableUser),
+        ...accountManagementHandlers({ onUpdateEmail: (userId, email) => updateEmailSpy({ userId, email }) }),
+      ],
+    },
+  },
+  beforeEach: () => {
+    updateEmailSpy.mockClear();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    const newEmail = 'corrected.address@redhat.com';
+
+    await step('Open the edit email dialog', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      const editButton = await canvas.findByRole('button', { name: /edit email address/i });
+      await user.click(editButton);
+    });
+
+    await step('Edit the prepopulated address and save', async () => {
+      const modal = await waitForModal();
+      const input = modal.getByLabelText('Email address') as HTMLInputElement;
+      await expect(input).toHaveValue(mockEditableUser.email);
+
+      await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, newEmail);
+      await user.click(modal.getByRole('button', { name: /save/i }));
+    });
+
+    await step('Verify the update was submitted and reflected', async () => {
+      await waitForNotification(/success updating user/i);
+      await expect(updateEmailSpy).toHaveBeenCalledWith({ userId: mockEditableUser.external_source_id, email: newEmail });
+      await waitForModalClose();
+      await expect(await canvas.findByText(newEmail)).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * EditEmailError - The account API rejects the update: the admin sees a clear error, the dialog
+ * stays open, and the previously saved address is unchanged.
+ */
+export const EditEmailError: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [...createDefaultHandlers(mockEditableUser), ...accountManagementErrorHandlers(500)],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('Open the dialog and attempt to save', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      await user.click(await canvas.findByRole('button', { name: /edit email address/i }));
+
+      const modal = await waitForModal();
+      await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, 'corrected.address@redhat.com');
+      await user.click(modal.getByRole('button', { name: /save/i }));
+    });
+
+    await step('Verify the error is surfaced and the saved email is unchanged', async () => {
+      await waitForNotification(/failed updating user/i);
+      const modal = await waitForModal();
+      await expect(modal.getByText('Edit email address')).toBeInTheDocument();
+      // The original address still shows on the page behind the dialog.
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * NonAdminNoEmailEdit - A non-admin viewer does not see the edit affordance.
+ */
+export const NonAdminNoEmailEdit: Story = {
+  parameters: {
+    routeUsername: mockEditableUser.username,
+    orgAdmin: false,
+    permissions: [],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': false,
+    },
+    msw: {
+      handlers: createDefaultHandlers(mockEditableUser),
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify no edit affordance for non-admins', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      await expect(canvas.queryByRole('button', { name: /edit email address/i })).not.toBeInTheDocument();
     });
   },
 };
