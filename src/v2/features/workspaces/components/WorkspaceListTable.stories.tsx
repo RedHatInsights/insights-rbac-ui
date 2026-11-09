@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { queryByOuiaId, queryTreeViewToggle } from '../../../../test-utils/interactionHelpers';
+import { openWorkspaceKebabMenu } from '../../../../test-utils/workspaceHelpers';
+import { verifyTooltip } from '../../../../test-utils/tooltipHelpers';
 import { WorkspaceListTable } from './WorkspaceListTable';
 import { BrowserRouter } from 'react-router-dom';
 // Import shared test functions and mock data from helper file
@@ -16,6 +18,9 @@ import {
   waitForSkeletonToDisappear,
 } from '../workspaceTestHelpers';
 import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
+
+const ROOT_WORKSPACE = mockWorkspaces[0];
+const PENDING_WORKSPACE = mockWorkspaces[1];
 
 const defaultProps = {
   workspaces: mockWorkspaces,
@@ -323,7 +328,7 @@ export const PendingViewPermission: Story = {
   args: {
     ...defaultProps,
     hasPermission: (id: string, relation: WorkspaceRelation) => {
-      if (id === '1' && relation === 'view') return false;
+      if (id === PENDING_WORKSPACE.id && relation === 'view') return false;
       return true;
     },
   },
@@ -340,39 +345,25 @@ export const PendingViewPermission: Story = {
       await waitForSkeletonToDisappear(canvasElement);
       const canvas = within(canvasElement);
 
-      const pendingText = await canvas.findByText('Production Environment');
-      const pendingButton = pendingText.closest('button');
-      await expect(pendingButton).not.toBeNull();
+      const pendingButton = await canvas.findByRole('button', { name: PENDING_WORKSPACE.name! });
       await expect(pendingButton).toHaveAttribute('aria-disabled', 'true');
-      await expect(pendingText.closest('a')).toBeNull();
-
-      const rootLink = await canvas.findByRole('link', { name: 'Root Workspace' });
-      await expect(rootLink).toBeInTheDocument();
+      await expect(canvas.queryByRole('link', { name: PENDING_WORKSPACE.name! })).not.toBeInTheDocument();
+      await expect(canvas.findByRole('link', { name: ROOT_WORKSPACE.name! })).resolves.toBeInTheDocument();
     });
 
     await step('Verify pending workspace has tooltip', async () => {
       const canvas = within(canvasElement);
-      const pendingText = await canvas.findByText('Production Environment');
-      await userEvent.hover(pendingText);
-      const tooltip = await within(document.body).findByText('This workspace is being set up and is not available for inspection yet.');
-      await expect(tooltip).toBeInTheDocument();
-      await userEvent.unhover(pendingText);
+      const pendingButton = await canvas.findByRole('button', { name: PENDING_WORKSPACE.name! });
+      await verifyTooltip(userEvent, pendingButton, 'This workspace is being set up and is not available for inspection yet.');
     });
 
     await step('Verify pending workspace kebab actions are all disabled', async () => {
-      const productionRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-1');
-      const productionRowScope = within(productionRow!);
-      const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
+      const canvas = within(canvasElement);
+      const menu = await openWorkspaceKebabMenu(userEvent, canvas, PENDING_WORKSPACE.name!);
 
-      await userEvent.click(productionKebab);
-
-      const editButton = await within(document.body).findByText('Edit workspace');
-      const deleteButton = await within(document.body).findByText('Delete workspace');
-      const moveButton = await within(document.body).findByText('Move workspace');
-
-      await expect(editButton.closest('button')).toHaveAttribute('disabled');
-      await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
-      await expect(moveButton.closest('button')).toHaveAttribute('disabled');
+      await expect(menu.findByRole('menuitem', { name: 'Edit workspace' })).resolves.toHaveAttribute('disabled');
+      await expect(menu.findByRole('menuitem', { name: 'Delete workspace' })).resolves.toHaveAttribute('disabled');
+      await expect(menu.findByRole('menuitem', { name: 'Move workspace' })).resolves.toHaveAttribute('disabled');
     });
   },
 };
