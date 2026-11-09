@@ -52,7 +52,7 @@
     {
       "uid": "d54NASztzKUqfZQtQMQP11",
       "innerId": "9",
-      "status": "NEW",
+      "status": "COMPLETED",
       "providers": [],
       "sourceLang": "en_us",
       "targetLang": "zh_cn",
@@ -64,6 +64,7 @@
         "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
+      "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
       "wordsCount": 312,
       "beginIndex": 0,
@@ -74,7 +75,8 @@
       "dateCreated": "2026-11-03T12:28:58+0000",
       "jobReference": {
         "uid": "R58pjpeD71OUpiiWWqMLT2",
-        "filename": "insights-rbac-ui.feo.en.json"
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
       },
       "project": {
         "name": "hcc-ui",
@@ -96,8 +98,19 @@
     {
       "uid": "exJyN1H0c0s7y8eGz0rXSN",
       "innerId": "10",
-      "status": "NEW",
-      "providers": [],
+      "status": "ACCEPTED",
+      "providers": [
+        {
+          "type": "USER",
+          "id": "285168",
+          "uid": "2sHjdtUUmG8d39nW3yQ216",
+          "userName": "croe",
+          "firstName": "Corina",
+          "lastName": "Roe",
+          "email": "croe@redhat.com",
+          "active": true
+        }
+      ],
       "sourceLang": "en_us",
       "targetLang": "fr",
       "workflowLevel": 1,
@@ -108,6 +121,7 @@
         "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
+      "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
       "wordsCount": 312,
       "beginIndex": 0,
@@ -118,7 +132,8 @@
       "dateCreated": "2026-11-03T12:28:58+0000",
       "jobReference": {
         "uid": "NP6V9XqyA5aF7dKPoeObp2",
-        "filename": "insights-rbac-ui.feo.en.json"
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
       },
       "project": {
         "name": "hcc-ui",
@@ -152,6 +167,7 @@
         "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
+      "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
       "wordsCount": 312,
       "beginIndex": 0,
@@ -162,7 +178,8 @@
       "dateCreated": "2026-11-03T12:28:58+0000",
       "jobReference": {
         "uid": "ddFlrxSHfkGj95P58l0wi5",
-        "filename": "insights-rbac-ui.feo.en.json"
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
       },
       "project": {
         "name": "hcc-ui",
@@ -184,8 +201,19 @@
     {
       "uid": "uIuc0RAzsMPsiWGEfxqxh1",
       "innerId": "12",
-      "status": "NEW",
-      "providers": [],
+      "status": "ACCEPTED",
+      "providers": [
+        {
+          "type": "USER",
+          "id": "346709",
+          "uid": "MYSlpMIGEX95ax0xNc3sb1",
+          "userName": "kemorigu",
+          "firstName": "Keiko",
+          "lastName": "Moriguchi",
+          "email": "kemorigu@redhat.com",
+          "active": true
+        }
+      ],
       "sourceLang": "en_us",
       "targetLang": "ja",
       "workflowLevel": 1,
@@ -196,6 +224,7 @@
         "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
+      "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
       "wordsCount": 312,
       "beginIndex": 0,
@@ -206,7 +235,8 @@
       "dateCreated": "2026-11-03T12:28:58+0000",
       "jobReference": {
         "uid": "GCvPlWBdDNoKaxJZAMm1g0",
-        "filename": "insights-rbac-ui.feo.en.json"
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
       },
       "project": {
         "name": "hcc-ui",
