@@ -554,22 +554,24 @@ export default defineMessages({
   addGroupServiceAccountsSuccessTitle: {
     id: 'addGroupServiceAccountsSuccessTitle',
     description: 'Add group service accounts success notification title',
-    defaultMessage: 'Success adding service {count, plural, one {account} other {accounts}} to group',
+    defaultMessage: '{count, plural, one {Success adding service account to group} other {Success adding service accounts to group}}',
   },
   addGroupServiceAccountsSuccessDescription: {
     id: 'addGroupServiceAccountsSuccessDescription',
     description: 'Add group service accounts success notification description',
-    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} successfully added to the group.',
+    defaultMessage:
+      '{count, plural, one {The service account was successfully added to the group.} other {The service accounts were successfully added to the group.}}',
   },
   addGroupServiceAccountsErrorTitle: {
     id: 'addGroupServiceAccountsErrorTitle',
     description: 'Add group service accounts error notification title',
-    defaultMessage: 'Failed adding service {count, plural, one {account} other {accounts}} to group',
+    defaultMessage: '{count, plural, one {Failed adding service account to group} other {Failed adding service accounts to group}}',
   },
   addGroupServiceAccountsErrorDescription: {
     id: 'addGroupServiceAccountsErrorDescription',
     description: 'Add group service accounts error notification description',
-    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} not added successfully.',
+    defaultMessage:
+      '{count, plural, one {The service account was not added successfully.} other {The service accounts were not added successfully.}}',
   },
   addNewGroupServiceAccountsErrorDescription: {
     id: 'addNewGroupServiceAccountsErrorDescription',
@@ -590,7 +592,8 @@ export default defineMessages({
   removeGroupServiceAccountsSuccessDescription: {
     id: 'removeGroupServiceAccountsSuccessDescription',
     description: 'Removal of  group service accounts success notification description',
-    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} successfully removed from the group.',
+    defaultMessage:
+      '{count, plural, one {The service account was successfully removed from the group.} other {The service accounts were successfully removed from the group.}}',
   },
   removeGroupServiceAccountsErrorTitle: {
     id: 'removeGroupServiceAccountsErrorTitle',
@@ -605,7 +608,8 @@ export default defineMessages({
   removeGroupServiceAccountsErrorDescription: {
     id: 'removeGroupServiceAccountsErrorDescription',
     description: 'Removal of  group service accounts error notification description',
-    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} NOT removed from the group because of error.',
+    defaultMessage:
+      '{count, plural, one {The service account was NOT removed from the group because of error.} other {The service accounts were NOT removed from the group because of error.}}',
   },
   removeGroupRolesSuccessTitle: {
     id: 'removeGroupRolesSuccessTitle',
@@ -1744,7 +1748,7 @@ export default defineMessages({
   removeGroupServiceAccountsQuestion: {
     id: 'removeGroupServiceAccountsQuestion',
     description: 'Remove service accounts from group question label',
-    defaultMessage: 'Remove service {count, plural, one {account} other {accounts}}?',
+    defaultMessage: '{count, plural, one {Remove service account?} other {Remove service accounts?}}',
   },
   removeServiceAccountsText: {
     id: 'removeServiceAccountsText',
@@ -1760,7 +1764,7 @@ export default defineMessages({
   removeServiceAccounts: {
     id: 'removeServiceAccounts',
     description: 'Remove service accounts button label',
-    defaultMessage: 'Remove service {count, plural, one {account} other {accounts}}',
+    defaultMessage: '{count, plural, one {Remove service account} other {Remove service accounts}}',
   },
   member: {
     id: 'member',
@@ -3048,7 +3052,7 @@ export default defineMessages({
   usersAndUserGroupsDeleteUserGroupCount: {
     id: 'usersAndUserGroupsDeleteUserGroupCount',
     description: 'Delete user group action label with selected count',
-    defaultMessage: 'Delete {count, plural, =0 {user group} one {user group (#)} other {user groups (#)}}',
+    defaultMessage: '{count, plural, =0 {Delete user group} one {Delete user group (#)} other {Delete user groups (#)}}',
   },
   usersAndUserGroupsRemoveFromGroup: {
     id: 'usersAndUserGroupsRemoveFromGroup',
@@ -3155,12 +3159,13 @@ export default defineMessages({
   deleteUserGroupModalTitle: {
     id: 'deleteUserGroupModalTitle',
     description: 'Title for delete user group modal',
-    defaultMessage: 'Delete user {count, plural, one {group} other {groups}}?',
+    defaultMessage: '{count, plural, one {Delete user group?} other {Delete user groups?}}',
   },
   deleteUserGroupModalBody: {
     id: 'deleteUserGroupModalBody',
     description: 'Modal body text for delete user group',
-    defaultMessage: 'Deleting {count, plural, one {the <b>{name}</b> user group} other {# user groups}} will impact user access configuration.',
+    defaultMessage:
+      '{count, plural, one {Deleting the <b>{name}</b> user group will impact user access configuration.} other {Deleting # user groups will impact user access configuration.}}',
   },
   addToUserGroup: {
     id: 'addToUserGroup',

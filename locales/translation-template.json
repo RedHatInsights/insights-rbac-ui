@@ -108,19 +108,19 @@
     "description": "Add group service account success notification title"
   },
   "addGroupServiceAccountsErrorDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} not added successfully.",
+    "defaultMessage": "{count, plural, one {The service account was not added successfully.} other {The service accounts were not added successfully.}}",
     "description": "Add group service accounts error notification description"
   },
   "addGroupServiceAccountsErrorTitle": {
-    "defaultMessage": "Failed adding service {count, plural, one {account} other {accounts}} to group",
+    "defaultMessage": "{count, plural, one {Failed adding service account to group} other {Failed adding service accounts to group}}",
     "description": "Add group service accounts error notification title"
   },
   "addGroupServiceAccountsSuccessDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} successfully added to the group.",
+    "defaultMessage": "{count, plural, one {The service account was successfully added to the group.} other {The service accounts were successfully added to the group.}}",
     "description": "Add group service accounts success notification description"
   },
   "addGroupServiceAccountsSuccessTitle": {
-    "defaultMessage": "Success adding service {count, plural, one {account} other {accounts}} to group",
+    "defaultMessage": "{count, plural, one {Success adding service account to group} other {Success adding service accounts to group}}",
     "description": "Add group service accounts success notification title"
   },
   "addGroupSuccessDescription": {
@@ -490,10 +490,6 @@
   "clientIdOrUsername": {
     "defaultMessage": "Client ID / Username",
     "description": "Mixed service account and service access token identifier column"
-  },
-  "serviceAccessTokenLabel": {
-    "defaultMessage": "Token",
-    "description": "Label identifying a service access token principal"
   },
   "close": {
     "defaultMessage": "Close",
@@ -1172,11 +1168,11 @@
     "description": "delete roles"
   },
   "deleteUserGroupModalBody": {
-    "defaultMessage": "Deleting {count, plural, one {the <b>{name}</b> user group} other {# user groups}} will impact user access configuration.",
+    "defaultMessage": "{count, plural, one {Deleting the <b>{name}</b> user group will impact user access configuration.} other {Deleting # user groups will impact user access configuration.}}",
     "description": "Modal body text for delete user group"
   },
   "deleteUserGroupModalTitle": {
-    "defaultMessage": "Delete user {count, plural, one {group} other {groups}}?",
+    "defaultMessage": "{count, plural, one {Delete user group?} other {Delete user groups?}}",
     "description": "Title for delete user group modal"
   },
   "deleteWorkspaceAction": {
@@ -2312,7 +2308,7 @@
     "description": "Removal of group service account success notification title"
   },
   "removeGroupServiceAccountsErrorDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} NOT removed from the group because of error.",
+    "defaultMessage": "{count, plural, one {The service account was NOT removed from the group because of error.} other {The service accounts were NOT removed from the group because of error.}}",
     "description": "Removal of  group service accounts error notification description"
   },
   "removeGroupServiceAccountsErrorTitle": {
@@ -2320,11 +2316,11 @@
     "description": "Removal of  group service accounts error notification title"
   },
   "removeGroupServiceAccountsQuestion": {
-    "defaultMessage": "Remove service {count, plural, one {account} other {accounts}}?",
+    "defaultMessage": "{count, plural, one {Remove service account?} other {Remove service accounts?}}",
     "description": "Remove service accounts from group question label"
   },
   "removeGroupServiceAccountsSuccessDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} successfully removed from the group.",
+    "defaultMessage": "{count, plural, one {The service account was successfully removed from the group.} other {The service accounts were successfully removed from the group.}}",
     "description": "Removal of  group service accounts success notification description"
   },
   "removeGroupServiceAccountsSuccessTitle": {
@@ -2428,7 +2424,7 @@
     "description": "Remove roles question label"
   },
   "removeServiceAccounts": {
-    "defaultMessage": "Remove service {count, plural, one {account} other {accounts}}",
+    "defaultMessage": "{count, plural, one {Remove service account} other {Remove service accounts}}",
     "description": "Remove service accounts button label"
   },
   "removeServiceAccountsText": {
@@ -2739,6 +2735,10 @@
     "defaultMessage": "Selected user groups",
     "description": "Selected user groups section title"
   },
+  "serviceAccessTokenLabel": {
+    "defaultMessage": "Token",
+    "description": "Label identifying a service access token principal"
+  },
   "serviceAccount": {
     "defaultMessage": "Service account",
     "description": "Service accounts singular"
@@ -2948,7 +2948,7 @@
     "description": "Delete user group label"
   },
   "usersAndUserGroupsDeleteUserGroupCount": {
-    "defaultMessage": "Delete {count, plural, =0 {user group} one {user group (#)} other {user groups (#)}}",
+    "defaultMessage": "{count, plural, =0 {Delete user group} one {Delete user group (#)} other {Delete user groups (#)}}",
     "description": "Delete user group action label with selected count"
   },
   "usersAndUserGroupsDescription": {
