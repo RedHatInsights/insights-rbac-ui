@@ -66,7 +66,7 @@ export const TableView: Story = {
     await step('Wait for the audit log table to load', async () => {
       await waitForContentReady(canvasElement);
       await expect(canvas.findByRole('heading', { name: /audit log/i })).resolves.toBeInTheDocument();
-      await waitForPageToLoad(canvas, FIRST_AUDIT_ENTRY.principal_username!);
+      await waitForPageToLoad(canvas, FIRST_AUDIT_ENTRY.description!);
     });
 
     await step('Verify audit log entries', async () => {
@@ -92,7 +92,6 @@ export const NavigateFromSidebar: Story = {
 
     await step('Wait for User Access navigation', async () => {
       await waitForContentReady(canvasElement);
-      await waitForPageToLoad(canvas, FIRST_AUDIT_ENTRY.principal_username!);
     });
 
     await step('Open Audit Log from the sidebar', async () => {
