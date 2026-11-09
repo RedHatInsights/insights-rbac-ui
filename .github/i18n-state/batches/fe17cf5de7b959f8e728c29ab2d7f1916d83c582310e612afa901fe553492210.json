@@ -268,10 +268,18 @@
       "phase": "pending"
     },
     "zh_cn": {
-      "phase": "exporting",
+      "phase": "pr-created",
       "toolingCommitShas": [
         "cf29d2393b8cab6f4944f718989df3f167728da2"
-      ]
+      ],
+      "validationErrors": [],
+      "validationWarnings": [],
+      "pullRequestBodyDigest": "bf296931463cb06144cc51b5321ca94eefbb742e185571e9183cc963de06c62f",
+      "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2489",
+      "pullRequestBranch": "i18n/phrase-fe17cf5de7b959f8-zh-CN",
+      "pullRequestBatchKey": "fe17cf5de7b959f8e728c29ab2d7f1916d83c582310e612afa901fe553492210",
+      "pullRequestAssigneesPending": true,
+      "toolingCommitSha": "cf29d2393b8cab6f4944f718989df3f167728da2"
     }
   },
   "importAsyncRequestId": "1904266295"
