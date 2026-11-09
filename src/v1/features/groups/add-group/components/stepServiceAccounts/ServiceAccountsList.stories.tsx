@@ -48,7 +48,7 @@ export const TypeFilterServiceAccount: Story = {
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
     await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
     // Open Type filter and select "Service account"
-    const typeToggle = await canvas.findByRole('button', { name: /type/i });
+    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
     await user.click(typeToggle);
     const saOption = await canvas.findByRole('option', { name: 'Service account' });
     await user.click(saOption);
@@ -65,7 +65,7 @@ export const TypeFilterServiceAccessToken: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
     // Open Type filter and select "Service Access Token"
-    const typeToggle = await canvas.findByRole('button', { name: /type/i });
+    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
     await user.click(typeToggle);
     const satOption = await canvas.findByRole('option', { name: 'Service Access Token' });
     await user.click(satOption);
@@ -84,7 +84,7 @@ export const TypeFilterClearPreservesSelection: Story = {
     await selectTableRow(user, canvas, FIRST_SA.name);
     await waitFor(() => expect(args.onSelect).toHaveBeenCalledWith([expect.objectContaining({ clientId: FIRST_SA.clientId })]));
     // Apply type filter
-    const typeToggle = await canvas.findByRole('button', { name: /type/i });
+    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
     await user.click(typeToggle);
     const satOption = await canvas.findByRole('option', { name: 'Service Access Token' });
     await user.click(satOption);
@@ -108,7 +108,7 @@ export const TypeFilterEmptyResults: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
     // Filter by SAT when none exist
-    const typeToggle = await canvas.findByRole('button', { name: /type/i });
+    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
     await user.click(typeToggle);
     const satOption = await canvas.findByRole('option', { name: 'Service Access Token' });
     await user.click(satOption);
@@ -123,7 +123,7 @@ export const FlagOff: Story = {
     await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.clientId)).resolves.toBeVisible();
     await expect(canvas.queryByText('Token')).not.toBeInTheDocument();
     // Type filter not visible when flag is off
-    await expect(canvas.queryByRole('button', { name: /type/i })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('button', { name: 'Type' })).not.toBeInTheDocument();
   },
 };
 
