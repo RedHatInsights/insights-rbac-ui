@@ -27,6 +27,6 @@ jobs:
         run: npm run lint
 
   storybook:
-    uses: riccardo-forina/shared-workflows/.github/workflows/reusable-storybook.yml@f8ea0df0cc6785c571535ed190d469139e7394a1
+    uses: riccardo-forina/shared-workflows/.github/workflows/reusable-storybook.yml@a00242d3a97c97100f8427494604e78cc9bf47d2
     with:
       node-version: '24.15.0'
