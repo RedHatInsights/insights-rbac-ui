@@ -9,22 +9,30 @@ export interface ServiceAccountsHandlerOptions {
   networkDelay?: number;
 }
 
+/** Filter accounts by type query parameter if present */
+function filterByType(accounts: MockServiceAccount[], typeParam: string | null): MockServiceAccount[] {
+  if (!typeParam) return accounts;
+  return accounts.filter((a) => {
+    const accountType = a.type ?? 'service_account';
+    return accountType === typeParam;
+  });
+}
+
 export function createServiceAccountsHandlers(
   serviceAccounts: MockServiceAccount[] | MockCollection<MockServiceAccount>,
   options: ServiceAccountsHandlerOptions = {},
 ) {
   const networkDelay = options.networkDelay ?? MOCK_DELAY;
   const getAccounts = () => (Array.isArray(serviceAccounts) ? serviceAccounts : serviceAccounts.all());
-  const getSsoAccounts = (): ServiceAccount[] =>
-    getAccounts().map((account) => ({
-      id: account.uuid,
-      clientId: account.clientId,
-      name: account.name,
-      description: account.description,
-      createdBy: account.owner,
-      createdAt: account.timeCreated,
-      ...(account.type ? { type: account.type } : {}),
-    }));
+  const toSsoAccount = (account: MockServiceAccount): ServiceAccount => ({
+    id: account.uuid,
+    clientId: account.clientId,
+    name: account.name,
+    description: account.description,
+    createdBy: account.owner,
+    createdAt: account.timeCreated,
+    ...(account.type ? { type: account.type } : {}),
+  });
 
   return [
     http.get('*/api/rbac/v1/service-accounts/', async ({ request }) => {
@@ -32,12 +40,14 @@ export function createServiceAccountsHandlers(
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') ?? '20', 10);
       const offset = parseInt(url.searchParams.get('offset') ?? '0', 10);
+      const typeParam = url.searchParams.get('type');
 
-      const paginated = getAccounts().slice(offset, offset + limit);
+      const filtered = filterByType(getAccounts(), typeParam);
+      const paginated = filtered.slice(offset, offset + limit);
 
       return HttpResponse.json({
         data: paginated,
-        meta: { count: getAccounts().length, limit, offset },
+        meta: { count: filtered.length, limit, offset },
       });
     }),
 
@@ -47,7 +57,9 @@ export function createServiceAccountsHandlers(
       const url = new URL(request.url);
       const first = Number(url.searchParams.get('first') ?? 0);
       const max = Number(url.searchParams.get('max') ?? 21);
-      return HttpResponse.json(getSsoAccounts().slice(first, first + max));
+      const typeParam = url.searchParams.get('type');
+      const filtered = filterByType(getAccounts(), typeParam).map(toSsoAccount);
+      return HttpResponse.json(filtered.slice(first, first + max));
     }),
 
     http.get('https://sso.stage.redhat.com/realms/redhat-external/apis/service_accounts/v1', async ({ request }) => {
@@ -55,7 +67,9 @@ export function createServiceAccountsHandlers(
       const url = new URL(request.url);
       const first = Number(url.searchParams.get('first') ?? 0);
       const max = Number(url.searchParams.get('max') ?? 21);
-      return HttpResponse.json(getSsoAccounts().slice(first, first + max));
+      const typeParam = url.searchParams.get('type');
+      const filtered = filterByType(getAccounts(), typeParam).map(toSsoAccount);
+      return HttpResponse.json(filtered.slice(first, first + max));
     }),
 
     // Generic SSO service_accounts/v1 path
@@ -64,7 +78,9 @@ export function createServiceAccountsHandlers(
       const url = new URL(request.url);
       const first = parseInt(url.searchParams.get('first') ?? '0', 10);
       const max = parseInt(url.searchParams.get('max') ?? '21', 10);
-      return HttpResponse.json(getSsoAccounts().slice(first, first + max));
+      const typeParam = url.searchParams.get('type');
+      const filtered = filterByType(getAccounts(), typeParam).map(toSsoAccount);
+      return HttpResponse.json(filtered.slice(first, first + max));
     }),
   ];
 }
