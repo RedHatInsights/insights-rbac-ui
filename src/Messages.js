@@ -577,7 +577,7 @@ export default defineMessages({
     id: 'addNewGroupServiceAccountsErrorDescription',
     description: 'Add group service accounts error notification description',
     defaultMessage:
-      'The group has been created, but the service {count, plural, one {account was} other {accounts were}} not associated successfully. Try adding the the service {count, plural, one {account} other {accounts}} later.',
+      '{count, plural, one {The group has been created, but the service account was not associated successfully. Try adding the service account later.} other {The group has been created, but the service accounts were not associated successfully. Try adding the service accounts later.}}',
   },
   removeGroupServiceAccountsSuccessTitle: {
     id: 'removeGroupServiceAccountsSuccessTitle',
@@ -1754,7 +1754,7 @@ export default defineMessages({
     id: 'removeServiceAccountsText',
     description: 'Remove service accounts description',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.',
+      '{count, plural, one {<b>{name}</b> service account will be removed from <b>{group}</b> group.} other {<b>#</b> service accounts will be removed from <b>{group}</b> group.}}',
   },
   remove: {
     id: 'remove',
@@ -2632,7 +2632,7 @@ export default defineMessages({
     id: 'roleWilBeRemovedWithPermissions',
     description: 'Role will be removed with permissions message',
     defaultMessage:
-      "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
+      "{count, plural, one {The <strong>{name}</strong> role will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.} other {These <strong>{name}</strong> roles will be removed from any group they're in, and members in the groups will no longer be granted the permissions in the roles.}}",
   },
   defineAtLeastOneResource: {
     id: 'defineAtLeastOneResource',
@@ -3226,7 +3226,7 @@ export default defineMessages({
     id: 'deleteCustomRoleModalBody',
     description: 'Modal body text for deleting custom role',
     defaultMessage:
-      'Deleting the {count, plural, one {the <b>{name}</b> role} other {# roles}} may remove acess to certain user groups in your organization',
+      '{count, plural, one {Deleting the <b>{name}</b> role may remove access to certain user groups in your organization} other {Deleting # roles may remove access to certain user groups in your organization}}',
   },
   deleteRoleConfirm: {
     id: 'deleteRoleConfirm',
@@ -3267,13 +3267,13 @@ export default defineMessages({
     id: 'deleteWorkspaceModalBody',
     description: 'Modal body text for deleting a workspace',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> workspace and all its} other {<b># workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
+      '{count, plural, one {<b>{name}</b> workspace and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} other {<b># workspaces</b> and all their data will be permanently deleted. All access granted to user groups via these workspaces will be removed.}}',
   },
   workspaceNotEmptyWarning: {
     id: 'workspaceNotEmptyWarning',
     description: 'Display text in delete modal when workspace is not empty',
     defaultMessage:
-      '{count, plural, one {Workspace} other {Workspaces}} must be empty to delete and must not have any children workspaces. You must move assets in {count, plural, one {this workspace} other {these workspaces}} to other workspaces in order to proceed.',
+      '{count, plural, one {Workspace must be empty to delete and must not have any children workspaces. You must move assets in this workspace to other workspaces in order to proceed.} other {Workspaces must be empty to delete and must not have any children workspaces. You must move assets in these workspaces to other workspaces in order to proceed.}}',
   },
   gotItButtonLabel: {
     id: 'gotItButtonLabel',
