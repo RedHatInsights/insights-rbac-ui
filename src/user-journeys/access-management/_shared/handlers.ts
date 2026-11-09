@@ -52,7 +52,7 @@ export {
 } from '../../../shared/data/mocks/accountManagement.handlers';
 export { accessHandlers, accessErrorHandlers, accessLoadingHandlers } from '../../../v1/data/mocks/access.handlers';
 export { inventoryHandlers, inventoryErrorHandlers, inventoryLoadingHandlers } from '../../../shared/data/mocks/inventory.handlers';
-export { auditHandlers, auditErrorHandlers, auditLoadingHandlers } from '../../../v2/data/mocks/audit.handlers';
+export { auditHandlers, auditErrorHandlers, auditLoadingHandlers } from '../../../shared/data/mocks/audit.handlers';
 
 import { usersHandlers } from '../../../shared/data/mocks/users.handlers';
 import { groupsHandlers } from '../../../shared/data/mocks/groups.handlers';
@@ -62,7 +62,7 @@ import { serviceAccountsHandlers } from '../../../shared/data/mocks/serviceAccou
 import { accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
 import { v1RolesHandlers } from '../../../v1/data/mocks/roles.handlers';
 import { v2RolesHandlers } from '../../../v2/data/mocks/roles.handlers';
-import { auditHandlers } from '../../../v2/data/mocks/audit.handlers';
+import { auditHandlers } from '../../../shared/data/mocks/audit.handlers';
 import { createRoleBindingsListHandlers, roleBindingsHandlers } from '../../../v2/data/mocks/roleBindings.handlers';
 import type { RoleBinding } from '../../../v2/data/queries/roleBindings';
 

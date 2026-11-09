@@ -14,7 +14,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { navigateToPage, resetStoryState } from '../_shared/helpers';
 import { auditHandlers, v2DefaultHandlers } from './_shared';
-import { auditLogsForPagination, defaultAuditLogs } from '../../v2/data/mocks/audit.fixtures';
+import { auditLogsForPagination, defaultAuditLogs } from '../../shared/data/mocks/audit.fixtures';
 import { clearAndType, switchFilterColumn, toggleCheckboxFilterOption, waitForContentReady } from '../../test-utils/interactionHelpers';
 import { waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { TEST_TIMEOUTS } from '../../test-utils/testUtils';

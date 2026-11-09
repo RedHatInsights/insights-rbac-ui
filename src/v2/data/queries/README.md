@@ -55,7 +55,8 @@ export function useExampleMutation(options?: MutationOptions) {
 | `roles.ts` | V2 roles CRUD, role bindings, role assignments | RBAC V2 roles |
 | `workspaces.ts` | Workspaces CRUD, role bindings, access grants | RBAC V2 workspaces |
 | `groups.ts` | V2 groups (wraps shared groups with V2 conventions) | RBAC V1 groups |
-| `audit.ts` | Audit logs | RBAC V2 audit |
 | `groupAssignments.ts` | Composed view of group role assignments | Composes `roles.ts` + `workspaces.ts` |
+
+Audit logs use the shared hook in `src/shared/data/queries/audit.ts`; the endpoint is RBAC v1 and is consumed by both V1 and V2.
 
 See [src/docs/DataLayerDI.mdx](../../../docs/DataLayerDI.mdx) for the full pattern documentation.
