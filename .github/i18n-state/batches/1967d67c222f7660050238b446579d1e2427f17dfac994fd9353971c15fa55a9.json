@@ -48,7 +48,7 @@
     {
       "uid": "niI11DBLhlEksQCVy7T5I2",
       "innerId": "41",
-      "status": "ACCEPTED",
+      "status": "COMPLETED",
       "providers": [
         {
           "type": "USER",
@@ -197,8 +197,19 @@
     {
       "uid": "qmUJtVZna1Oc6yCuZ3OJH4",
       "innerId": "44",
-      "status": "NEW",
-      "providers": [],
+      "status": "ACCEPTED",
+      "providers": [
+        {
+          "type": "USER",
+          "id": "346709",
+          "uid": "MYSlpMIGEX95ax0xNc3sb1",
+          "userName": "kemorigu",
+          "firstName": "Keiko",
+          "lastName": "Moriguchi",
+          "email": "kemorigu@redhat.com",
+          "active": true
+        }
+      ],
       "sourceLang": "en_us",
       "targetLang": "ja",
       "workflowLevel": 1,
