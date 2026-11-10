@@ -11,9 +11,6 @@ const config = createMainConfig({
   a11y: false,
 });
 
-// Temporary negative control: ensure empty Storybook discovery fails.
-config.stories = ['../src/__storybook_negative_control_no_matches__/*.stories.tsx'];
-
 // rbac-ui uses a portal container for modals in Storybook (the hub's previewBody
 // only provides #chrome-app-render-root)
 config.previewBody = () => '<div id="chrome-app-render-root"></div><div id="storybook-modals"></div>';
