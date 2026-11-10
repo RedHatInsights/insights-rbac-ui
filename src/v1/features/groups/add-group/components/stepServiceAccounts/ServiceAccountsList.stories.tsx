@@ -83,8 +83,8 @@ export const TypeFilterClearPreservesSelection: Story = {
     // Close the checkbox filter dropdown before clicking toolbar buttons
     const filterToggle = await canvas.findByRole('button', { name: 'Filter by type...' });
     await user.click(filterToggle);
-    // Clear all filters
-    const clearAll = await canvas.findByText('Clear all filters');
+    // Clear all filters (DataViewToolbar renders "Clear filters")
+    const clearAll = await canvas.findByText('Clear filters');
     await user.click(clearAll);
     // Both types visible again
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
