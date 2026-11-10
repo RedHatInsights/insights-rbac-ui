@@ -4,6 +4,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { expectLoadingVisible, queryBreadcrumb, queryEmptyState, queryPagination } from '../../../test-utils/interactionHelpers';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { User } from './User';
+import { useUpdateUserEmailMutation, useUsersQuery } from '../../../shared/data/queries/users';
 import { createGatedPrincipalsHandlers, usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
 import { accountManagementErrorHandlers, accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
 import { clearAndType, waitForModal, waitForModalClose, waitForNotification } from '../../../test-utils/interactionHelpers';
@@ -817,6 +818,79 @@ export const EditEmailCacheRace: Story = {
       await new Promise((resolve) => setTimeout(resolve, 200));
       expect(canvas.getByText(newEmail)).toBeInTheDocument();
       expect(canvas.queryByText(mockEditableUser.email)).not.toBeInTheDocument();
+    });
+  },
+};
+
+const InFlightListDuringSaveHarness = () => {
+  const incoming = useUsersQuery({ limit: 20, offset: 0, status: 'all' });
+  const updateEmail = useUpdateUserEmailMutation();
+  const incomingLabel = incoming.data ? `loaded:${incoming.data.users.length}` : incoming.isPending ? 'pending' : 'no-data';
+  return (
+    <div>
+      <div data-testid="incoming-list">{incomingLabel}</div>
+      <div data-testid="save-state">{updateEmail.isSuccess ? 'saved' : updateEmail.isPending ? 'saving' : 'idle'}</div>
+      <button
+        onClick={() =>
+          updateEmail.mutate({
+            userId: String(mockEditableUser.external_source_id),
+            email: 'corrected.address@redhat.com',
+            username: mockEditableUser.username,
+          })
+        }
+      >
+        Trigger save
+      </button>
+    </div>
+  );
+};
+
+const backNavStarted = fn();
+const backNavResolved = fn();
+const backNavControl = createGatedPrincipalsHandlers({
+  user: mockEditableUser as unknown as Principal,
+  gateFromCall: 1,
+  onGatedStart: () => backNavStarted(),
+  onGatedResolve: () => backNavResolved(),
+});
+
+export const EditEmailPreservesInFlightListFetch: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [
+        ...backNavControl.handlers,
+        ...accountManagementHandlers({ networkDelay: 0, onUpdateEmail: (userId, email) => updateEmailSpy({ userId, email }) }),
+        ...createDefaultHandlers(mockEditableUser),
+      ],
+    },
+  },
+  render: () => <InFlightListDuringSaveHarness />,
+  beforeEach: () => {
+    updateEmailSpy.mockClear();
+    backNavStarted.mockClear();
+    backNavResolved.mockClear();
+    backNavControl.reset();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('An uncached users-list request is in flight', async () => {
+      await waitFor(() => expect(backNavStarted).toHaveBeenCalled(), { timeout: 5000 });
+      expect(canvas.getByTestId('incoming-list')).toHaveTextContent('pending');
+    });
+
+    await step('An email save succeeds while that request is still pending', async () => {
+      await user.click(canvas.getByRole('button', { name: /trigger save/i }));
+      await waitFor(() => expect(canvas.queryByTestId('save-state')).toHaveTextContent('saved'), { timeout: 5000 });
+    });
+
+    await step('The in-flight list request is preserved and resolves with data', async () => {
+      backNavControl.release();
+      await waitFor(() => expect(backNavResolved).toHaveBeenCalled(), { timeout: 5000 });
+      await waitFor(() => expect(canvas.queryByTestId('incoming-list')).toHaveTextContent('loaded:1'), { timeout: 5000 });
     });
   },
 };

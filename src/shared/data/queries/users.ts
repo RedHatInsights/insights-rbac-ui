@@ -762,7 +762,13 @@ export function useUpdateUserEmailMutation(options?: MutationOptions) {
       return json.body?.email ?? json.email ?? email;
     },
     onSuccess: async (savedEmail, { username }) => {
-      await queryClient.cancelQueries({ queryKey: usersKeys.lists() });
+      await queryClient.cancelQueries({
+        queryKey: usersKeys.lists(),
+        predicate: (query) => {
+          const data = query.state.data as UsersQueryResult | undefined;
+          return !!data?.users.some((u) => u.username === username);
+        },
+      });
 
       const lists = queryClient.getQueriesData<UsersQueryResult>({ queryKey: usersKeys.lists() });
       for (const [key, data] of lists) {
