@@ -61,4 +61,33 @@ describe('verifyTooltip', () => {
     expect(onUnhover).not.toHaveBeenCalled();
     expect(hiddenTooltip).toBeInTheDocument();
   });
+
+  it('reports a missing tooltip and a trigger replaced during hover', async () => {
+    const trigger = createTrigger();
+    trigger.addEventListener('mouseenter', () => trigger.replaceWith(trigger.cloneNode(true)));
+
+    await expect(verifyTooltip(userEvent.setup(), trigger, TOOLTIP_TEXT)).rejects.toThrow(
+      /Tooltip diagnostics:[\s\S]*"triggerConnected": false[\s\S]*"tooltips": \[\]/,
+    );
+  });
+
+  it('reports tooltip content that does not match the expected accessible name', async () => {
+    const trigger = createTrigger();
+    const tooltip = createTooltip('1');
+    const otherText = 'A different tooltip message.';
+    tooltip.textContent = otherText;
+    trigger.addEventListener('mouseenter', () => document.body.append(tooltip));
+
+    await expect(verifyTooltip(userEvent.setup(), trigger, TOOLTIP_TEXT)).rejects.toThrow(new RegExp(`Tooltip diagnostics:[\\s\\S]*${otherText}`));
+  });
+
+  it('reports a matching tooltip excluded from role queries by a hidden ancestor', async () => {
+    const trigger = createTrigger();
+    const portal = document.createElement('div');
+    portal.setAttribute('aria-hidden', 'true');
+    portal.append(createTooltip('1'));
+    trigger.addEventListener('mouseenter', () => document.body.append(portal));
+
+    await expect(verifyTooltip(userEvent.setup(), trigger, TOOLTIP_TEXT)).rejects.toThrow(/Tooltip diagnostics:[\s\S]*"ariaHidden": "true"/);
+  });
 });
