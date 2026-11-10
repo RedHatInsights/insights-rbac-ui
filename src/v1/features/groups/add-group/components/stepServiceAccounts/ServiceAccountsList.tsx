@@ -108,8 +108,6 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
     [satEnabled],
   );
 
-  const hasActiveFilters = Object.values(tableState.filters).some((v) => v !== undefined && v !== '' && (Array.isArray(v) ? v.length > 0 : true));
-
   const ouiaId = 'group-add-service-accounts';
 
   return (
@@ -126,24 +124,17 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         selectable
         isRowSelectable={(sa) => !sa.assignedToSelectedGroup}
         emptyStateNoData={
-          hasActiveFilters ? (
-            <DefaultEmptyStateNoResults
-              title={intl.formatMessage(messages.noServiceAccountsFound)}
-              body={intl.formatMessage(messages.noFilteredRoles)}
-            />
-          ) : (
-            <Fragment>
-              <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <h4>{intl.formatMessage(messages.noServiceAccountsFound)}</h4>
-                <p>{intl.formatMessage(messages.groupServiceAccountEmptyStateBody)}</p>
-              </div>
-            </Fragment>
-          )
+          <Fragment>
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <h4>{intl.formatMessage(messages.noServiceAccountsFound)}</h4>
+              <p>{intl.formatMessage(messages.groupServiceAccountEmptyStateBody)}</p>
+            </div>
+          </Fragment>
         }
         emptyStateNoResults={
           <DefaultEmptyStateNoResults
             title={intl.formatMessage(messages.noServiceAccountsFound)}
-            body={intl.formatMessage(messages.noFilteredRoles)}
+            body={intl.formatMessage(messages.noFilteredServiceAccounts)}
           />
         }
         variant="compact"

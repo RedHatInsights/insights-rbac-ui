@@ -240,7 +240,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
           emptyStateNoResults={
             <DefaultEmptyStateNoResults
               title={intl.formatMessage(messages.noServiceAccountsFound)}
-              body={intl.formatMessage(messages.noFilteredRoles)}
+              body={intl.formatMessage(messages.noFilteredServiceAccounts)}
             />
           }
           variant="default"

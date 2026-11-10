@@ -17,6 +17,30 @@ export type ScopedQueries = BoundFunctions<typeof queries>;
 const body = () => within(document.body);
 
 /**
+ * Open a PatternFly select filter toggle, pick an option from the portal menu,
+ * and close the dropdown. PatternFly renders the select listbox in a portal on
+ * `document.body`, so a canvas-scoped query (within(canvasElement)) can never
+ * find it — this helper queries `document.body` instead.
+ *
+ * Use this wherever a story interacts with a `type: 'select'` filter.
+ *
+ * @param filterLabel  - accessible name on the toggle button (e.g. 'Type')
+ * @param optionLabel  - visible label of the option to select
+ */
+export async function selectFilterOption(
+  user: UserEvent,
+  scope: ScopedQueries,
+  filterLabel: string,
+  optionLabel: string,
+): Promise<void> {
+  const toggle = await scope.findByRole('button', { name: filterLabel });
+  await user.click(toggle);
+  // PF select menu renders in a portal on document.body
+  const option = await body().findByRole('option', { name: optionLabel });
+  await user.click(option);
+}
+
+/**
  * Wait for a modal dialog to appear and return a scoped `within()` handle.
  * Replaces all inline `document.querySelector('[role="dialog"]')` patterns.
  *

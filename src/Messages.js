@@ -2538,6 +2538,11 @@ export default defineMessages({
     description: 'Empty state body when no roles match filters',
     defaultMessage: 'No roles match the filter criteria. Remove all filters or clear all to show results.',
   },
+  noFilteredServiceAccounts: {
+    id: 'noFilteredServiceAccounts',
+    description: 'Empty state body when no service accounts match filters',
+    defaultMessage: 'No service accounts match the filter criteria. Remove all filters or clear all to show results.',
+  },
   configureRoles: {
     id: 'configureRoles',
     description: 'Empty state title when no roles exist',

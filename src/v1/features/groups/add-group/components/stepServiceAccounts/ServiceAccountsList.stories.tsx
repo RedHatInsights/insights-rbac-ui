@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { ServiceAccountsList } from './ServiceAccountsList';
 import { serviceAccountsErrorHandlers, serviceAccountsHandlers } from '../../../../../../shared/data/mocks/serviceAccounts.handlers';
 import { DEFAULT_SERVICE_ACCOUNTS, SAT_SERVICE_ACCOUNT } from '../../../../../../shared/data/mocks/seed';
-import { selectTableRow } from '../../../../../../test-utils/interactionHelpers';
+import { selectFilterOption, selectTableRow } from '../../../../../../test-utils/interactionHelpers';
 
 const FIRST_SA = DEFAULT_SERVICE_ACCOUNTS[0];
 
@@ -47,11 +47,8 @@ export const TypeFilterServiceAccount: Story = {
     // Both types visible initially
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
     await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
-    // Open Type filter and select "Service account"
-    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
-    await user.click(typeToggle);
-    const saOption = await canvas.findByRole('option', { name: 'Service account' });
-    await user.click(saOption);
+    // Open Type filter and select "Service account" via portal-aware helper
+    await selectFilterOption(user, canvas, 'Type', 'Service account');
     // Only regular SA visible
     await waitFor(() => expect(canvas.queryByText(SAT_SERVICE_ACCOUNT.name)).not.toBeInTheDocument());
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
@@ -64,11 +61,8 @@ export const TypeFilterServiceAccessToken: Story = {
     const user = userEvent.setup();
     const canvas = within(canvasElement);
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
-    // Open Type filter and select "Service Access Token"
-    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
-    await user.click(typeToggle);
-    const satOption = await canvas.findByRole('option', { name: 'Service Access Token' });
-    await user.click(satOption);
+    // Open Type filter and select "Service Access Token" via portal-aware helper
+    await selectFilterOption(user, canvas, 'Type', 'Service Access Token');
     // Only SAT visible
     await waitFor(() => expect(canvas.queryByText(FIRST_SA.name)).not.toBeInTheDocument());
     await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
@@ -83,18 +77,20 @@ export const TypeFilterClearPreservesSelection: Story = {
     // Select a service account first
     await selectTableRow(user, canvas, FIRST_SA.name);
     await waitFor(() => expect(args.onSelect).toHaveBeenCalledWith([expect.objectContaining({ clientId: FIRST_SA.clientId })]));
-    // Apply type filter
-    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
-    await user.click(typeToggle);
-    const satOption = await canvas.findByRole('option', { name: 'Service Access Token' });
-    await user.click(satOption);
+    // Apply type filter to hide the selected SA
+    await selectFilterOption(user, canvas, 'Type', 'Service Access Token');
     await waitFor(() => expect(canvas.queryByText(FIRST_SA.name)).not.toBeInTheDocument());
     // Clear all filters
     const clearAll = await canvas.findByText('Clear all filters');
     await user.click(clearAll);
-    // Both types visible again, selection preserved
+    // Both types visible again
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
     await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
+    // Verify selection persisted: the checkbox on the previously-selected row should still be checked
+    const cell = await canvas.findByText(FIRST_SA.name);
+    const row = cell.closest('tr') as HTMLElement;
+    const checkbox = within(row).getByRole('checkbox');
+    expect(checkbox).toBeChecked();
   },
 };
 
@@ -108,10 +104,7 @@ export const TypeFilterEmptyResults: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
     // Filter by SAT when none exist
-    const typeToggle = await canvas.findByRole('button', { name: 'Type' });
-    await user.click(typeToggle);
-    const satOption = await canvas.findByRole('option', { name: 'Service Access Token' });
-    await user.click(satOption);
+    await selectFilterOption(user, canvas, 'Type', 'Service Access Token');
     await expect(canvas.findByText(/no service accounts found/i)).resolves.toBeVisible();
   },
 };
