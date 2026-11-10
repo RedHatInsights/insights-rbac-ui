@@ -11,6 +11,15 @@ const config = createMainConfig({
   a11y: false,
 });
 
+// Temporary negative control: fail production builds without changing the test command.
+const finalizeViteConfig = config.viteFinal;
+config.viteFinal = (viteConfig, options) => {
+  if (options?.configType === 'PRODUCTION') {
+    throw new Error('RHCLOUD-53061: intentional Storybook build failure');
+  }
+  return finalizeViteConfig ? finalizeViteConfig(viteConfig, options) : viteConfig;
+};
+
 // rbac-ui uses a portal container for modals in Storybook (the hub's previewBody
 // only provides #chrome-app-render-root)
 config.previewBody = () => '<div id="chrome-app-render-root"></div><div id="storybook-modals"></div>';
