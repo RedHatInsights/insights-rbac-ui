@@ -264,10 +264,20 @@
       "phase": "pending"
     },
     "zh_cn": {
-      "phase": "exporting",
+      "phase": "pr-created",
       "toolingCommitShas": [
         "efdf68037bbdf2ce49ed23108b30b40a31df345f"
-      ]
+      ],
+      "validationErrors": [
+        "ICU argument mismatches: \"deleteCustomRoleModalBody\": source [count, name], target [count] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content), \"deleteUserGroupModalBody\": source [count, name], target [count] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content), \"deleteWorkspaceModalBody\": source [count, name], target [count] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content), \"removeServiceAccountsText\": source [count, group, name], target [count, group] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content)"
+      ],
+      "validationWarnings": [],
+      "pullRequestBodyDigest": "1052dbd127b99795308c267e926ba90e72ebbdb4bdc52cf54384266f77ec846a",
+      "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2493",
+      "pullRequestBranch": "i18n/phrase-1967d67c222f7660-zh-CN",
+      "pullRequestBatchKey": "1967d67c222f7660050238b446579d1e2427f17dfac994fd9353971c15fa55a9",
+      "pullRequestAssigneesPending": true,
+      "toolingCommitSha": "efdf68037bbdf2ce49ed23108b30b40a31df345f"
     }
   },
   "importAsyncRequestId": "1911660946"
