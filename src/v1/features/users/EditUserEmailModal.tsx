@@ -49,6 +49,13 @@ export const EditUserEmailModal: React.FC<EditUserEmailModalProps> = ({ isOpen, 
     onClose();
   };
 
+  const handleDismiss = () => {
+    if (updateEmail.isPending) {
+      return;
+    }
+    handleClose();
+  };
+
   const handleSubmit = async () => {
     setTouched(true);
     if (validationError || updateEmail.isPending) {
@@ -66,7 +73,7 @@ export const EditUserEmailModal: React.FC<EditUserEmailModalProps> = ({ isOpen, 
     <Modal
       variant={ModalVariant.small}
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={handleDismiss}
       appendTo={getModalContainer()}
       ouiaId="edit-user-email-modal"
       aria-labelledby="edit-user-email-modal-title"

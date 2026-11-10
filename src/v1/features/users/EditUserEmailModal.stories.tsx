@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, userEvent } from 'storybook/test';
+import { expect, fn, userEvent, waitFor } from 'storybook/test';
 import { EditUserEmailModal, type EditUserEmailModalProps } from './EditUserEmailModal';
-import { accountManagementErrorHandlers, accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
+import {
+  accountManagementErrorHandlers,
+  accountManagementHandlers,
+  accountManagementLoadingHandlers,
+} from '../../../shared/data/mocks/accountManagement.handlers';
 import { clearAndType, waitForModal, waitForModalClose, waitForNotification } from '../../../test-utils/interactionHelpers';
 
 const USER = {
@@ -131,6 +135,29 @@ export const SaveError: Story = {
     await waitForNotification(/failed updating user/i);
     await expect(modal.getByText('Edit email address')).toBeInTheDocument();
     await expect(closeSpy).not.toHaveBeenCalled();
+  },
+};
+
+export const PendingSaveBlocksClose: Story = {
+  parameters: {
+    msw: { handlers: accountManagementLoadingHandlers() },
+  },
+  play: async () => {
+    const user = userEvent.setup();
+    const newEmail = 'in.flight@redhat.com';
+    const modal = await waitForModal();
+
+    await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, newEmail);
+    await user.click(modal.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => expect(modal.queryByRole('button', { name: /cancel/i })).toBeDisabled());
+
+    await user.keyboard('{Escape}');
+    await user.click(modal.getByRole('button', { name: /close/i }));
+
+    await expect(modal.getByText('Edit email address')).toBeInTheDocument();
+    await expect(closeSpy).not.toHaveBeenCalled();
+    await expect(modal.getByLabelText('Email address')).toHaveValue(newEmail);
   },
 };
 

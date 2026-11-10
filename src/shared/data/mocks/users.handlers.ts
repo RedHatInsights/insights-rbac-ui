@@ -88,6 +88,66 @@ export function usersErrorHandlers(status: number = 500) {
   ];
 }
 
+export interface GatedPrincipalsOptions {
+  /** Principal returned by every principals GET. */
+  user: Principal;
+  /** 1-based call index at or after which fetches block until released. Default 2. */
+  gateFromCall?: number;
+  /** Called when a gated fetch begins (before it blocks). */
+  onGatedStart?: () => void;
+  /** Called when a gated fetch resolves after release. */
+  onGatedResolve?: () => void;
+  /** Delay (ms) applied to non-gated calls. Default 0. */
+  networkDelay?: number;
+}
+
+export interface GatedPrincipalsControl {
+  handlers: ReturnType<typeof http.get>[];
+  /** Release the currently gated (and any future gated) principals fetch. */
+  release: () => void;
+  /** Reset the call counter and arm a fresh gate (call from a story's beforeEach). */
+  reset: () => void;
+}
+
+/**
+ * Principals handler whose Nth-and-later fetches block until explicitly released, so a story can
+ * hold a principals request in flight across another action (e.g. a cache-patching mutation) and
+ * deterministically reproduce a stale-overwrite race.
+ */
+export function createGatedPrincipalsHandlers(options: GatedPrincipalsOptions): GatedPrincipalsControl {
+  const gateFromCall = options.gateFromCall ?? 2;
+  let callCount = 0;
+  let release: () => void = () => {};
+  let gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+
+  const handlers = [
+    http.get('*/api/rbac/v1/principals/', async () => {
+      callCount += 1;
+      if (callCount >= gateFromCall) {
+        options.onGatedStart?.();
+        await gate;
+        options.onGatedResolve?.();
+      } else if (options.networkDelay) {
+        await delay(options.networkDelay);
+      }
+      return HttpResponse.json({ data: [options.user], meta: { count: 1, limit: 1, offset: 0 } });
+    }),
+  ];
+
+  return {
+    handlers,
+    release: () => release(),
+    reset: () => {
+      callCount = 0;
+      gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+    },
+  };
+}
+
 /** All users endpoints delay forever (loading state) */
 export function usersLoadingHandlers() {
   const handler = async () => {

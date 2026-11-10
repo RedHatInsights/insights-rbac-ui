@@ -4,7 +4,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { expectLoadingVisible, queryBreadcrumb, queryEmptyState, queryPagination } from '../../../test-utils/interactionHelpers';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { User } from './User';
-import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
+import { createGatedPrincipalsHandlers, usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
 import { accountManagementErrorHandlers, accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
 import { clearAndType, waitForModal, waitForModalClose, waitForNotification } from '../../../test-utils/interactionHelpers';
 import type { Principal } from '../../../shared/data/mocks/db';
@@ -757,6 +757,66 @@ export const EditEmailError: Story = {
       await expect(modal.getByText('Edit email address')).toBeInTheDocument();
       // The original address still shows on the page behind the dialog.
       await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+    });
+  },
+};
+
+const racePrincipalsStarted = fn();
+const racePrincipalsResolved = fn();
+const raceControl = createGatedPrincipalsHandlers({
+  user: mockEditableUser as unknown as Principal,
+  onGatedStart: () => racePrincipalsStarted(),
+  onGatedResolve: () => racePrincipalsResolved(),
+});
+
+export const EditEmailCacheRace: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [
+        ...raceControl.handlers,
+        ...accountManagementHandlers({ networkDelay: 0, onUpdateEmail: (userId, email) => updateEmailSpy({ userId, email }) }),
+        ...createDefaultHandlers(mockEditableUser),
+      ],
+    },
+  },
+  beforeEach: () => {
+    updateEmailSpy.mockClear();
+    racePrincipalsStarted.mockClear();
+    racePrincipalsResolved.mockClear();
+    raceControl.reset();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    const newEmail = 'race.corrected@redhat.com';
+
+    await step('Open the dialog and enter a new address', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email, undefined, { timeout: 5000 })).toBeInTheDocument();
+      await user.click(await canvas.findByRole('button', { name: /edit email address/i }));
+      const modal = await waitForModal();
+      await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, newEmail);
+    });
+
+    await step('Begin a principals refetch that stays in flight', async () => {
+      window.dispatchEvent(new Event('visibilitychange'));
+      await waitFor(() => expect(racePrincipalsStarted).toHaveBeenCalled(), { timeout: 5000 });
+    });
+
+    await step('Save while the stale refetch is still pending', async () => {
+      const modal = await waitForModal();
+      await user.click(modal.getByRole('button', { name: /save/i }));
+      await waitForNotification(/success updating user/i);
+      await waitForModalClose();
+    });
+
+    await step('Let the stale refetch complete; the saved email must survive', async () => {
+      raceControl.release();
+      await waitFor(() => expect(racePrincipalsResolved).toHaveBeenCalled(), { timeout: 5000 });
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(canvas.getByText(newEmail)).toBeInTheDocument();
+      expect(canvas.queryByText(mockEditableUser.email)).not.toBeInTheDocument();
     });
   },
 };

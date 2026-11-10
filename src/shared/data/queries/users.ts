@@ -761,7 +761,9 @@ export function useUpdateUserEmailMutation(options?: MutationOptions) {
       const json = (await response.json().catch(() => ({}))) as { body?: { email?: string }; email?: string };
       return json.body?.email ?? json.email ?? email;
     },
-    onSuccess: (savedEmail, { username }) => {
+    onSuccess: async (savedEmail, { username }) => {
+      await queryClient.cancelQueries({ queryKey: usersKeys.lists() });
+
       const lists = queryClient.getQueriesData<UsersQueryResult>({ queryKey: usersKeys.lists() });
       for (const [key, data] of lists) {
         if (!data) continue;
