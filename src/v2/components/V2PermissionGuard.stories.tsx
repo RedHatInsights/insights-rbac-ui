@@ -78,7 +78,7 @@ export const Authorized: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const content = await canvas.findByTestId('protected-content');
-    await expect(content).not.toBeInTheDocument();
+    expect(content).toBeInTheDocument();
   },
 };
 

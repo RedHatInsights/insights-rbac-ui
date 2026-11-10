@@ -11,14 +11,8 @@ const config = createMainConfig({
   a11y: false,
 });
 
-// Temporary negative control: fail production builds without changing the test command.
-const finalizeViteConfig = config.viteFinal;
-config.viteFinal = (viteConfig, options) => {
-  if (options?.configType === 'PRODUCTION') {
-    throw new Error('RHCLOUD-53061: intentional Storybook build failure');
-  }
-  return finalizeViteConfig ? finalizeViteConfig(viteConfig, options) : viteConfig;
-};
+// Temporary negative control: ensure empty Storybook discovery fails.
+config.stories = ['../src/__storybook_negative_control_no_matches__/*.stories.tsx'];
 
 // rbac-ui uses a portal container for modals in Storybook (the hub's previewBody
 // only provides #chrome-app-render-root)
