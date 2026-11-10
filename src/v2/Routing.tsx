@@ -44,7 +44,7 @@ const MyWorkspaces = lazy(() => import('./features/my-access/my-workspaces/MyWor
 const OrganizationManagement = lazy(() => import('./features/organization-management/OrganizationManagement'));
 const RoutedOrgGrantAccessWizard = lazy(() => import('./features/organization-management/RoutedOrgGrantAccessWizard'));
 const RoutedOrgRoleAccessModal = lazy(() => import('./features/organization-management/RoutedOrgRoleAccessModal'));
-const AuditLog = lazy(() => import('./features/audit-log/AuditLog'));
+const AuditLog = lazy(() => import('../shared/components/audit-log/AuditLog'));
 
 const CreateUserGroup = () => <EditUserGroup createNewGroup />;
 const RoutedCreateSubWorkspace = (props: Record<string, unknown>) => <RoutedCreateWorkspace mode="sub" {...props} />;

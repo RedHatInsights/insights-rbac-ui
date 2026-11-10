@@ -66,5 +66,6 @@ export function useExternalApiMutation(options?: MutationOptions) {
 | `inventory.ts` | Inventory groups for resource definitions | Host Inventory API |
 | `cost.ts` | Resource types for cost management permissions | Cost Management API |
 | `serviceAccounts.ts` | Service accounts list | External SSO API |
+| `audit.ts` | Audit log list | RBAC v1 audit logs |
 
 See [src/docs/DataLayerDI.mdx](../../docs/DataLayerDI.mdx) for the full pattern documentation.

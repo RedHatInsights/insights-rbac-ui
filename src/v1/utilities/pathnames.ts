@@ -130,6 +130,12 @@ const groups: PathnameConfig = {
   title: 'Groups',
 };
 
+const auditLog: PathnameConfig = {
+  link: () => '/user-access/audit-log',
+  path: '/user-access/audit-log',
+  title: 'Audit Log',
+};
+
 const addGroup: PathnameConfig = {
   link: () => '/user-access/groups/add-group',
   path: 'add-group',
@@ -272,6 +278,7 @@ const pathnames = {
   'role-detail-permission': roleDetailPermission,
   'role-detail-permission-edit': roleDetailPermissionEdit,
   groups,
+  'audit-log': auditLog,
   'add-group': addGroup,
   'remove-group': removeGroup,
   'edit-group': editGroup,
@@ -315,6 +322,7 @@ export {
   roleDetailPermission,
   roleDetailPermissionEdit,
   groups,
+  auditLog,
   addGroup,
   removeGroup,
   editGroup,

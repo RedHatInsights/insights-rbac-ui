@@ -12,7 +12,7 @@ import type { V2MockDb } from './db';
 import { type V2RolesHandlerOptions, createV2RolesHandlers } from './roles.handlers';
 import { type WorkspacesHandlerOptions, createWorkspacesHandlers } from './workspaces.handlers';
 import { type StatefulRoleBindingsOptions, createStatefulRoleBindingsHandlers } from './roleBindings.handlers';
-import { auditHandlers } from './audit.handlers';
+import { auditHandlers } from '../../../shared/data/mocks/audit.handlers';
 import { type GroupsHandlerOptions, createGroupsHandlers } from '../../../shared/data/mocks/groups.handlers';
 import { type GroupMembersHandlerOptions, createGroupMembersHandlers } from '../../../shared/data/mocks/groupMembers.handlers';
 import { type GroupRolesHandlerOptions, createGroupRolesHandlers } from '../../../shared/data/mocks/groupRoles.handlers';

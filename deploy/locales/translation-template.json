@@ -63,6 +63,14 @@
     "defaultMessage": "Overview",
     "description": "title of bundleSegments.iam.module-rbac-ui.navItems.overview"
   },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.audit-log.product": {
+    "defaultMessage": "Identity & Access Management",
+    "description": "product of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.audit-log"
+  },
+  "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.audit-log.title": {
+    "defaultMessage": "Audit Log",
+    "description": "title of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.audit-log"
+  },
   "bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups.product": {
     "defaultMessage": "Identity & Access Management",
     "description": "product of bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups"

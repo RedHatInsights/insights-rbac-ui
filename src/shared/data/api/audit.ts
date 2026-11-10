@@ -1,7 +1,7 @@
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
 import type { AxiosInstance } from 'axios';
 import getAuditlogs from '@redhat-cloud-services/rbac-client/GetAuditlogs';
-import { RBAC_API_BASE, apiClient } from '../../../shared/data/api/client';
+import { RBAC_API_BASE, apiClient } from './client';
 
 const auditEndpoints = {
   getAuditlogs,

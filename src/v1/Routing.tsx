@@ -7,7 +7,7 @@ import { usePlatformTracking } from '../shared/hooks/usePlatformTracking';
 import { useServiceAccountsFlag } from '../capabilities/useServiceAccountsFlag';
 import { AppPlaceholder } from '../shared/components/ui-states/LoaderPlaceholders';
 import ElementWrapper from '../shared/components/ElementWrapper';
-import { guard } from './components/PermissionGuard';
+import { guard, guardOrgAdmin } from './components/PermissionGuard';
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstartsTestButtons';
 
@@ -48,6 +48,7 @@ const AddGroupServiceAccounts = lazy(() => import('./features/groups/group/servi
 const RemoveServiceAccountFromGroup = lazy(() => import('./features/groups/group/service-account/RemoveGroupServiceAccounts'));
 const QuickstartsTest = lazy(() => import('./features/quickstarts/QuickstartsTest'));
 const MyUserAccessPage = lazy(() => import('./features/myUserAccess/MyUserAccess'));
+const AuditLog = lazy(() => import('../shared/components/audit-log/AuditLog'));
 
 const GroupDetailRedirect = () => {
   const { groupId = '' } = useParams();
@@ -199,6 +200,11 @@ export const V1Routing = () => {
 
         {/* My User Access (public) */}
         <Route path={pathnames['my-user-access'].path} element={<MyUserAccessPage />} />
+
+        {/* Audit Log — org admin only */}
+        <Route {...guardOrgAdmin()}>
+          <Route path={pathnames['audit-log'].path} element={<AuditLog />} />
+        </Route>
 
         <Route path="*" element={<Navigate to={toAppLink(pathnames['my-user-access'].link())} />} />
       </Routes>

@@ -1,12 +1,13 @@
 # Audit Log
 
-Read-only table of RBAC audit log entries showing actions performed against roles, groups, and users.
+Shared, read-only table of RBAC audit log entries showing actions performed against roles, groups, and users. Both User Access (V1) and Access Management (V2) use the same page and RBAC v1 API.
 
 ## Route
 
 | Path | Component |
 |---|---|
-| `/access-management/audit-log` | `AuditLog` |
+| `/user-access/audit-log` | `AuditLog` (V1) |
+| `/access-management/audit-log` | `AuditLog` (V2) |
 
 ## Files
 
@@ -19,10 +20,10 @@ Read-only table of RBAC audit log entries showing actions performed against role
 
 ## Data Layer
 
-- **API client**: `src/v2/data/api/audit.ts` — wraps `@redhat-cloud-services/rbac-client` `getAuditlogs` endpoint (RBAC v1)
-- **Query hook**: `src/v2/data/queries/audit.ts` — `useAuditLogsQuery` (TanStack Query)
-- **MSW handlers**: `src/v2/data/mocks/audit.handlers.ts` — `auditHandlers()`, `auditErrorHandlers()`, `auditLoadingHandlers()`
-- **Fixtures**: `src/v2/data/mocks/audit.fixtures.ts` — `defaultAuditLogs`
+- **API client**: `src/shared/data/api/audit.ts` — wraps `@redhat-cloud-services/rbac-client` `getAuditlogs` endpoint (`GET /api/rbac/v1/auditlogs/`)
+- **Query hook**: `src/shared/data/queries/audit.ts` — `useAuditLogsQuery` (TanStack Query)
+- **MSW handlers**: `src/shared/data/mocks/audit.handlers.ts` — `auditHandlers()`, `auditErrorHandlers()`, `auditLoadingHandlers()`
+- **Fixtures**: `src/shared/data/mocks/audit.fixtures.ts` — `defaultAuditLogs`
 
 ## Columns
 
@@ -40,4 +41,4 @@ All filters are server-side (sent as API query params, not client-side filtering
 
 ## Permissions
 
-No special permissions beyond standard RBAC access. The API enforces org-admin visibility. Route is guarded by `guardOrgAdmin()`.
+The page and its navigation item are org-admin-only in both versions. V1 route uses `guardOrgAdmin()`; V2 route uses `v2GuardOrgAdmin()`. The API also enforces org-admin visibility.

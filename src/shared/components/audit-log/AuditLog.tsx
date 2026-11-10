@@ -8,7 +8,7 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-clo
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { GetAuditlogsActionEnum as ActionEnum, GetAuditlogsResourceTypeEnum as ResourceTypeEnum, useAuditLogsQuery } from '../../data/queries/audit';
 import type { AuditLog as ApiAuditLog } from '../../data/queries/audit';
-import { getDateFormat } from '../../../shared/helpers/stringUtilities';
+import { getDateFormat } from '../../helpers/stringUtilities';
 import messages from '../../../Messages';
 
 const VALID_RESOURCE_TYPES = new Set<string>(Object.values(ResourceTypeEnum));
