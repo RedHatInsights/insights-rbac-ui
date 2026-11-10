@@ -27,12 +27,7 @@ const body = () => within(document.body);
  * @param filterLabel  - accessible name on the toggle button (e.g. 'Type')
  * @param optionLabel  - visible label of the option to select
  */
-export async function selectFilterOption(
-  user: UserEvent,
-  scope: ScopedQueries,
-  filterLabel: string,
-  optionLabel: string,
-): Promise<void> {
+export async function selectFilterOption(user: UserEvent, scope: ScopedQueries, filterLabel: string, optionLabel: string): Promise<void> {
   const toggle = await scope.findByRole('button', { name: filterLabel });
   await user.click(toggle);
   // PF select menu renders in a portal on document.body
