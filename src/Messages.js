@@ -1700,6 +1700,36 @@ export default defineMessages({
     description: 'Email label',
     defaultMessage: 'Email',
   },
+  editEmailAriaLabel: {
+    id: 'editEmailAriaLabel',
+    description: 'Accessible label for the edit email address button',
+    defaultMessage: 'Edit email address',
+  },
+  editEmailTitle: {
+    id: 'editEmailTitle',
+    description: 'Edit email address modal title',
+    defaultMessage: 'Edit email address',
+  },
+  editEmailDescription: {
+    id: 'editEmailDescription',
+    description: 'Edit email address modal description',
+    defaultMessage: 'Correct the email address for {username}.',
+  },
+  editEmailFieldLabel: {
+    id: 'editEmailFieldLabel',
+    description: 'Edit email address field label',
+    defaultMessage: 'Email address',
+  },
+  editEmailRequired: {
+    id: 'editEmailRequired',
+    description: 'Validation message shown when the email address field is empty',
+    defaultMessage: 'Email address is required.',
+  },
+  editEmailInvalid: {
+    id: 'editEmailInvalid',
+    description: 'Validation message shown when the email address is not a valid format',
+    defaultMessage: 'Enter a valid email address.',
+  },
   status: {
     id: 'status',
     description: 'Status label',

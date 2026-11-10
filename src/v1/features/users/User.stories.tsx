@@ -4,7 +4,10 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { expectLoadingVisible, queryBreadcrumb, queryEmptyState, queryPagination } from '../../../test-utils/interactionHelpers';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { User } from './User';
-import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
+import { useUpdateUserEmailMutation, useUsersQuery } from '../../../shared/data/queries/users';
+import { createGatedPrincipalsHandlers, usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
+import { accountManagementErrorHandlers, accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
+import { clearAndType, waitForModal, waitForModalClose, waitForNotification } from '../../../test-utils/interactionHelpers';
 import type { Principal } from '../../../shared/data/mocks/db';
 import { v1RolesErrorHandlers, v1RolesHandlers, v1RolesLoadingHandlers } from '../../data/mocks/roles.handlers';
 import { groupsHandlers, groupsLoadingHandlers } from '../../../shared/data/mocks/groups.handlers';
@@ -15,6 +18,7 @@ const fetchUsersSpy = fn();
 const fetchRolesSpy = fn();
 const fetchAdminGroupSpy = fn();
 const fetchRoleForUserSpy = fn();
+const updateEmailSpy = fn();
 
 // Mock user data
 const mockActiveUser = {
@@ -650,6 +654,269 @@ export const EmptyRoles: Story = {
       // Verify there are no role rows in the table
       const roleRows = canvas.queryByText(mockRoles[0].display_name);
       expect(roleRows).not.toBeInTheDocument();
+    });
+  },
+};
+
+// Org admin user with an account id — required for the editable-email affordance.
+const mockEditableUser = {
+  username: 'john.doe',
+  email: 'john.doe@redhat.com',
+  first_name: 'John',
+  last_name: 'Doe',
+  is_active: true,
+  is_org_admin: false,
+  external_source_id: '53159986',
+};
+
+const editEmailParameters = {
+  routeUsername: mockEditableUser.username,
+  orgAdmin: true,
+  permissions: ['rbac:*:*'],
+  featureFlags: {
+    'platform.rbac.common-auth-model': true,
+    'platform.rbac.itless': false,
+  },
+};
+
+/**
+ * EditEmail - An org admin corrects a user's email address from the details view.
+ * Covers the full journey: open the dialog from the pencil affordance, edit the prepopulated
+ * value, save through the account API, and see the updated address reflected after save.
+ */
+export const EditEmail: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [
+        ...createDefaultHandlers(mockEditableUser),
+        ...accountManagementHandlers({ onUpdateEmail: (userId, email) => updateEmailSpy({ userId, email }) }),
+      ],
+    },
+  },
+  beforeEach: () => {
+    updateEmailSpy.mockClear();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    const newEmail = 'corrected.address@redhat.com';
+
+    await step('Open the edit email dialog', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      const editButton = await canvas.findByRole('button', { name: /edit email address/i });
+      await user.click(editButton);
+    });
+
+    await step('Edit the prepopulated address and save', async () => {
+      const modal = await waitForModal();
+      const input = modal.getByLabelText('Email address') as HTMLInputElement;
+      await expect(input).toHaveValue(mockEditableUser.email);
+
+      await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, newEmail);
+      await user.click(modal.getByRole('button', { name: /save/i }));
+    });
+
+    await step('Verify the update was submitted and reflected', async () => {
+      await waitForNotification(/success updating user/i);
+      await expect(updateEmailSpy).toHaveBeenCalledWith({ userId: mockEditableUser.external_source_id, email: newEmail });
+      await waitForModalClose();
+      await expect(await canvas.findByText(newEmail)).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * EditEmailError - The account API rejects the update: the admin sees a clear error, the dialog
+ * stays open, and the previously saved address is unchanged.
+ */
+export const EditEmailError: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [...createDefaultHandlers(mockEditableUser), ...accountManagementErrorHandlers(500)],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('Open the dialog and attempt to save', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      await user.click(await canvas.findByRole('button', { name: /edit email address/i }));
+
+      const modal = await waitForModal();
+      await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, 'corrected.address@redhat.com');
+      await user.click(modal.getByRole('button', { name: /save/i }));
+    });
+
+    await step('Verify the error is surfaced and the saved email is unchanged', async () => {
+      await waitForNotification(/failed updating user/i);
+      const modal = await waitForModal();
+      await expect(modal.getByText('Edit email address')).toBeInTheDocument();
+      // The original address still shows on the page behind the dialog.
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+    });
+  },
+};
+
+const racePrincipalsStarted = fn();
+const racePrincipalsResolved = fn();
+const raceControl = createGatedPrincipalsHandlers({
+  user: mockEditableUser as unknown as Principal,
+  onGatedStart: () => racePrincipalsStarted(),
+  onGatedResolve: () => racePrincipalsResolved(),
+});
+
+export const EditEmailCacheRace: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [
+        ...raceControl.handlers,
+        ...accountManagementHandlers({ networkDelay: 0, onUpdateEmail: (userId, email) => updateEmailSpy({ userId, email }) }),
+        ...createDefaultHandlers(mockEditableUser),
+      ],
+    },
+  },
+  beforeEach: () => {
+    updateEmailSpy.mockClear();
+    racePrincipalsStarted.mockClear();
+    racePrincipalsResolved.mockClear();
+    raceControl.reset();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    const newEmail = 'race.corrected@redhat.com';
+
+    await step('Open the dialog and enter a new address', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email, undefined, { timeout: 5000 })).toBeInTheDocument();
+      await user.click(await canvas.findByRole('button', { name: /edit email address/i }));
+      const modal = await waitForModal();
+      await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, newEmail);
+    });
+
+    await step('Begin a principals refetch that stays in flight', async () => {
+      window.dispatchEvent(new Event('visibilitychange'));
+      await waitFor(() => expect(racePrincipalsStarted).toHaveBeenCalled(), { timeout: 5000 });
+    });
+
+    await step('Save while the stale refetch is still pending', async () => {
+      const modal = await waitForModal();
+      await user.click(modal.getByRole('button', { name: /save/i }));
+      await waitForNotification(/success updating user/i);
+      await waitForModalClose();
+    });
+
+    await step('Let the stale refetch complete; the saved email must survive', async () => {
+      raceControl.release();
+      await waitFor(() => expect(racePrincipalsResolved).toHaveBeenCalled(), { timeout: 5000 });
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(canvas.getByText(newEmail)).toBeInTheDocument();
+      expect(canvas.queryByText(mockEditableUser.email)).not.toBeInTheDocument();
+    });
+  },
+};
+
+const InFlightListDuringSaveHarness = () => {
+  const incoming = useUsersQuery({ limit: 20, offset: 0, status: 'all' });
+  const updateEmail = useUpdateUserEmailMutation();
+  const incomingLabel = incoming.data ? `loaded:${incoming.data.users.length}` : incoming.isPending ? 'pending' : 'no-data';
+  return (
+    <div>
+      <div data-testid="incoming-list">{incomingLabel}</div>
+      <div data-testid="save-state">{updateEmail.isSuccess ? 'saved' : updateEmail.isPending ? 'saving' : 'idle'}</div>
+      <button
+        onClick={() =>
+          updateEmail.mutate({
+            userId: String(mockEditableUser.external_source_id),
+            email: 'corrected.address@redhat.com',
+            username: mockEditableUser.username,
+          })
+        }
+      >
+        Trigger save
+      </button>
+    </div>
+  );
+};
+
+const backNavStarted = fn();
+const backNavResolved = fn();
+const backNavControl = createGatedPrincipalsHandlers({
+  user: mockEditableUser as unknown as Principal,
+  gateFromCall: 1,
+  onGatedStart: () => backNavStarted(),
+  onGatedResolve: () => backNavResolved(),
+});
+
+export const EditEmailPreservesInFlightListFetch: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [
+        ...backNavControl.handlers,
+        ...accountManagementHandlers({ networkDelay: 0, onUpdateEmail: (userId, email) => updateEmailSpy({ userId, email }) }),
+        ...createDefaultHandlers(mockEditableUser),
+      ],
+    },
+  },
+  render: () => <InFlightListDuringSaveHarness />,
+  beforeEach: () => {
+    updateEmailSpy.mockClear();
+    backNavStarted.mockClear();
+    backNavResolved.mockClear();
+    backNavControl.reset();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('An uncached users-list request is in flight', async () => {
+      await waitFor(() => expect(backNavStarted).toHaveBeenCalled(), { timeout: 5000 });
+      expect(canvas.getByTestId('incoming-list')).toHaveTextContent('pending');
+    });
+
+    await step('An email save succeeds while that request is still pending', async () => {
+      await user.click(canvas.getByRole('button', { name: /trigger save/i }));
+      await waitFor(() => expect(canvas.queryByTestId('save-state')).toHaveTextContent('saved'), { timeout: 5000 });
+    });
+
+    await step('The in-flight list request is preserved and resolves with data', async () => {
+      backNavControl.release();
+      await waitFor(() => expect(backNavResolved).toHaveBeenCalled(), { timeout: 5000 });
+      await waitFor(() => expect(canvas.queryByTestId('incoming-list')).toHaveTextContent('loaded:1'), { timeout: 5000 });
+    });
+  },
+};
+
+/**
+ * NonAdminNoEmailEdit - A non-admin viewer does not see the edit affordance.
+ */
+export const NonAdminNoEmailEdit: Story = {
+  parameters: {
+    routeUsername: mockEditableUser.username,
+    orgAdmin: false,
+    permissions: [],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': false,
+    },
+    msw: {
+      handlers: createDefaultHandlers(mockEditableUser),
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify no edit affordance for non-admins', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      await expect(canvas.queryByRole('button', { name: /edit email address/i })).not.toBeInTheDocument();
     });
   },
 };

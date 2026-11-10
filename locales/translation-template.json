@@ -1259,6 +1259,30 @@
     "defaultMessage": "Edit custom role",
     "description": "Edit custom role label"
   },
+  "editEmailAriaLabel": {
+    "defaultMessage": "Edit email address",
+    "description": "Accessible label for the edit email address button"
+  },
+  "editEmailDescription": {
+    "defaultMessage": "Correct the email address for {username}.",
+    "description": "Edit email address modal description"
+  },
+  "editEmailFieldLabel": {
+    "defaultMessage": "Email address",
+    "description": "Edit email address field label"
+  },
+  "editEmailInvalid": {
+    "defaultMessage": "Enter a valid email address.",
+    "description": "Validation message shown when the email address is not a valid format"
+  },
+  "editEmailRequired": {
+    "defaultMessage": "Email address is required.",
+    "description": "Validation message shown when the email address field is empty"
+  },
+  "editEmailTitle": {
+    "defaultMessage": "Edit email address",
+    "description": "Edit email address modal title"
+  },
   "editGroupCanceledDescription": {
     "defaultMessage": "Edit group was canceled by the user.",
     "description": "Edit group canceled notification description"

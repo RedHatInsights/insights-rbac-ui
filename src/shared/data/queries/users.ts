@@ -693,3 +693,95 @@ export function useToggleManageSupportCasesMutation(options?: MutationOptions) {
     },
   });
 }
+
+// ============================================================================
+// Update User Email Mutation (IT Account API)
+// ============================================================================
+
+interface UpdateUserEmailParams {
+  /** The account API user id (the principal's `external_source_id`). */
+  userId: string;
+  /** The new email address to save. */
+  email: string;
+  /** Username of the edited principal — used to patch the cached list the detail view reads. */
+  username: string;
+}
+
+/**
+ * Update an existing user's email address via the IT Account API.
+ *
+ * The write is a `POST /account/v1/accounts/{org_id}/users/{user_id}` carrying ONLY the
+ * `email` field. The update-user-details DTO rejects a body that also includes other user
+ * fields (id/username/roles) with 400 "Failed to read request" — the same constraint the
+ * support-cases toggle works around (see `useToggleManageSupportCasesMutation`).
+ *
+ * On success the edited email is written into the cached principals list so the detail view
+ * reflects it immediately. We deliberately do NOT invalidate/refetch: email propagation from
+ * the account API to the RBAC principals backend is eventually consistent, so an immediate
+ * refetch can return the stale address. The list refetches naturally once stale.
+ *
+ * Not available in ITLess/FedRAMP environments (account API absent) — callers must gate the UI.
+ *
+ * @tag api-v1-external - Uses external IT identity provider API
+ */
+export function useUpdateUserEmailMutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
+  const { notify, getToken, environment, identity, isITLess } = useAppServices();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ userId, email }: UpdateUserEmailParams): Promise<string> => {
+      if (isITLess) {
+        throw new Error('Editing a user email is not available in ITLess environments');
+      }
+
+      const token = await getToken();
+      const accountId = identity?.org_id ?? null;
+
+      if (!accountId) {
+        throw new Error('Missing org_id for user email update');
+      }
+
+      const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/${userId}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Update user email failed: ${response.status}`);
+      }
+
+      // The POST echoes the updated user (wrapped in `body`). Prefer the server's
+      // authoritative email; fall back to what we sent if the body is empty.
+      const json = (await response.json().catch(() => ({}))) as { body?: { email?: string }; email?: string };
+      return json.body?.email ?? json.email ?? email;
+    },
+    onSuccess: async (savedEmail, { username }) => {
+      await queryClient.cancelQueries({
+        queryKey: usersKeys.lists(),
+        predicate: (query) => {
+          const data = query.state.data as UsersQueryResult | undefined;
+          return !!data?.users.some((u) => u.username === username);
+        },
+      });
+
+      const lists = queryClient.getQueriesData<UsersQueryResult>({ queryKey: usersKeys.lists() });
+      for (const [key, data] of lists) {
+        if (!data) continue;
+        queryClient.setQueryData<UsersQueryResult>(key, {
+          ...data,
+          users: data.users.map((u) => (u.username === username ? { ...u, email: savedEmail } : u)),
+        });
+      }
+      notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
+    },
+    onError: () => {
+      notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
+    },
+  });
+}
