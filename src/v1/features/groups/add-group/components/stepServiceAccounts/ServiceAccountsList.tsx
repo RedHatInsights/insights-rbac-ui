@@ -74,8 +74,13 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
   const page = Math.floor(tableState.apiParams.offset / tableState.apiParams.limit) + 1;
   const perPage = tableState.apiParams.limit;
 
-  // Extract type filter value; ignore stale values when flag is off
-  const typeFilter = satEnabled ? (tableState.apiParams.filters.type as ServiceAccountType | undefined) : undefined;
+  // Extract type filter value; ignore stale values when flag is off.
+  // TableView normalizes select filters to checkbox filters, so the value
+  // arrives as an array (e.g. ["service_account"]). Extract the first element.
+  const typeFilterRaw = satEnabled ? tableState.apiParams.filters.type : undefined;
+  const typeFilter: ServiceAccountType | undefined = Array.isArray(typeFilterRaw)
+    ? (typeFilterRaw[0] as ServiceAccountType | undefined)
+    : (typeFilterRaw as ServiceAccountType | undefined);
 
   // Fetch service accounts via React Query
   const { data: serviceAccountsData, isLoading, error } = useServiceAccountsQuery({ page, perPage, type: typeFilter });
