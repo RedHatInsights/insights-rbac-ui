@@ -3,7 +3,6 @@ import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { queryByOuiaId, queryTreeViewToggle } from '../../../../test-utils/interactionHelpers';
 import { openWorkspaceKebabMenu } from '../../../../test-utils/workspaceHelpers';
-import { verifyTooltip } from '../../../../test-utils/tooltipHelpers';
 import { WorkspaceListTable } from './WorkspaceListTable';
 import { BrowserRouter } from 'react-router-dom';
 // Import shared test functions and mock data from helper file
@@ -336,7 +335,7 @@ export const PendingViewPermission: Story = {
     docs: {
       description: {
         story:
-          'Tests the Kessel latency gap UX: when the access SDK has not synced yet, the workspace name renders as a disabled link with a tooltip, and all kebab actions are disabled. Other workspaces with view permission render normally.',
+          'Tests the Kessel latency gap UX: when the access SDK has not synced yet, the workspace name renders as a disabled, non-navigable link and all kebab actions are disabled. Other workspaces with view permission render normally.',
       },
     },
   },
@@ -349,12 +348,6 @@ export const PendingViewPermission: Story = {
       await expect(pendingButton).toHaveAttribute('aria-disabled', 'true');
       await expect(canvas.queryByRole('link', { name: PENDING_WORKSPACE.name! })).not.toBeInTheDocument();
       await expect(canvas.findByRole('link', { name: ROOT_WORKSPACE.name! })).resolves.toBeInTheDocument();
-    });
-
-    await step('Verify pending workspace has tooltip', async () => {
-      const canvas = within(canvasElement);
-      const pendingButton = await canvas.findByRole('button', { name: PENDING_WORKSPACE.name! });
-      await verifyTooltip(userEvent, pendingButton, 'This workspace is being set up and is not available for inspection yet.');
     });
 
     await step('Verify pending workspace kebab actions are all disabled', async () => {
