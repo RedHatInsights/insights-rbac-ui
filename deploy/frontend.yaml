@@ -354,6 +354,121 @@ objects:
             module: ./Iam
             routes:
               - pathname: /iam
+      locales:
+        ko:
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log.title: 감사 로그
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles.title: 역할
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups.title: 사용자 및 그룹
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces.title: 작업 공간
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.title: 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.my-access.title: 내 액세스
+          bundleSegments.iam.module-rbac-ui.navItems.my-user-access.title: 내 사용자 액세스
+          bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access.title: 조직 전체 액세스
+          bundleSegments.iam.module-rbac-ui.navItems.organization-management.title: 조직 관리
+          bundleSegments.iam.module-rbac-ui.navItems.overview.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.overview.title: 개요
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups.title: 그룹
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles.title: 역할
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview.title: 개요
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users.product: ID 및 액세스 관리
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users.title: 사용자
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.title: 사용자 액세스
+          module.defaultDocumentTitle: 사용자 액세스 | ID 및 액세스 관리
+          searchEntries.rbac-access-management.alt_title.access-management: 액세스 관리
+          searchEntries.rbac-access-management.alt_title.iam: IAM
+          searchEntries.rbac-access-management.alt_title.rbac: RBAC
+          searchEntries.rbac-access-management.alt_title.roles: 역할
+          searchEntries.rbac-access-management.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-access-management.alt_title.workspaces: 작업 공간
+          searchEntries.rbac-access-management.description: 사용자, 그룹, 역할 및 작업 공간을 관리합니다(ID 및 액세스 관리).
+          searchEntries.rbac-access-management.title: 액세스 관리
+          searchEntries.rbac-groups-v2.alt_title.group: 그룹
+          searchEntries.rbac-groups-v2.alt_title.groups: 그룹
+          searchEntries.rbac-groups-v2.alt_title.iam: IAM
+          searchEntries.rbac-groups-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-groups-v2.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-groups-v2.description: 그룹 및 그룹별 역할 할당을 관리합니다 (ID 및 액세스 관리).
+          searchEntries.rbac-groups-v2.title: 그룹
+          searchEntries.rbac-groups.alt_title.group: 그룹
+          searchEntries.rbac-groups.alt_title.groups: 그룹
+          searchEntries.rbac-groups.alt_title.iam: IAM
+          searchEntries.rbac-groups.alt_title.rbac: RBAC
+          searchEntries.rbac-groups.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-groups.description: 그룹 및 그룹별 역할 할당을 관리합니다 (ID 및 액세스 관리).
+          searchEntries.rbac-groups.title: 그룹
+          searchEntries.rbac-my-access-v2.alt_title.iam: IAM
+          searchEntries.rbac-my-access-v2.alt_title.my-access: 내 액세스
+          searchEntries.rbac-my-access-v2.alt_title.my-permissions: 내 권한
+          searchEntries.rbac-my-access-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-my-access-v2.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-my-access-v2.description: 현재 권한 및 액세스 정보를 확인합니다 (ID 및 액세스 관리).
+          searchEntries.rbac-my-access-v2.title: 내 액세스
+          searchEntries.rbac-my-access.alt_title.iam: IAM
+          searchEntries.rbac-my-access.alt_title.my-access: 내 액세스
+          searchEntries.rbac-my-access.alt_title.my-permissions: 내 권한
+          searchEntries.rbac-my-access.alt_title.rbac: RBAC
+          searchEntries.rbac-my-access.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-my-access.description: 현재 권한 및 액세스 정보를 확인합니다 (ID 및 액세스 관리).
+          searchEntries.rbac-my-access.title: 내 사용자 액세스
+          searchEntries.rbac-org-admin-v2.alt_title.iam: IAM
+          searchEntries.rbac-org-admin-v2.alt_title.org-administrator: 조직 관리자
+          searchEntries.rbac-org-admin-v2.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-org-admin-v2.description: 조직의 관리자 사용자를 관리합니다(ID 및 액세스 관리).
+          searchEntries.rbac-org-admin-v2.title: 조직 관리자
+          searchEntries.rbac-org-admin.alt_title.iam: IAM
+          searchEntries.rbac-org-admin.alt_title.org-administrator: 조직 관리자
+          searchEntries.rbac-org-admin.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-org-admin.description: 조직의 관리자 사용자를 관리합니다(ID 및 액세스 관리).
+          searchEntries.rbac-org-admin.title: 조직 관리자
+          searchEntries.rbac-roles-v2.alt_title.iam: IAM
+          searchEntries.rbac-roles-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-roles-v2.alt_title.role: 역할
+          searchEntries.rbac-roles-v2.alt_title.roles: 역할
+          searchEntries.rbac-roles-v2.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-roles-v2.description: 조직의 사용자 정의 역할을 확인하고 관리합니다(ID 및 액세스 관리).
+          searchEntries.rbac-roles-v2.title: 역할
+          searchEntries.rbac-roles.alt_title.iam: IAM
+          searchEntries.rbac-roles.alt_title.rbac: RBAC
+          searchEntries.rbac-roles.alt_title.role: 역할
+          searchEntries.rbac-roles.alt_title.roles: 역할
+          searchEntries.rbac-roles.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-roles.description: 조직의 사용자 정의 역할을 확인하고 관리합니다(ID 및 액세스 관리).
+          searchEntries.rbac-roles.title: 역할
+          searchEntries.rbac-users-v2.alt_title.iam: IAM
+          searchEntries.rbac-users-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-users-v2.alt_title.user: 사용자
+          searchEntries.rbac-users-v2.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-users-v2.alt_title.users: 사용자
+          searchEntries.rbac-users-v2.description: 사용자와 역할 기반 액세스 권한을 관리합니다(ID 및 액세스 관리).
+          searchEntries.rbac-users-v2.title: 사용자
+          searchEntries.rbac-users.alt_title.iam: IAM
+          searchEntries.rbac-users.alt_title.rbac: RBAC
+          searchEntries.rbac-users.alt_title.user: 사용자
+          searchEntries.rbac-users.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-users.alt_title.users: 사용자
+          searchEntries.rbac-users.description: 사용자와 역할 기반 액세스 권한을 관리합니다(ID 및 액세스 관리).
+          searchEntries.rbac-users.title: 사용자
+          searchEntries.rbac-workspaces-v2.alt_title.iam: IAM
+          searchEntries.rbac-workspaces-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-workspaces-v2.alt_title.user-access: 사용자 액세스
+          searchEntries.rbac-workspaces-v2.alt_title.workspace: 작업 공간
+          searchEntries.rbac-workspaces-v2.alt_title.workspaces: 작업 공간
+          searchEntries.rbac-workspaces-v2.description: 작업 공간을 사용하여 시스템을 구성하고 사용자별 세분화된 액세스 권한을 설정합니다(ID 및 액세스 관리).
+          searchEntries.rbac-workspaces-v2.title: 작업 공간
+          serviceTiles.iam.iam.groups-v2.title: 그룹
+          serviceTiles.iam.iam.groups.title: 그룹
+          serviceTiles.iam.iam.users-v2.description: 조직의 서비스에 대한 역할 기반 액세스 제어(RBAC)를 관리합니다.
+          serviceTiles.iam.iam.users-v2.title: 사용자
+          serviceTiles.iam.iam.users.description: 조직의 서비스에 대한 역할 기반 액세스 제어(RBAC)를 관리합니다.
+          serviceTiles.iam.iam.users.title: 사용자
 
 parameters:
   - name: ENV_NAME
