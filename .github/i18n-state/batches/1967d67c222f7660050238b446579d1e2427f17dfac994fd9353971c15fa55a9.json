@@ -266,10 +266,38 @@
   "warningCount": 0,
   "locales": {
     "fr": {
-      "phase": "exporting",
+      "phase": "pr-created",
       "toolingCommitShas": [
         "249ab72d3a0e4b21d78028fa5a527c088c55e1f0"
-      ]
+      ],
+      "validationErrors": [],
+      "validationWarnings": [
+        "\"accountNumberLabel\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"conversionBannerNonAdminTitle\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"conversionWizardRoleBindingsIntro\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"conversionWizardWhatChangesTitle\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"deleteCustomRoleModalHeader\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"deleteGroupQuestion\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"deleteRole\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"deleteRoleConfirm\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"deleteRoleQuestion\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"enableWorkspacesWizardDesc\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"exitItemAdding\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"inheritedFromPopoverHeader\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"removeGroupFromOrganizationConfirmTitle\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"removeGroupFromWorkspaceConfirmTitle\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"removeMembersQuestion\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"removeRoleQuestion\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"totalAccountAvailability\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"workspaceNamingGuidelines\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F).",
+        "\"workspacesSuccessAlertTitle\": a regular space precedes : ; ! ? or » (or follows «), so the line can break before the punctuation. Use a non-breaking space (U+00A0, or narrow U+202F)."
+      ],
+      "pullRequestBodyDigest": "9a9beef3bc00c819d39521160687da5284b4a945b6adb582e59abdfdf9fd96f9",
+      "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2495",
+      "pullRequestBranch": "i18n/phrase-1967d67c222f7660-fr",
+      "pullRequestBatchKey": "1967d67c222f7660050238b446579d1e2427f17dfac994fd9353971c15fa55a9",
+      "pullRequestAssigneesPending": true,
+      "toolingCommitSha": "249ab72d3a0e4b21d78028fa5a527c088c55e1f0"
     },
     "ja": {
       "phase": "pending"
