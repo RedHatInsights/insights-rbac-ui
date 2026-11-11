@@ -105,8 +105,19 @@
     {
       "uid": "zuwR7xH6zmqD5ddoR5e3K0",
       "innerId": "42",
-      "status": "NEW",
-      "providers": [],
+      "status": "COMPLETED",
+      "providers": [
+        {
+          "type": "USER",
+          "id": "285168",
+          "uid": "2sHjdtUUmG8d39nW3yQ216",
+          "userName": "croe",
+          "firstName": "Corina",
+          "lastName": "Roe",
+          "email": "croe@redhat.com",
+          "active": true
+        }
+      ],
       "sourceLang": "en_us",
       "targetLang": "fr",
       "workflowLevel": 1,
