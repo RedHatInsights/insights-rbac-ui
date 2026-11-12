@@ -436,6 +436,13 @@ export const AdminUserWithUsersTableContent: Story = {
       const activeLabels = await canvas.findAllByText('Active');
       expect(activeLabels.length).toBeGreaterThanOrEqual(3); // john.doe, jane.admin, bob.smith + filter checkbox
     });
+
+    // A4 — the Manage Support Cases column is gated on common-auth-model, which is off here.
+    // Without this assertion a gating regression would fail nothing in the v1 suite.
+    await step('Manage Support Cases column is absent when common-auth-model is off', async () => {
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+      expect(canvas.queryByRole('switch', { name: /toggle manage support cases/i })).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -701,6 +708,45 @@ export const SupportCasesToggleIntegration: Story = {
           String(mockUsers[2].external_source_id),
         ]),
       );
+    });
+  },
+};
+
+/**
+ * A3 — the v1 twin of the v2 `SupportCasesHiddenForNonAdmin`.
+ *
+ * Column visibility is `isCommonAuthModel && orgAdmin && !isITLess`, decided in the page rather
+ * than the toggle. With the flag on but the viewer not an org admin, the rows must still render
+ * (proving the page worked rather than failed) and the column must be absent entirely — not
+ * present-but-disabled.
+ */
+export const SupportCasesHiddenForNonAdmin: Story = {
+  tags: ['ff:platform.rbac.common-auth-model', 'sbtest:support-cases-toggle'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Non-org-admin viewers do not see the Manage Support Cases column, even with common-auth-model enabled.',
+      },
+    },
+    orgAdmin: false,
+    permissions: [],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': false,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Users still render for a non-admin viewer', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(ORG_ADMIN_USER.username)).resolves.toBeInTheDocument();
+    });
+
+    await step('Manage Support Cases column and toggles are absent', async () => {
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+      expect(canvas.queryByRole('switch', { name: /toggle manage support cases/i })).not.toBeInTheDocument();
     });
   },
 };

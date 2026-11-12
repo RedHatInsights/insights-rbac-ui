@@ -3,6 +3,8 @@ import { type ScopedQueries, clearAndType, queryAlert, waitForContentReady, wait
 import type { UserEvent } from '../../test-utils/testUtils';
 import { accountManagementHandlers, inviteErrorHandlers } from '../../shared/data/mocks/accountManagement.handlers';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
+import { createResettableMap } from '../../shared/data/mocks/db';
+import { DEFAULT_USER_PERMISSIONS } from '../../shared/data/mocks/seed';
 import {
   GROUP_PLATFORM_ADMINS,
   Story,
@@ -470,6 +472,114 @@ Tests toggling a user's org admin status via the switch in the users table.
         () => {
           const updatedSwitch = canvas.queryByRole('switch', {
             name: new RegExp(`toggle org admin for ${USER_JOHN.username}`, 'i'),
+          });
+          expect(updatedSwitch).toBeInTheDocument();
+          expect(updatedSwitch).toBeChecked();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
+  },
+};
+
+const supportCasesSpy = fn();
+
+// Resettable so a granted permission doesn't leak into a later run's initial bulk search
+// (which fires on mount, before the play function).
+const supportCasesPermissions = createResettableMap<string, string[]>(Object.entries(DEFAULT_USER_PERMISSIONS));
+
+/**
+ * E2 — the v1 twin of the Access Management `ToggleSupportCases` journey.
+ *
+ * Exercises the Manage Support Cases column through the real v1 Users page, so the
+ * `useSupportCasesPermissions` bulk fetch that seeds the toggle's cache is in the loop rather
+ * than stubbed.
+ */
+export const ToggleSupportCasesJourney: Story = {
+  name: 'Toggle manage support cases',
+  tags: ['sbtest:support-cases-toggle'],
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests toggling a user's Manage Support Cases permission from the v1 users table.
+
+**Expected behavior:**
+1. The Manage Support Cases column renders for an org admin with common-auth-model on
+2. A user without the permission starts unchecked
+3. Clicking it POSTs to the account API, granting portal_manage_cases
+4. A success notification appears and the switch reflects the new state
+`,
+      },
+    },
+    msw: {
+      handlers: [
+        ...accountManagementHandlers({
+          users: v1Db.users,
+          userPermissions: supportCasesPermissions,
+          onToggleSupportCases: (userId, grant) => {
+            supportCasesSpy({ userId, grant });
+          },
+        }),
+        ...createV1Handlers(v1Db),
+      ],
+    },
+  },
+  beforeEach: () => {
+    supportCasesPermissions.reset();
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+      supportCasesSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Column renders and the target user starts without the permission', async () => {
+      await navigateToPage(user, canvas, 'Users');
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+
+      await expect(canvas.findByText('Manage Support Cases')).resolves.toBeInTheDocument();
+
+      const supportCasesSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${USER_JOHN.username}`, 'i'),
+      });
+      await expect(supportCasesSwitch).not.toBeChecked();
+      await expect(supportCasesSwitch).not.toBeDisabled();
+
+      await user.click(supportCasesSwitch);
+    });
+
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(supportCasesSpy).toHaveBeenCalledWith({
+            userId: String(USER_JOHN.external_source_id),
+            grant: true,
+          });
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
+
+    await step('Verify switch reflects the new state', async () => {
+      await waitFor(
+        () => {
+          const updatedSwitch = canvas.queryByRole('switch', {
+            name: new RegExp(`toggle manage support cases for ${USER_JOHN.username}`, 'i'),
           });
           expect(updatedSwitch).toBeInTheDocument();
           expect(updatedSwitch).toBeChecked();
