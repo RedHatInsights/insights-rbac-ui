@@ -1,0 +1,3278 @@
+{
+  "accessManagementDoc": {
+    "defaultMessage": "액세스 관리 이해",
+    "description": "Understanding access management documentation title"
+  },
+  "accessOrigin": {
+    "defaultMessage": "액세스 출처",
+    "description": "Access origin modified column label"
+  },
+  "accountNumberLabel": {
+    "defaultMessage": "계정 번호:",
+    "description": "Label for account number field"
+  },
+  "action": {
+    "defaultMessage": "동작",
+    "description": "Action label"
+  },
+  "actionsOnClustersPermissions": {
+    "defaultMessage": "조직 관리자 및 클러스터 소유자만 클러스터에 대한 작업을 수행할 수 있습니다.",
+    "description": "Actions on clusters permissions message"
+  },
+  "activateUsersButton": {
+    "defaultMessage": "사용자 활성화",
+    "description": "activate users button text"
+  },
+  "activateUsersConfirmationButton": {
+    "defaultMessage": "사용자 활성화",
+    "description": "activate users confirmation button text"
+  },
+  "activateUsersConfirmationModalCheckboxText": {
+    "defaultMessage": "예, 이 사용자를 추가하는 데 동의합니다.",
+    "description": "activate users confirmation modal checkbox text"
+  },
+  "activateUsersConfirmationModalDescription": {
+    "defaultMessage": "Red Hat 조직에서 아래 사용자를 활성화하시겠습니까?",
+    "description": "activate users confirmation modal description text"
+  },
+  "activateUsersConfirmationModalTitle": {
+    "defaultMessage": "사용자 활성화",
+    "description": "activate users confirmation modal title text"
+  },
+  "active": {
+    "defaultMessage": "활성",
+    "description": "Active label"
+  },
+  "add": {
+    "defaultMessage": "추가",
+    "description": "Add label"
+  },
+  "addAccountsToThisGroup": {
+    "defaultMessage": "이 사용자 액세스 그룹에 연결할 서비스 계정을 추가합니다.",
+    "description": "Add service accounts message"
+  },
+  "addGroupErrorTitle": {
+    "defaultMessage": "그룹 추가 실패",
+    "description": "Add group error notification title"
+  },
+  "addGroupMemberErrorDescription": {
+    "defaultMessage": "구성원 추가에 실패했습니다.",
+    "description": "Add group member error notification description"
+  },
+  "addGroupMemberErrorTitle": {
+    "defaultMessage": "그룹에 구성원을 추가하는 데 실패했습니다.",
+    "description": "Add group member error notification title"
+  },
+  "addGroupMemberSuccessDescription": {
+    "defaultMessage": "해당 구성원이 그룹에 성공적으로 추가되었습니다.",
+    "description": "Add group member success notification description"
+  },
+  "addGroupMemberSuccessTitle": {
+    "defaultMessage": "그룹에 구성원 추가 성공",
+    "description": "Add group member success notification title"
+  },
+  "addGroupMembersErrorDescription": {
+    "defaultMessage": "성공적으로 멤버가 추가되지 않았습니다.",
+    "description": "Add group members error notification description"
+  },
+  "addGroupMembersErrorTitle": {
+    "defaultMessage": "그룹에 멤버를 추가하지 못했습니다.",
+    "description": "Add group members error notification title"
+  },
+  "addGroupMembersSuccessDescription": {
+    "defaultMessage": "멤버가 그룹에 성공적으로 추가되었습니다.",
+    "description": "Add group members success notification description"
+  },
+  "addGroupMembersSuccessTitle": {
+    "defaultMessage": "그룹에 성공적으로 멤버 추가",
+    "description": "Add group members success notification title"
+  },
+  "addGroupRolesErrorDescription": {
+    "defaultMessage": "역할이 성공적으로 추가되지 않았습니다.",
+    "description": "Add group roles error notification description"
+  },
+  "addGroupRolesErrorTitle": {
+    "defaultMessage": "그룹에 역할을 추가하지 못했습니다.",
+    "description": "Add group roles error notification title"
+  },
+  "addGroupRolesSuccessDescription": {
+    "defaultMessage": "역할이 그룹에 성공적으로 추가되었습니다.",
+    "description": "Add group roles success notification description"
+  },
+  "addGroupServiceAccountErrorTitle": {
+    "defaultMessage": "서비스 계정을 그룹에 추가하는 데 실패했습니다",
+    "description": "Add group service account error notification title"
+  },
+  "addGroupServiceAccountSuccessTitle": {
+    "defaultMessage": "서비스 계정을 그룹에 추가하는 데 성공했습니다.",
+    "description": "Add group service account success notification title"
+  },
+  "addGroupServiceAccountsErrorDescription": {
+    "defaultMessage": "{count, plural, other {서비스 계정이 성공적으로 추가되지 않았습니다.}}",
+    "description": "Add group service accounts error notification description"
+  },
+  "addGroupServiceAccountsErrorTitle": {
+    "defaultMessage": "{count, plural, other {그룹에 서비스 계정을 추가하는 데 실패했습니다.}}",
+    "description": "Add group service accounts error notification title"
+  },
+  "addGroupServiceAccountsSuccessDescription": {
+    "defaultMessage": "{count, plural, other {서비스 계정이 그룹에 성공적으로 추가되었습니다.}}",
+    "description": "Add group service accounts success notification description"
+  },
+  "addGroupServiceAccountsSuccessTitle": {
+    "defaultMessage": "{count, plural, other {그룹에 서비스 계정을 추가하는 데 성공했습니다.}}",
+    "description": "Add group service accounts success notification title"
+  },
+  "addGroupSuccessDescription": {
+    "defaultMessage": "그룹이 성공적으로 추가되었습니다.",
+    "description": "Add group success notification description"
+  },
+  "addGroupSuccessTitle": {
+    "defaultMessage": "그룹 추가 성공",
+    "description": "Add group success notification title"
+  },
+  "addGrouprolesSuccessTitle": {
+    "defaultMessage": "그룹에 역할 추가 성공",
+    "description": "Add group roles success notification title"
+  },
+  "addMember": {
+    "defaultMessage": "멤버 추가",
+    "description": "Add member"
+  },
+  "addMembers": {
+    "defaultMessage": "멤버 추가",
+    "description": "Add members wizard step title"
+  },
+  "addNewGroupServiceAccountsErrorDescription": {
+    "defaultMessage": "{count, plural, other {그룹은 생성되었지만 서비스 계정이 성공적으로 연결되지 않았습니다. 나중에 서비스 계정을 추가해 보세요.}}",
+    "description": "Add group service accounts error notification description"
+  },
+  "addNewUsersText": {
+    "defaultMessage": "사용자 직접 추가, 세부 정보 편집(직책 및 언어 등), 고객 포털 액세스 관리 등 고급 사용자 관리 기능을 사용하려면 다음 페이지를 방문하세요.",
+    "description": "Add new users text"
+  },
+  "addPermission": {
+    "defaultMessage": "권한 추가",
+    "description": "Add permission label"
+  },
+  "addPermissions": {
+    "defaultMessage": "권한 추가",
+    "description": "Add permissions label"
+  },
+  "addPolicyErrorDescription": {
+    "defaultMessage": "정책이 성공적으로 추가되지 않았습니다.",
+    "description": "Add policy error notification description"
+  },
+  "addPolicyErrorTitle": {
+    "defaultMessage": "정책 추가 실패",
+    "description": "Add policy error notification title"
+  },
+  "addPolicySuccessDescription": {
+    "defaultMessage": "정책이 성공적으로 추가되었습니다.",
+    "description": "Add policy success notification description"
+  },
+  "addPolicySuccessTitle": {
+    "defaultMessage": "정책 추가 성공",
+    "description": "Add policy success notification title"
+  },
+  "addRole": {
+    "defaultMessage": "역할 추가",
+    "description": "Add role title"
+  },
+  "addRoleToConfigureAccess": {
+    "defaultMessage": "사용자 액세스를 구성하는 역할을 추가합니다.",
+    "description": "Add role to configure user access message"
+  },
+  "addRoleToGroup": {
+    "defaultMessage": "그룹에 역할 추가",
+    "description": "Add role to group label"
+  },
+  "addRoleToThisGroup": {
+    "defaultMessage": "이 그룹에 역할 추가",
+    "description": "Add role to this group label"
+  },
+  "addRoles": {
+    "defaultMessage": "역할 추가",
+    "description": "Add roles wizard step title"
+  },
+  "addRolesToGroup": {
+    "defaultMessage": "{name} 그룹에 역할 추가",
+    "description": "Add roles to group label"
+  },
+  "addServiceAccount": {
+    "defaultMessage": "서비스 계정 추가",
+    "description": "Add service account label"
+  },
+  "addServiceAccounts": {
+    "defaultMessage": "서비스 계정 추가",
+    "description": "Add service accounts wizard step title"
+  },
+  "addServiceAccountsToGroupDescription": {
+    "defaultMessage": "이 목록에는 Red Hat 조직 계정과 연결된 모든 서비스 계정이 포함되어 있습니다. 사용자 액세스 그룹에 연결할 서비스 계정을 선택하세요.",
+    "description": "Add service accounts to group description"
+  },
+  "addSpecificUserToGroup": {
+    "defaultMessage": "{username}을/를 그룹에 추가",
+    "description": "Add user to a group wizard title"
+  },
+  "addToDefinitions": {
+    "defaultMessage": "정의에 추가",
+    "description": "Add to definitions message"
+  },
+  "addToGroup": {
+    "defaultMessage": "그룹에 추가",
+    "description": "Add to group label"
+  },
+  "addToUserGroup": {
+    "defaultMessage": "사용자 그룹에 추가",
+    "description": "Action column option to add user to group"
+  },
+  "addUserToConfigure": {
+    "defaultMessage": "사용자를 추가하여 사용자 액세스를 구성합니다.",
+    "description": "Add a user to configure user access message"
+  },
+  "addUserToGroup": {
+    "defaultMessage": "그룹에 사용자 추가",
+    "description": "Add user to a group wizard title"
+  },
+  "addedPermissions": {
+    "defaultMessage": "권한이 추가됨",
+    "description": "Added permissions label"
+  },
+  "addingGroupCanceledDescription": {
+    "defaultMessage": "사용자가 그룹 추가를 취소했습니다.",
+    "description": "Adding group canceled notification description"
+  },
+  "addingGroupMemberCancelled": {
+    "defaultMessage": "사용자가 그룹에 멤버 추가를 취소했습니다.",
+    "description": "Adding group member cancelled notification description"
+  },
+  "addingGroupMemberDescription": {
+    "defaultMessage": "그룹에 멤버 추가를 초기화했습니다.",
+    "description": "Adding group member notification description"
+  },
+  "addingGroupMemberTitle": {
+    "defaultMessage": "그룹에 멤버 추가",
+    "description": "Adding group member notification title"
+  },
+  "addingGroupMembersCancelled": {
+    "defaultMessage": "사용자가 그룹에 멤버 추가를 취소했습니다.",
+    "description": "Adding group members cancelled notification description"
+  },
+  "addingGroupMembersDescription": {
+    "defaultMessage": "그룹 초기화를 위해 멤버를 추가합니다.",
+    "description": "Adding group members notification description"
+  },
+  "addingGroupMembersTitle": {
+    "defaultMessage": "그룹에 멤버 추가",
+    "description": "Adding group members notification title"
+  },
+  "addingGroupRolesCancelled": {
+    "defaultMessage": "사용자가 그룹에 역할 추가를 취소했습니다.",
+    "description": "Adding group roles cancelled notification description"
+  },
+  "addingGroupRolesTitle": {
+    "defaultMessage": "그룹에 역할 추가",
+    "description": "Adding group roles notification title"
+  },
+  "addingGroupTitle": {
+    "defaultMessage": "그룹 추가",
+    "description": "Adding group notification title"
+  },
+  "adminOrViewerRole": {
+    "defaultMessage": "관리자 또는 뷰어 역할",
+    "description": "Admin or viewer role column label"
+  },
+  "adminRole": {
+    "defaultMessage": "관리자",
+    "description": "Admin role label"
+  },
+  "adminUsersGroupBold": {
+    "defaultMessage": "관리자 사용자 그룹",
+    "description": "Admin Users group bold text"
+  },
+  "adminUsersGroupDescription": {
+    "defaultMessage": "{bold}에는 작업 공간 관리자 또는 사용자 액세스 관리자와 같은 주요 관리 권한이 필요한 조직 내 사용자가 포함되어야 합니다. 이렇게 추가된 사용자를 역할 및 작업 공간에 할당할 수 있습니다.",
+    "description": "Admin Users group description"
+  },
+  "all": {
+    "defaultMessage": "모두",
+    "description": "All tab label"
+  },
+  "allOrgAdmins": {
+    "defaultMessage": "모든 조직 관리자",
+    "description": "All org admins label for admin default groups"
+  },
+  "allOrgAdminsAreMembers": {
+    "defaultMessage": "이 조직의 모든 조직 관리자는 이 그룹의 구성원입니다.",
+    "description": "All org. admins are members of this group message"
+  },
+  "allResources": {
+    "defaultMessage": "모든 리소스",
+    "description": "All resources label for cost management permission definitions"
+  },
+  "allRolesAdded": {
+    "defaultMessage": "사용 가능한 모든 역할이 그룹에 추가되었습니다",
+    "description": "All roles already to the group message"
+  },
+  "allUsers": {
+    "defaultMessage": "모든 사용자",
+    "description": "All users label for default groups"
+  },
+  "allUsersAreMembers": {
+    "defaultMessage": "이 조직의 모든 사용자는 이 그룹의 멤버입니다.",
+    "description": "All users are members of this group message"
+  },
+  "allUsersGroupBold": {
+    "defaultMessage": "모든 사용자 그룹",
+    "description": "All Users group bold text"
+  },
+  "allUsersGroupDescription": {
+    "defaultMessage": "{bold}에는 조직에서 인증된 모든 사용자가 포함되어 있습니다.",
+    "description": "All Users group description"
+  },
+  "allUsersViewEverything": {
+    "defaultMessage": "조직의 모든 사용자가 모든 항목을 볼 수 있습니다.",
+    "description": "All users in the organization may view everything message"
+  },
+  "appServicesNotManaged": {
+    "defaultMessage": "애플리케이션 서비스 권한은 사용자 액세스를 통해 관리되지 않습니다.",
+    "description": "Application Services permissions are not managed with User Access message"
+  },
+  "application": {
+    "defaultMessage": "애플리케이션",
+    "description": "Application label"
+  },
+  "applyCostPermissionText": {
+    "defaultMessage": "아래 드롭다운을 사용하여 이전 단계에서 선택한 각 비용 권한을 적용할 위치를 지정합니다.",
+    "description": "Apply Cost permission text"
+  },
+  "applyInventoryGroupsRolePermission": {
+    "defaultMessage": "이러한 권한에 대한 액세스 권한을 부여할 인벤토리 그룹을 지정하세요.",
+    "description": "Permissions for Groups"
+  },
+  "applyWorkspacesRolePermission": {
+    "defaultMessage": "이러한 권한에 대한 액세스를 허용할 작업 공간을 지정하세요.",
+    "description": "Permissions for Workspaces"
+  },
+  "assetManagementInsights": {
+    "defaultMessage": "Red Hat Insights",
+    "description": "Red Hat Insights"
+  },
+  "assetManagementInsightsNav": {
+    "defaultMessage": "Red Hat Insights로 이동",
+    "description": "take me to Red Hat Insights"
+  },
+  "assetManagementInsightsOverview": {
+    "defaultMessage": "RHEL 시스템 관리",
+    "description": "manage your RHEL Systems"
+  },
+  "assetManagementOpenShift": {
+    "defaultMessage": "Red Hat OpenShift",
+    "description": "Red Hat OpenShift"
+  },
+  "assetManagementOpenShiftNav": {
+    "defaultMessage": "Red Hat OpenShift로 이동",
+    "description": "take me to Red Hat OpenShift"
+  },
+  "assetManagementOpenShiftOverview": {
+    "defaultMessage": "클러스터 관리",
+    "description": "manage your clusters"
+  },
+  "assetManagementOverview": {
+    "defaultMessage": "자산을 관리하려면 서비스로 이동하세요.",
+    "description": "navigate to a service to manage your assets"
+  },
+  "assets": {
+    "defaultMessage": "자산",
+    "description": "Assets label"
+  },
+  "assignAtLeastOneGroup": {
+    "defaultMessage": "각 권한에 최소 하나 이상의 인벤토리 그룹을 할당해야 합니다.",
+    "description": "Assign at least one inventory group message"
+  },
+  "assignAtLeastOneResource": {
+    "defaultMessage": "각 권한에 하나 이상의 리소스를 할당해야 합니다.",
+    "description": "Assign at least one resource message"
+  },
+  "assignedRoles": {
+    "defaultMessage": "할당된 역할",
+    "description": "User details assigned roles label"
+  },
+  "assignedRolesDescription": {
+    "defaultMessage": "사용자 그룹에는 일련의 권한으로 구성된 역할이 부여됩니다. 역할은 해당 역할이 할당된 작업 공간으로 제한됩니다.",
+    "description": "User details roles info popover description"
+  },
+  "assignedUserGroupsTooltipBody": {
+    "defaultMessage": "사용자 그룹에는 일련의 권한이 포함된 역할이 부여됩니다. 역할은 할당된 작업 공간 내에서만 사용할 수 있습니다.",
+    "description": "body for assigned user groups tooltip"
+  },
+  "assignedUserGroupsTooltipHeader": {
+    "defaultMessage": "할당된 사용자 그룹",
+    "description": "header for assigned user groups tooltip"
+  },
+  "associatingServiceAccounts": {
+    "defaultMessage": "서비스 계정 연결 중",
+    "description": "Adding service accounts label"
+  },
+  "auditLog": {
+    "defaultMessage": "감사 로그",
+    "description": "Audit Log page title"
+  },
+  "auditLogNoResults": {
+    "defaultMessage": "감사 로그 항목을 찾을 수 없습니다",
+    "description": "Audit log empty state when filters match no results"
+  },
+  "auditLogSubtitle": {
+    "defaultMessage": "사용자 액세스 감사 로그는 그룹에서 사용자 추가/제거, 그룹에서 역할 추가/제거, 역할 생성/편집/삭제 또는 그룹 생성/편집/삭제와 같은 관리자 작업을 추적합니다. 로그는 요청자, 리소스 또는 작업별로 필터링할 수 있습니다.",
+    "description": "Audit Log page subtitle"
+  },
+  "auditLogTableAriaLabel": {
+    "defaultMessage": "감사 로그 항목",
+    "description": "Audit log table aria label"
+  },
+  "availableFeatures": {
+    "defaultMessage": "사용 가능한 기능",
+    "description": "Available features label"
+  },
+  "backToPreviousPage": {
+    "defaultMessage": "이전 페이지로 이동",
+    "description": "Back to previous page label"
+  },
+  "baseRole": {
+    "defaultMessage": "기본 역할",
+    "description": "Base role label"
+  },
+  "beginQuickStart": {
+    "defaultMessage": "퀵스타트 시작",
+    "description": "Begin Quick start link text"
+  },
+  "beginQuickStartLink": {
+    "defaultMessage": "퀵스타트 시작",
+    "description": "Begin Quick start link"
+  },
+  "billingAccount": {
+    "defaultMessage": "청구 계정",
+    "description": "Billing account label"
+  },
+  "bindingsServiceCardDescription": {
+    "defaultMessage": "작업 공간에 대한 액세스 권한을 부여합니다. 역할과 사용자 그룹을 특정 작업 공간에 연결합니다. 이러한 바인딩은 누가 어떤 항목에 액세스할 수 있는지, 그리고 어떤 작업을 수행할 수 있는지를 결정합니다.",
+    "description": "bindings service card description"
+  },
+  "bindingsServiceCardTitle": {
+    "defaultMessage": "바인딩",
+    "description": "Bindings service card title"
+  },
+  "cancel": {
+    "defaultMessage": "취소",
+    "description": "Cancel button text"
+  },
+  "changesWillBeLost": {
+    "defaultMessage": "모든 변경사항이 손실됩니다",
+    "description": "All changes will be lost message"
+  },
+  "checkFilterBeginning": {
+    "defaultMessage": "검색 입력의 시작 부분이 찾고 있는 값의 시작 부분에 해당하는지 확인하거나 필터 설정을 변경해 보십시오.",
+    "description": "Message advising checking the filter value"
+  },
+  "chooseSubscriptionEllipsis": {
+    "defaultMessage": "서브스크립션 선택...",
+    "description": "Choose subscription message"
+  },
+  "clearAllFilters": {
+    "defaultMessage": "모든 필터 지우기",
+    "description": "Clear all filters message"
+  },
+  "clientId": {
+    "defaultMessage": "클라이언트 ID",
+    "description": "Client ID column label"
+  },
+  "clientIdOrUsername": {
+    "defaultMessage": "클라이언트 ID / 사용자 이름",
+    "description": "Mixed service account and service access token identifier column"
+  },
+  "close": {
+    "defaultMessage": "닫기",
+    "description": "Close button text"
+  },
+  "configureCostSources": {
+    "defaultMessage": "비용 관리를 위한 소스 구성",
+    "description": "Configure resources for Cost management message"
+  },
+  "configureItems": {
+    "defaultMessage": "{items} 설정",
+    "description": "Configure items message"
+  },
+  "configureResourcesForPermission": {
+    "defaultMessage": "이 권한을 역할에 추가하고 특정 리소스를 정의하려면 하나 이상의 데이터 소스를 연결해야 합니다.",
+    "description": "Configure resources for permission message"
+  },
+  "configureRoles": {
+    "defaultMessage": "역할 구성",
+    "description": "Empty state title when no roles exist"
+  },
+  "confirm": {
+    "defaultMessage": "확인",
+    "description": "Confirm button text"
+  },
+  "confirmCheckMessage": {
+    "defaultMessage": "이해했으며 계속 진행하겠습니다",
+    "description": "Confirm modal check message"
+  },
+  "confirmDetails": {
+    "defaultMessage": "세부 정보 확인",
+    "description": "Confirm details message"
+  },
+  "confirmDetailsDescription": {
+    "defaultMessage": "소스의 세부 정보를 확인하거나 돌아가기를 클릭하여 수정",
+    "description": "Confirm details description message"
+  },
+  "contactOrgAdmin": {
+    "defaultMessage": "자세한 내용은 조직 관리자에게 문의하거나 {link}을/를 방문하여 권한에 대한 자세한 내용을 확인하세요.",
+    "description": "Contact organization administrator message for not authorized state"
+  },
+  "contactOrgAdministrator": {
+    "defaultMessage": "자세한 내용은 조직 관리자에게 문의하세요.",
+    "description": "Contact org. administrator for more info message"
+  },
+  "contactServiceTeamForAccounts": {
+    "defaultMessage": "서비스 계정을 추가하려면 플랫폼 서비스 팀에 문의하세요.",
+    "description": "Contact service team to add accounts message"
+  },
+  "contactServiceTeamForRoles": {
+    "defaultMessage": "역할을 추가하려면 플랫폼 서비스 팀에 문의하십시오.",
+    "description": "Contact service team to add roles message"
+  },
+  "continue": {
+    "defaultMessage": "계속",
+    "description": "Continue label"
+  },
+  "conversionBannerAdminBody": {
+    "defaultMessage": "계층적 권한 제어를 통해 RHEL 시스템을 작업 공간별로 구성하세요. 새로운 액세스 관리 모델은 기존 권한과 액세스 권한을 유지하면서 작업 공간 구성, 권한 상속 및 협업 기능을 개선합니다.",
+    "description": "Body text for workspace v2 conversion opt-in banner shown to org admins"
+  },
+  "conversionBannerAdminGetStarted": {
+    "defaultMessage": "지금 시작하기",
+    "description": "Get started button text for admin conversion banner"
+  },
+  "conversionBannerAdminLearnMore": {
+    "defaultMessage": "혜택에 대해 자세히 알아보기",
+    "description": "Learn more link text for admin conversion banner"
+  },
+  "conversionBannerAdminTitle": {
+    "defaultMessage": "작업 공간 기반 액세스 관리로 인프라를 한 단계 업그레이드하세요",
+    "description": "Title for workspace v2 conversion opt-in banner shown to org admins"
+  },
+  "conversionBannerNonAdminBody": {
+    "defaultMessage": "귀사는 새로운 작업 공간 기반 액세스 관리 기능을 사용할 수 있습니다. 계층적 권한 제어를 통해 RHEL 시스템을 작업 공간별로 구성하세요. 새로운 액세스 관리 모델은 기존 권한과 액세스 권한을 유지하면서 작업 공간 구성, 권한 상속 및 협업 기능을 개선합니다.",
+    "description": "Body text for workspace v2 conversion opt-in banner shown to non-admin users"
+  },
+  "conversionBannerNonAdminRequest": {
+    "defaultMessage": "관리자에게 요청",
+    "description": "Request from admin link text for non-admin conversion banner"
+  },
+  "conversionBannerNonAdminTitle": {
+    "defaultMessage": "더욱 효율적인 업무 구성 방식을 시작할 준비가 되셨나요?",
+    "description": "Title for workspace v2 conversion opt-in banner shown to non-admin users"
+  },
+  "conversionWizardAdjustDefaultAccessDesc": {
+    "defaultMessage": "기본 액세스는 변환 전에 구성했던 모든 역할(사용자 지정 설정 포함)을 그대로 유지합니다. 사용자 및 그룹에서 기본 작업 공간에 연결된 항목을 검토하고 필요 이상으로 액세스 권한을 부여하는 항목을 제거하세요.",
+    "description": "Adjust default access roles description"
+  },
+  "conversionWizardAdjustDefaultAccessTitle": {
+    "defaultMessage": "기본 액세스 역할 조정",
+    "description": "Adjust default access roles title"
+  },
+  "conversionWizardApiIntegrationAlertDescription": {
+    "defaultMessage": "조직에서 Red Hat의 {rbacApiLink}을/를 사용하여 사용자 지정 통합, 스크립트 또는 자동화 기능을 구축한 경우, 전환 후 새로운 v2 RBAC API를 사용하도록 해당 연결을 업데이트해야 합니다. 마이그레이션 지침은 {kbLink}을/를 참조하세요.",
+    "description": "Description for API integration info alert"
+  },
+  "conversionWizardApiIntegrationAlertTitle": {
+    "defaultMessage": "사용자 지정 API 통합 업데이트 필요",
+    "description": "Title for API integration info alert"
+  },
+  "conversionWizardApiIntegrationKbLinkText": {
+    "defaultMessage": "KB 마이그레이션 문서",
+    "description": "Link text for KB article in API integration alert"
+  },
+  "conversionWizardCheckboxValidationError": {
+    "defaultMessage": "이 항목은 반드시 확인해야 합니다.",
+    "description": "Error message when required checkbox is not checked"
+  },
+  "conversionWizardChecklistCompletePostConversion": {
+    "defaultMessage": "전환 후 조직 관련 작업을 일주일 안에 완료하겠습니다.",
+    "description": "Pre-conversion checklist item 3"
+  },
+  "conversionWizardChecklistPopoverAriaLabel": {
+    "defaultMessage": "체크리스트 정보",
+    "description": "Aria label for checklist information popover"
+  },
+  "conversionWizardChecklistPopoverButtonAriaLabel": {
+    "defaultMessage": "체크리스트에 대한 추가 정보",
+    "description": "Aria label for checklist information button"
+  },
+  "conversionWizardChecklistReviewedConfig": {
+    "defaultMessage": "현재 사용자 및 그룹 구성을 검토했으며 변경될 사항을 파악했습니다.",
+    "description": "Pre-conversion checklist item 1"
+  },
+  "conversionWizardChecklistUnderstandPermanent": {
+    "defaultMessage": "전환이 영구적이며 되돌릴 수 없다는 것을 이해합니다.",
+    "description": "Pre-conversion checklist item 2"
+  },
+  "conversionWizardChecklistUnderstandRemediation": {
+    "defaultMessage": "기존의 모든 레거시 개선 계획이 삭제될 것임을 이해합니다.",
+    "description": "Pre-conversion checklist item 4"
+  },
+  "conversionWizardCompleteButton": {
+    "defaultMessage": "액세스 관리 대시보드로 이동",
+    "description": "Button text to navigate to access management dashboard"
+  },
+  "conversionWizardCompleteLink": {
+    "defaultMessage": "액세스 관리 시작하기",
+    "description": "Link text for getting started guide"
+  },
+  "conversionWizardCompleteMessage": {
+    "defaultMessage": "조직이 작업 공간 기반 액세스 관리로 성공적으로 전환되었습니다.",
+    "description": "Conversion complete success message"
+  },
+  "conversionWizardCompleteTitle": {
+    "defaultMessage": "전환 완료",
+    "description": "Conversion complete success title"
+  },
+  "conversionWizardConfirmAction1": {
+    "defaultMessage": "작업 공간 계층 구조(루트, 기본 및 그룹화되지 않은 자산 워크스페이스) 생성",
+    "description": "Confirm conversion action item 1"
+  },
+  "conversionWizardConfirmAction2": {
+    "defaultMessage": "기존의 모든 권한을 역할 바인딩으로 변환",
+    "description": "Confirm conversion action item 2"
+  },
+  "conversionWizardConfirmAction3": {
+    "defaultMessage": "모든 사용자 그룹 및 역할 할당 유지",
+    "description": "Confirm conversion action item 3"
+  },
+  "conversionWizardConfirmAction4": {
+    "defaultMessage": "기본 관리자 액세스 및 기본 액세스 그룹의 범위 변경",
+    "description": "Confirm conversion action item 4"
+  },
+  "conversionWizardConfirmCheckbox": {
+    "defaultMessage": "예, 작업 공간 기반 액세스 관리로 전환합니다.",
+    "description": "Confirm conversion checkbox label"
+  },
+  "conversionWizardConfirmConversionTitle": {
+    "defaultMessage": "전환 확인",
+    "description": "Confirm conversion step title"
+  },
+  "conversionWizardConfirmIntro": {
+    "defaultMessage": "조직을 사용자 액세스에서 작업 공간 기반 액세스 관리로 전환하려고 합니다. 이 작업을 수행하면 다음과 같은 변경 사항이 적용됩니다.",
+    "description": "Confirm conversion intro text"
+  },
+  "conversionWizardConfirmQuestion": {
+    "defaultMessage": "이 전환을 계속 진행하시겠습니까?",
+    "description": "Confirm conversion question"
+  },
+  "conversionWizardConversionPermanentDesc": {
+    "defaultMessage": "작업 공간 기반 액세스 관리로 전환하면 이전 환경으로 되돌릴 수 없습니다. 기존 권한은 모두 유지되지만 조직 구조는 변경됩니다.",
+    "description": "Warning banner description for confirm conversion step"
+  },
+  "conversionWizardConversionPermanentTitle": {
+    "defaultMessage": "전환은 영구적입니다.",
+    "description": "Warning banner title for confirm conversion step"
+  },
+  "conversionWizardConvertingLabel": {
+    "defaultMessage": "조직 전환 중",
+    "description": "Accessible label for the spinner shown while the conversion request is in flight"
+  },
+  "conversionWizardConvertingMessage": {
+    "defaultMessage": "조직을 전환하는 중...",
+    "description": "Text shown while the conversion request is in flight"
+  },
+  "conversionWizardCustomGroups": {
+    "defaultMessage": "사용자 지정 그룹",
+    "description": "Custom groups term"
+  },
+  "conversionWizardCustomGroupsDesc": {
+    "defaultMessage": "모든 구성원 정보가 온전히 보존됩니다.",
+    "description": "Custom groups description"
+  },
+  "conversionWizardDefaultAccess": {
+    "defaultMessage": "기본 액세스",
+    "description": "Default Access term"
+  },
+  "conversionWizardDefaultAccessDesc": {
+    "defaultMessage": "기본 작업 공간 및 하위 작업 공간으로만 범위가 제한됩니다.",
+    "description": "Default Access description"
+  },
+  "conversionWizardDefaultAdminAccess": {
+    "defaultMessage": "기본 관리자 액세스",
+    "description": "Default Admin access term"
+  },
+  "conversionWizardDefaultAdminAccessDesc": {
+    "defaultMessage": "루트 작업 공간으로 범위가 제한됩니다(모든 작업 공간).",
+    "description": "Default Admin access description"
+  },
+  "conversionWizardDefaultWorkspace": {
+    "defaultMessage": "기본 작업 공간",
+    "description": "Default workspace term"
+  },
+  "conversionWizardDefaultWorkspaceDesc": {
+    "defaultMessage": "루트 아래에 생성되며, 기존 작업 공간은 하위 작업 공간으로 이곳으로 이동합니다.",
+    "description": "Default workspace description"
+  },
+  "conversionWizardDefaultWorkspaceScopeDesc": {
+    "defaultMessage": "기본 관리자 액세스는 루트 작업 공간에서 모든 관리자 역할을 가진 각 조직 관리자에게 바인딩되며, 하위의 모든 작업 공간에 적용됩니다. 기본 액세스는 기본 작업 공간에서 조직의 모든 사용자에게 바인딩됩니다. 두 그룹 모두 구성원을 변경할 수 없으며, 기본 액세스의 역할만 변경할 수 있습니다.",
+    "description": "Know what is fixed description"
+  },
+  "conversionWizardDefaultWorkspaceScopeTitle": {
+    "defaultMessage": "변경할 수 없는 항목 알아보기",
+    "description": "Know what is fixed title"
+  },
+  "conversionWizardExistingWorkspaces": {
+    "defaultMessage": "기존 작업 공간",
+    "description": "Existing workspaces term"
+  },
+  "conversionWizardExistingWorkspacesDesc": {
+    "defaultMessage": "기본 작업 공간으로 이동되었습니다. 설정된 권한은 유지됩니다.",
+    "description": "Existing workspaces description"
+  },
+  "conversionWizardFailedButton": {
+    "defaultMessage": "액세스 관리 문제 해결",
+    "description": "Button text linking to the troubleshooting documentation"
+  },
+  "conversionWizardFailedDetailForbidden": {
+    "defaultMessage": "작업 공간 기반 액세스 관리로 전환하려면 조직 관리자여야 합니다.",
+    "description": "Conversion failure detail shown when the API responds with 403"
+  },
+  "conversionWizardFailedDetailGeneric": {
+    "defaultMessage": "작업 공간 기반 액세스 관리로 전환하는 중 오류가 발생했습니다. 다시 시도하세요.",
+    "description": "Conversion failure detail shown for any other error response"
+  },
+  "conversionWizardFailedDetailIneligible": {
+    "defaultMessage": "현재 조직은 전환 대상에 해당하지 않습니다. 모든 요구 사항을 충족하는지 확인하세요.",
+    "description": "Conversion failure detail shown when the API responds with 422"
+  },
+  "conversionWizardFailedDetailIneligibleItems": {
+    "defaultMessage": "조직은 아직 전환 대상에 해당하지 않습니다. 먼저 다음 문제를 해결하세요: {items}.",
+    "description": "Conversion failure detail naming the roles and groups that block conversion"
+  },
+  "conversionWizardFailedDetailNetwork": {
+    "defaultMessage": "네트워크 오류가 발생했습니다. 연결 상태를 확인한 후 다시 시도하세요.",
+    "description": "Conversion failure detail shown when the request never reached the server"
+  },
+  "conversionWizardFailedMessage": {
+    "defaultMessage": "오류로 인해 작업 공간 기반 액세스 관리로 전환하지 못했습니다. 문제 해결 문서를 확인하거나 지원팀에 문의하세요.",
+    "description": "Conversion failed message"
+  },
+  "conversionWizardFailedTitle": {
+    "defaultMessage": "전환 실패",
+    "description": "Conversion failed title"
+  },
+  "conversionWizardGetStartedLink": {
+    "defaultMessage": "액세스 관리 시작하기",
+    "description": "Getting Started with Access Management link text"
+  },
+  "conversionWizardHierarchyTitle": {
+    "defaultMessage": "전환 중 작업 공간 계층 구조가 생성됩니다.",
+    "description": "During conversion a workspace hierarchy will be created title"
+  },
+  "conversionWizardIsolatedEnvironments": {
+    "defaultMessage": "격리된 환경을 만들려면 기본 작업 공간에서 불필요한 권한을 제거하고 기본 작업 공간 바로 아래에 피어 작업 공간을 생성하여 기본 작업 공간에서 추가 권한을 상속받지 않도록 합니다. 이 예에서는 Project Alpha 작업 공간을 생성하여 해당 작업 공간에 대한 권한을 줄입니다.",
+    "description": "Creating isolated environments paragraph"
+  },
+  "conversionWizardLearnMoreGuide": {
+    "defaultMessage": "더 자세한 내용은 {link} 가이드에서 확인하세요.",
+    "description": "Learn more in our guide text"
+  },
+  "conversionWizardPermissionsCascade": {
+    "defaultMessage": "각 시스템에 대한 권한을 개별적으로 관리하는 대신, 시스템을 작업 공간으로 구성하고 조직 구조 전체에 자동으로 적용되는 권한을 부여할 수 있습니다.",
+    "description": "Paragraph about permissions cascading"
+  },
+  "conversionWizardPermissionsChangeTitle": {
+    "defaultMessage": "권한 변경 방법",
+    "description": "How permissions change section title"
+  },
+  "conversionWizardPermissionsDiagramAlt": {
+    "defaultMessage": "권한 및 작업 공간 계층 구조 다이어그램",
+    "description": "Alt text for permissions and workspace hierarchy diagram"
+  },
+  "conversionWizardPlanStructureClosing": {
+    "defaultMessage": "조직 관리자는 기본 관리자 액세스 권한을 통해 모든 작업 공간에 대한 액세스 권한을 유지하므로 하위 작업 공간은 관리자가 아닌 다른 사용자의 액세스를 제한합니다.",
+    "description": "Plan workspace structure closing statement"
+  },
+  "conversionWizardPlanStructureIntro": {
+    "defaultMessage": "다음과 같은 환경을 위해 기본 작업 공간 아래에 하위 작업 공간을 생성합니다:",
+    "description": "Plan workspace structure introduction"
+  },
+  "conversionWizardPlanStructureItem1": {
+    "defaultMessage": "높은 보안 수준이 요구되는 프로덕션 환경",
+    "description": "Plan workspace structure bullet point 1"
+  },
+  "conversionWizardPlanStructureItem2": {
+    "defaultMessage": "규정 준수를 위해 격리해야 하는 시스템",
+    "description": "Plan workspace structure bullet point 2"
+  },
+  "conversionWizardPlanStructureTitle": {
+    "defaultMessage": "작업 공간 구조 계획",
+    "description": "Plan workspace structure title"
+  },
+  "conversionWizardPostConversionIntro": {
+    "defaultMessage": "전환 후 1주일 이내에 액세스 구조를 검토하세요. 기본 관리자 액세스 및 기본 액세스는 설계상 변경할 수 없으며 아래의 모든 항목에 영향을 미칩니다.",
+    "description": "Post-conversion requirements introduction paragraph"
+  },
+  "conversionWizardPostConversionTitle": {
+    "defaultMessage": "전환 후 요구 사항",
+    "description": "Post-conversion requirements step title"
+  },
+  "conversionWizardPreConversionChecklistDescription": {
+    "defaultMessage": "전환 과정에서 발생할 변경 사항을 이해하셨음을 확인하기 위해 체크리스트를 작성해 주세요.",
+    "description": "Pre-conversion checklist step description"
+  },
+  "conversionWizardPreConversionChecklistPopover": {
+    "defaultMessage": "전환을 진행하기 전에 다음 항목을 반드시 확인해야 합니다. 이를 통해 전환이 미치는 영향을 이해하고 변경 사항에 대비할 수 있습니다.",
+    "description": "Pre-conversion checklist popover content"
+  },
+  "conversionWizardPreConversionChecklistTitle": {
+    "defaultMessage": "전환 전 체크리스트",
+    "description": "Pre-conversion checklist step title"
+  },
+  "conversionWizardProductAvailabilityAlertDescription": {
+    "defaultMessage": "모든 Red Hat 제품이 이 새로운 환경에서 사용 가능한 것은 아닙니다. 조직에서 OpenShift Cluster Manager, Ansible Automation Platform 또는 Cost Management를 사용하는 경우 전환을 연기하는 것이 좋습니다. 각 제품의 통합이 완료되면 이 공지를 업데이트할 예정이니 추후 다시 확인해 주세요.",
+    "description": "Description for product availability warning alert"
+  },
+  "conversionWizardProductAvailabilityAlertTitle": {
+    "defaultMessage": "아직 모든 제품을 사용할 수 있는 것은 아닙니다.",
+    "description": "Title for product availability warning alert"
+  },
+  "conversionWizardRemediationPlansNew": {
+    "defaultMessage": "이 전환 이후에 생성된 개선 계획은 개별 사용자가 아닌 작업 공간에 연결되므로 권한이 있는 팀 구성원이 원활하게 협업하고 업데이트하고 실행할 수 있습니다.",
+    "description": "New remediation plans features paragraph"
+  },
+  "conversionWizardRemediationPlansTitle": {
+    "defaultMessage": "기존 복구 계획은 삭제됩니다.",
+    "description": "Legacy remediation plans will be deleted section title"
+  },
+  "conversionWizardRemediationPlansWarning": {
+    "defaultMessage": "이 전환을 진행하면 조직 전체의 기존 개선 계획이 모두 삭제됩니다. 계속 진행하기 전에 팀에서 활성 상태인 계획을 모두 실행했거나 다운로드했는지 확인하세요.",
+    "description": "Remediation plans warning paragraph"
+  },
+  "conversionWizardReviewUngroupedHostsDesc": {
+    "defaultMessage": "여기 있는 시스템은 기본 액세스에 바인딩된 역할을 상속합니다. 2단계에서 변경한 내용에 따라 액세스 권한이 올바르게 설정되어 있는지 확인하세요.",
+    "description": "Review Ungrouped hosts workspace description"
+  },
+  "conversionWizardReviewUngroupedHostsTitle": {
+    "defaultMessage": "그룹화되지 않은 호스트 작업 공간 검토",
+    "description": "Review Ungrouped hosts workspace title"
+  },
+  "conversionWizardRoleBindingConnectsTitle": {
+    "defaultMessage": "역할 바인딩은 다음 항목을 연결합니다.",
+    "description": "A role binding connects title"
+  },
+  "conversionWizardRoleBindingExample": {
+    "defaultMessage": "다음 예시는 역할 바인딩을 통해 엔지니어링 팀의 Ethan에게 Project Alpha 작업 공간의 RHEL 시스템에 대한 관리자 액세스 권한을 부여하는 방법을 보여줍니다.",
+    "description": "Role binding example paragraph"
+  },
+  "conversionWizardRoleBindingWhat": {
+    "defaultMessage": "무엇",
+    "description": "Role binding What term"
+  },
+  "conversionWizardRoleBindingWhatDesc": {
+    "defaultMessage": "역할(권한)",
+    "description": "Role binding What description"
+  },
+  "conversionWizardRoleBindingWhere": {
+    "defaultMessage": "어디",
+    "description": "Role binding Where term"
+  },
+  "conversionWizardRoleBindingWhereDesc": {
+    "defaultMessage": "작업 공간",
+    "description": "Role binding Where description"
+  },
+  "conversionWizardRoleBindingWho": {
+    "defaultMessage": "대상",
+    "description": "Role binding Who term"
+  },
+  "conversionWizardRoleBindingWhoDesc": {
+    "defaultMessage": "사용자 그룹",
+    "description": "Role binding Who description"
+  },
+  "conversionWizardRoleBindingsDiagramAlt": {
+    "defaultMessage": "역할 바인딩 예시 다이어그램",
+    "description": "Alt text for role bindings example diagram"
+  },
+  "conversionWizardRoleBindingsIntro": {
+    "defaultMessage": "역할 바인딩은 주체(사용자, 그룹, 서비스 계정)와 역할을 작업 공간에 연결하는 메커니즘입니다. 작업 공간 액세스 관리가 \"무엇을\" 다룰 것인지에 대한 것이라면, 역할 바인딩은 \"어떻게\" 다룰 것인지에 대한 것입니다.",
+    "description": "Role bindings introduction paragraph"
+  },
+  "conversionWizardRoleBindingsLinkContext": {
+    "defaultMessage": "자세한 내용은 {link}에서 참조하세요.",
+    "description": "Context text around role bindings link"
+  },
+  "conversionWizardRoleBindingsLinkText": {
+    "defaultMessage": "역할 바인딩 작동 방식",
+    "description": "How role bindings work link text"
+  },
+  "conversionWizardRoleBindingsTitle": {
+    "defaultMessage": "역할 바인딩 작동 방식",
+    "description": "How role bindings work section title"
+  },
+  "conversionWizardRootWorkspace": {
+    "defaultMessage": "루트 작업 공간",
+    "description": "Root workspace term"
+  },
+  "conversionWizardRootWorkspaceDesc": {
+    "defaultMessage": "조직 액세스를 위해 최상위 레벨에 생성되었습니다.",
+    "description": "Root workspace description"
+  },
+  "conversionWizardUngroupedHosts": {
+    "defaultMessage": "그룹화되지 않은 호스트 작업 공간",
+    "description": "Ungrouped hosts workspace term"
+  },
+  "conversionWizardUngroupedHostsDesc": {
+    "defaultMessage": "아직 작업 공간에 포함되지 않은 기존 시스템을 위해 기본 작업 공간 아래에 생성됩니다.",
+    "description": "Ungrouped hosts workspace description"
+  },
+  "conversionWizardVerifyCriticalAccessItem1": {
+    "defaultMessage": "조직 내 3~5명의 사용자가 각자의 시스템에 액세스할 수 있는지 확인하세요.",
+    "description": "Verify critical user access bullet point 1"
+  },
+  "conversionWizardVerifyCriticalAccessItem2": {
+    "defaultMessage": "기본 관리자 액세스, 기본 액세스 및 사용자 지정 그룹을 포함합니다.",
+    "description": "Verify critical user access bullet point 2"
+  },
+  "conversionWizardVerifyCriticalAccessTitle": {
+    "defaultMessage": "주요 사용자의 액세스 권한 확인",
+    "description": "Verify critical user access title"
+  },
+  "conversionWizardWhatChangesTitle": {
+    "defaultMessage": "전환 중 변경되는 사항",
+    "description": "Title for What changes during conversion section"
+  },
+  "conversionWizardWorkspaceHierarchyDiagramAlt": {
+    "defaultMessage": "작업 공간 계층 구조 다이어그램",
+    "description": "Alt text for workspace hierarchy diagram"
+  },
+  "conversionWizardWorkspacesIntro": {
+    "defaultMessage": "Red Hat 하이브리드 클라우드 콘솔의 새로운 액세스 관리 모델은 기존 사용자 액세스 기능을 대체합니다. 이 모델은 자산을 구성하고 조직 내 액세스 권한을 제어할 수 있는 계층 구조인 <strong>작업 공간</strong>을 도입합니다.",
+    "description": "Introduction paragraph about workspaces"
+  },
+  "copyAnExistingRole": {
+    "defaultMessage": "기존 역할 복사",
+    "description": "Copy an existing role option"
+  },
+  "copyToAllPermissions": {
+    "defaultMessage": "모두에 복사",
+    "description": "Copy to all label"
+  },
+  "cores": {
+    "defaultMessage": "코어",
+    "description": "Cores label"
+  },
+  "create": {
+    "defaultMessage": "만들기",
+    "description": "Create label"
+  },
+  "createAnotherGroup": {
+    "defaultMessage": "다른 그룹 생성",
+    "description": "Create another group message"
+  },
+  "createAnotherRole": {
+    "defaultMessage": "다른 역할 생성",
+    "description": "Create another role message"
+  },
+  "createAtLeastOneItem": {
+    "defaultMessage": "하나 이상의 {item} 생성",
+    "description": "Empty state description 2nd part"
+  },
+  "createGroup": {
+    "defaultMessage": "그룹 생성",
+    "description": "Create group wizard title"
+  },
+  "createNewWorkspace": {
+    "defaultMessage": "새 작업 공간 생성",
+    "description": "Create newworkspace action label"
+  },
+  "createRole": {
+    "defaultMessage": "역할 만들기",
+    "description": "Create role label"
+  },
+  "createRoleErrorDescription": {
+    "defaultMessage": "역할이 성공적으로 추가되지 않았습니다.",
+    "description": "Create role error notification description"
+  },
+  "createRoleErrorTitle": {
+    "defaultMessage": "역할 추가 실패",
+    "description": "Create role error notification title"
+  },
+  "createRoleFromScratch": {
+    "defaultMessage": "처음부터 역할 생성",
+    "description": "Create role from scratch option"
+  },
+  "createUserGroup": {
+    "defaultMessage": "사용자 그룹 생성",
+    "description": "create user group button label"
+  },
+  "createWorkspace": {
+    "defaultMessage": "작업 공간 생성",
+    "description": "Create workspace action label"
+  },
+  "createWorkspaceErrorDescription": {
+    "defaultMessage": "작업 공간이 성공적으로 생성되지 않았습니다.",
+    "description": "Create workspace error notification description"
+  },
+  "createWorkspaceErrorTitle": {
+    "defaultMessage": "{name} 작업 공간 생성에 실패했습니다",
+    "description": "Create workspace error notification title"
+  },
+  "createWorkspaceProgressBody": {
+    "defaultMessage": "{name}의 권한을 구성하고 있습니다. 이 과정은 보통 몇 초 정도 소요됩니다.",
+    "description": "Body text shown while waiting for workspace permissions to propagate"
+  },
+  "createWorkspaceProgressTitle": {
+    "defaultMessage": "작업 공간 설정하기",
+    "description": "Title shown while waiting for workspace permissions to propagate"
+  },
+  "createWorkspaceQuickStart": {
+    "defaultMessage": "워크스페이스를 생성하고 액세스 권한 부여",
+    "description": "Create a workspace and grant access quick start title"
+  },
+  "createWorkspaceReadyBody": {
+    "defaultMessage": "{name} 생성되어 사용할 준비가 되었습니다.",
+    "description": "Body text shown when workspace permissions are fully propagated"
+  },
+  "createWorkspaceReadyTitle": {
+    "defaultMessage": "작업 공간 준비 완료",
+    "description": "Title shown when workspace permissions are fully propagated"
+  },
+  "createWorkspaceSuccessTitle": {
+    "defaultMessage": "새로운{name} 작업 공간이 성공적으로 생성되었습니다.",
+    "description": "Create workspace success notification title"
+  },
+  "createWorkspaceTimeoutBody": {
+    "defaultMessage": "{name} 생성은 완료되었지만 권한 설정이 아직 진행 중입니다. 이 대화 상자를 닫고 잠시 후 다시 확인해 주세요.",
+    "description": "Body text shown when workspace permission propagation takes too long"
+  },
+  "createWorkspaceTimeoutTitle": {
+    "defaultMessage": "예상보다 시간이 오래 걸리고 있습니다",
+    "description": "Title shown when workspace permission propagation takes too long"
+  },
+  "creatingGroup": {
+    "defaultMessage": "그룹 생성 중",
+    "description": "Creating group label"
+  },
+  "creatingRoleCanceled": {
+    "defaultMessage": "사용자가 역할 생성을 취소했습니다.",
+    "description": "Creating role canceled notification message"
+  },
+  "creatingWorkspaceCancel": {
+    "defaultMessage": "사용자가 작업 공간 생성을 취소했습니다.",
+    "description": "Create workspace canceled notification description"
+  },
+  "date": {
+    "defaultMessage": "날짜",
+    "description": "Date label"
+  },
+  "deactivateUsersButton": {
+    "defaultMessage": "사용자 비활성화",
+    "description": "deactivate users button text"
+  },
+  "deactivateUsersConfirmationButton": {
+    "defaultMessage": "사용자 비활성화",
+    "description": "deactivate users confirmation button text"
+  },
+  "deactivateUsersConfirmationModalCheckboxText": {
+    "defaultMessage": "예, 해당 사용자들을 비활성화하려는 것을 확인합니다.",
+    "description": "deactivate users confirmation modal checkbox text"
+  },
+  "deactivateUsersConfirmationModalDescription": {
+    "defaultMessage": "아래 사용자를 Red Hat 조직에서 비활성화하시겠습니까?",
+    "description": "deactivate users confirmation modal description text"
+  },
+  "deactivateUsersConfirmationModalTitle": {
+    "defaultMessage": "사용자 비활성화",
+    "description": "deactivate users confirmation modal title text"
+  },
+  "defaultAccessGroupChanged": {
+    "defaultMessage": "기본 액세스 그룹이 변경됨",
+    "description": "Default access group changed message"
+  },
+  "defaultAccessGroupEditWarning": {
+    "defaultMessage": "<b>기본 액세스</b> 그룹을 편집하면 시스템에서 더 이상 새 기본 액세스 역할로 해당 그룹을 업데이트하지 않습니다. 그룹 이름은 <b>'사용자 지정 기본 액세스'</b> 로 변경됩니다.",
+    "description": "Message warning that editing a Default access group will rename it"
+  },
+  "defaultAccessGroupNameChanged": {
+    "defaultMessage": "<b>기본 액세스</b> 그룹을 편집했으므로 이제 시스템에서 새 기본 액세스 역할로 해당 그룹을 더 이상 업데이트하지 않습니다. 그룹 이름이 <b>'사용자 지정 기본 액세스'</b> 로 변경되었습니다.",
+    "description": "Default access group renamed message"
+  },
+  "defaultGroupNotManually": {
+    "defaultMessage": "기본 관리자 액세스 그룹 역할은 수동으로 수정할 수 없습니다.",
+    "description": "Message warning that default admin access group cannot be modified manually"
+  },
+  "defaultGroupsHeading": {
+    "defaultMessage": "기본 그룹",
+    "description": "Default groups heading"
+  },
+  "defineAtLeastOneResource": {
+    "defaultMessage": "이 권한에 대해 하나 이상의 리소스를 정의해야 합니다.",
+    "description": "Define at least one resource message"
+  },
+  "defineCostResources": {
+    "defaultMessage": "비용 관리 리소스 정의",
+    "description": "Define Cost Management resources label"
+  },
+  "definedResources": {
+    "defaultMessage": "정의된 리소스",
+    "description": "Defined resources label"
+  },
+  "delete": {
+    "defaultMessage": "삭제",
+    "description": "Delete button text"
+  },
+  "deleteCustomRoleModalBody": {
+    "defaultMessage": "{count, plural, other {역할 #를 삭제하면 조직 내 일부 사용자 그룹의 액세스 권한이 제거될 수 있습니다.}}",
+    "description": "Modal body text for deleting custom role"
+  },
+  "deleteCustomRoleModalHeader": {
+    "defaultMessage": "역할을 삭제하시겠습니까?",
+    "description": "Modal header text for deleting custom role"
+  },
+  "deleteGroup": {
+    "defaultMessage": "그룹 삭제",
+    "description": "Delete group label"
+  },
+  "deleteGroupQuestion": {
+    "defaultMessage": "그룹을 삭제하시겠습니까?",
+    "description": "Delete group question label"
+  },
+  "deleteGroups": {
+    "defaultMessage": "그룹 삭제",
+    "description": "Delete groups label"
+  },
+  "deleteGroupsQuestion": {
+    "defaultMessage": "그룹을 삭제하시겠습니까?",
+    "description": "Delete groups question label"
+  },
+  "deleteRole": {
+    "defaultMessage": "역할 삭제",
+    "description": "Delete role message"
+  },
+  "deleteRoleConfirm": {
+    "defaultMessage": "역할 삭제",
+    "description": "confirm button for deleting role"
+  },
+  "deleteRoleQuestion": {
+    "defaultMessage": "역할을 삭제하시겠습니까?",
+    "description": "Delete role question message"
+  },
+  "deleteRolesAction": {
+    "defaultMessage": "역할 삭제",
+    "description": "delete roles"
+  },
+  "deleteUserGroupModalBody": {
+    "defaultMessage": "{count, plural, other {사용자 그룹 #를 삭제하면 사용자 액세스 구성에 영향을 미칩니다.}}",
+    "description": "Modal body text for delete user group"
+  },
+  "deleteUserGroupModalTitle": {
+    "defaultMessage": "{count, plural, other {사용자 그룹을 삭제하시겠습니까?}}",
+    "description": "Title for delete user group modal"
+  },
+  "deleteWorkspaceAction": {
+    "defaultMessage": "작업 공간 삭제",
+    "description": "delete workspaces"
+  },
+  "deleteWorkspaceErrorDescription": {
+    "defaultMessage": "작업 공간 {workspace}을/를 삭제하지 못했습니다.",
+    "description": "Delete workspace error notification description"
+  },
+  "deleteWorkspaceErrorTitle": {
+    "defaultMessage": "작업 공간 삭제 실패",
+    "description": "Delete workspace error notification title"
+  },
+  "deleteWorkspaceModalBody": {
+    "defaultMessage": "{count, plural, other {<b># 작업 공간</b>과 해당 작업 공간의 모든 데이터가 영구적으로 삭제됩니다. 이 작업 공간을 통해 사용자 그룹에 부여된 모든 액세스 권한이 제거됩니다.}}",
+    "description": "Modal body text for deleting a workspace"
+  },
+  "deleteWorkspaceModalHeader": {
+    "defaultMessage": "작업 공간을 삭제하시겠습니까?",
+    "description": "Modal header text for deleting a workspace"
+  },
+  "deleteWorkspaceSuccessDescription": {
+    "defaultMessage": "작업 공간{workspace}이/가 성공적으로 삭제되었습니다.",
+    "description": "Delete workspace success notification description"
+  },
+  "deleteWorkspaceSuccessTitle": {
+    "defaultMessage": "작업 공간 삭제 성공",
+    "description": "Delete workspace success notification title"
+  },
+  "deletingGroupRemovesRoles": {
+    "defaultMessage": "<b>{name}</b> 그룹을 삭제하면 그룹 내 구성원의 모든 역할이 제거됩니다.",
+    "description": "Delete group label"
+  },
+  "deletingGroupsRemovesRoles": {
+    "defaultMessage": "이 <b>{count, number}</b> 그룹을 삭제하면 그룹 내 구성원의 모든 역할이 제거됩니다.",
+    "description": "Delete groups label"
+  },
+  "deletingWorkspaceCanceledDescription": {
+    "defaultMessage": "사용자가 작업 공간 삭제를 취소했습니다.",
+    "description": "Delete workspace canceled notification description"
+  },
+  "deletingWorkspaceTitle": {
+    "defaultMessage": "작업 공간 삭제 중",
+    "description": "Deleting workspace notification title"
+  },
+  "description": {
+    "defaultMessage": "설명",
+    "description": "Description column label"
+  },
+  "discard": {
+    "defaultMessage": "취소",
+    "description": "Discard label"
+  },
+  "discardedInputsWarning": {
+    "defaultMessage": "모든 입력이 삭제됩니다",
+    "description": "Warning saying that all inputs will be discarded"
+  },
+  "documentationLabel": {
+    "defaultMessage": "문서",
+    "description": "Documentation label"
+  },
+  "earMark": {
+    "defaultMessage": "지정",
+    "description": "Ear mark label"
+  },
+  "earMarkOfFeatures": {
+    "defaultMessage": "기능 지정",
+    "description": "Ear mark of features label"
+  },
+  "edit": {
+    "defaultMessage": "편집",
+    "description": "Edit button text"
+  },
+  "editAccess": {
+    "defaultMessage": "액세스 편집",
+    "description": "Edit access action text"
+  },
+  "editAccessForThisWorkspace": {
+    "defaultMessage": "이 작업 공간의 액세스 편집",
+    "description": "Edit access for this workspace button text"
+  },
+  "editCustomRole": {
+    "defaultMessage": "사용자 지정 역할 편집",
+    "description": "Edit custom role label"
+  },
+  "editGroupCanceledDescription": {
+    "defaultMessage": "사용자가 그룹 편집을 취소했습니다.",
+    "description": "Edit group canceled notification description"
+  },
+  "editGroupErrorDescription": {
+    "defaultMessage": "그룹을 업데이트하지 못했습니다.",
+    "description": "Edit group error notification description"
+  },
+  "editGroupErrorTitle": {
+    "defaultMessage": "그룹을 업데이트하지 못했습니다",
+    "description": "Edit group error notification title"
+  },
+  "editGroupInfo": {
+    "defaultMessage": "그룹의 정보 편집",
+    "description": "Edit group's information message"
+  },
+  "editGroupSuccessDescription": {
+    "defaultMessage": "그룹이 성공적으로 업데이트되었습니다",
+    "description": "Edit group success notification description"
+  },
+  "editGroupSuccessTitle": {
+    "defaultMessage": "성공적으로 그룹 업데이트 중",
+    "description": "Edit group success notification title"
+  },
+  "editPermissionsUsingArrows": {
+    "defaultMessage": "아래 화살표를 사용하여 특정 리소스에 대한 권한을 제공하거나 제거합니다.",
+    "description": "Edit permissions using arrows label"
+  },
+  "editPolicyErrorDescription": {
+    "defaultMessage": "정책이 성공적으로 업데이트되지 않았습니다.",
+    "description": "Edit policy error notification description"
+  },
+  "editPolicyErrorTitle": {
+    "defaultMessage": "정책 업데이트 실패",
+    "description": "Edit policy error notification title"
+  },
+  "editPolicySuccessDescription": {
+    "defaultMessage": "정책이 성공적으로 업데이트되었습니다.",
+    "description": "Edit policy success notification description"
+  },
+  "editPolicySuccessTitle": {
+    "defaultMessage": "성공적으로 정책 업데이트 중",
+    "description": "Edit policy success notification title"
+  },
+  "editResourceDefinitions": {
+    "defaultMessage": "리소스 정의 편집",
+    "description": "Edit resource definitions label"
+  },
+  "editRole": {
+    "defaultMessage": "역할 편집",
+    "description": "Edit role toolbar action"
+  },
+  "editRoleErrorDescription": {
+    "defaultMessage": "역할이 제대로 업데이트되지 않았습니다.",
+    "description": "Edit role error notification description"
+  },
+  "editRoleErrorTitle": {
+    "defaultMessage": "역할 업데이트 실패",
+    "description": "Edit role error notification title"
+  },
+  "editRoleSuccessDescription": {
+    "defaultMessage": "역할이 성공적으로 업데이트되었습니다.",
+    "description": "Edit role success notification description"
+  },
+  "editRoleSuccessTitle": {
+    "defaultMessage": "성공적으로 역할 업데이트 중",
+    "description": "Edit role success notification title"
+  },
+  "editUserErrorDescription": {
+    "defaultMessage": "사용자를 업데이트하지 못했습니다.",
+    "description": "Edit user error notification description"
+  },
+  "editUserErrorTitle": {
+    "defaultMessage": "사용자 업데이트 실패",
+    "description": "Edit user error notification title"
+  },
+  "editUserSuccessDescription": {
+    "defaultMessage": "사용자가 성공적으로 업데이트되었습니다.",
+    "description": "Edit user success notification description"
+  },
+  "editUserSuccessTitle": {
+    "defaultMessage": "사용자 업데이트 성공",
+    "description": "Edit user success notification title"
+  },
+  "editWorkspaceErrorDescription": {
+    "defaultMessage": "작업 공간을 업데이트하지 못했습니다.",
+    "description": "Update workspace error notification description"
+  },
+  "editWorkspaceErrorTitle": {
+    "defaultMessage": "작업 공간 업데이트 오류",
+    "description": "Update workspace error notification title"
+  },
+  "editWorkspaceSuccessDescription": {
+    "defaultMessage": "작업 공간을 업데이트했습니다.",
+    "description": "Update workspace success notification description"
+  },
+  "editWorkspaceSuccessTitle": {
+    "defaultMessage": "작업 공간 업데이트 성공",
+    "description": "Update workspace success notification title"
+  },
+  "editingGroupTitle": {
+    "defaultMessage": "그룹 편집",
+    "description": "Editing group notification title"
+  },
+  "editingRoleCanceledDescription": {
+    "defaultMessage": "사용자가 역할 편집을 취소했습니다.",
+    "description": "Editing role canceled notification description"
+  },
+  "editingRoleTitle": {
+    "defaultMessage": "역할 편집",
+    "description": "Editing role notification title"
+  },
+  "editingWorkspaceCanceledDescription": {
+    "defaultMessage": "사용자가 작업 공간 편집을 취소했습니다.",
+    "description": "Edit workspace canceled notification description"
+  },
+  "editingWorkspaceNoPermissionDescription": {
+    "defaultMessage": "이 작업 공간을 편집할 권한이 없습니다.",
+    "description": "Edit workspace denied notification description"
+  },
+  "editingWorkspaceTitle": {
+    "defaultMessage": "작업 공간 편집 중",
+    "description": "Editing workspace notification title"
+  },
+  "email": {
+    "defaultMessage": "이메일",
+    "description": "Email label"
+  },
+  "enableWorkspacesWizardBodyPart1": {
+    "defaultMessage": "작업 공간을 사용하여 조직 내 사용자 액세스를 안전하게 관리하고 자산을 체계적으로 구성하세요. 세분화된 액세스 제어를 구현하여 권한 관리를 간소화하고 리소스에 효율적이고 안전하게 액세스할 수 있도록 하세요. 자산 및 역할 구성도를 확인하세요.",
+    "description": "First part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart2": {
+    "defaultMessage": "조직 구조에 맞게 작업 공간을 구성하세요. 작업 공간은 계층 구조(상위-하위 관계)로 구성할 수 있습니다. 상위 작업 공간에 할당된 권한은 하위 작업 공간에 자동으로 상속되므로 구성을 위한 시간을 절약할 수 있습니다. 조직에서 작업 공간 계층 구조를 활용하는 방법과 사용 사례에 대해 자세히 알아보세요.",
+    "description": "Second part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart2Header": {
+    "defaultMessage": "작업 공간:",
+    "description": "Header for second part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart3": {
+    "defaultMessage": "최종 사용자와 서비스 계정을 모두 포함하는 사용자 그룹을 생성하세요. 조직 구조를 반영하도록 이러한 그룹을 구성할 수 있습니다. 사전 정의된 역할이 요구 사항에 적합한지 확인하세요. 적합한 역할이 없다면 특정 권한을 부여하는 사용자 지정 역할을 생성하세요. 작업 공간에 액세스 권한을 부여하세요. 이렇게 하면 역할과 사용자 그룹이 특정 작업 공간에 연결됩니다. 이러한 바인딩에 따라 누가 어떤 리소스에 액세스할 수 있는지, 그리고 어떤 작업을 수행할 수 있는지가 결정됩니다. 액세스 관리에 대해 자세히 알아보세요.",
+    "description": "Third part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart3Header": {
+    "defaultMessage": "그룹, 역할 및 역할 바인딩:",
+    "description": "Header for third part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardCheckboxLabel": {
+    "defaultMessage": "이 확인란을 선택하면 이 작업을 실행한 후에는 취소할 수 없음을 확인하는 것입니다.",
+    "description": "Checkbox label for Enable Workspaces wizard"
+  },
+  "enableWorkspacesWizardDesc": {
+    "defaultMessage": "액세스 관리(자산, 역할, 사용자, 그룹 등)를 개선하려면 조직에서 '작업 공간' 기능을 활성화하세요.",
+    "description": "Description for Enable Workspaces wizard"
+  },
+  "enableWorkspacesWizardTitle": {
+    "defaultMessage": "작업 공간 활성화",
+    "description": "Title for Enable Workspaces wizard"
+  },
+  "exit": {
+    "defaultMessage": "종료",
+    "description": "Exit button text"
+  },
+  "exitEditResourceDefinitions": {
+    "defaultMessage": "리소스 정의 편집을 종료하시겠습니까?",
+    "description": "Exit edit resource definitions question text"
+  },
+  "exitItemAdding": {
+    "defaultMessage": "{item} 추가를 종료하시겠습니까?",
+    "description": "Exit item adding modal title"
+  },
+  "exitItemCreation": {
+    "defaultMessage": "{item} 생성을 종료하시겠습니까?",
+    "description": "Exit item creation modal title"
+  },
+  "featuresManagement": {
+    "defaultMessage": "기능 관리",
+    "description": "Features management label"
+  },
+  "filterByApplication": {
+    "defaultMessage": "애플리케이션별 필터링...",
+    "description": "Filter by application"
+  },
+  "filterByEmail": {
+    "defaultMessage": "이메일로 필터링",
+    "description": "Filter by email label"
+  },
+  "filterByInheritedFrom": {
+    "defaultMessage": "상속 출처별 필터링",
+    "description": "placeholder for inherited from filter"
+  },
+  "filterByKey": {
+    "defaultMessage": "{key}로/으로 필터링",
+    "description": "Filter by data key label"
+  },
+  "filterByRequester": {
+    "defaultMessage": "요청별 필터링",
+    "description": "Audit log filter placeholder for requester"
+  },
+  "filterByResource": {
+    "defaultMessage": "리소스로 필터링...",
+    "description": "Filter by resource label"
+  },
+  "filterByUserGroup": {
+    "defaultMessage": "사용자 그룹별 필터링",
+    "description": "placeholder for user group filter"
+  },
+  "filterByUsername": {
+    "defaultMessage": "사용자 이름으로 필터링",
+    "description": "Filter by username label"
+  },
+  "filterMatchesNoFilters": {
+    "defaultMessage": "필터 기준은 {items}과 일치하지 않습니다.",
+    "description": "No matching items for filter criteria message"
+  },
+  "filterMatchesNoItems": {
+    "defaultMessage": "필터 기준은 {items}과 일치하지 않습니다.",
+    "description": "No matching items for filter criteria message"
+  },
+  "firstName": {
+    "defaultMessage": "이름",
+    "description": "First name label"
+  },
+  "followingPermissionsCannotBeAdded": {
+    "defaultMessage": "다음 권한을 사용자 정의 역할에 추가할 수 없으며 복사된 역할에서 제거되었습니다.",
+    "description": "Following permissions cannot be added message"
+  },
+  "gotItButtonLabel": {
+    "defaultMessage": "확인",
+    "description": "got it button label"
+  },
+  "grantAccess": {
+    "defaultMessage": "액세스 권한 부여",
+    "description": "Grant access button text"
+  },
+  "grantAccessErrorDescription": {
+    "defaultMessage": "액세스 권한을 부여하는 중 문제가 발생했습니다. 다시 시도하세요.",
+    "description": "Error notification description when granting access fails"
+  },
+  "grantAccessErrorTitle": {
+    "defaultMessage": "액세스 권한 부여 실패",
+    "description": "Error notification title when granting access fails"
+  },
+  "grantAccessInOrganization": {
+    "defaultMessage": "조직 전체에 액세스 권한 부여",
+    "description": "Grant access in organization wizard title"
+  },
+  "grantAccessInOrganizationWithName": {
+    "defaultMessage": "{organizationName}에서 액세스 권한 부여",
+    "description": "Grant access in organization wizard title with organization name"
+  },
+  "grantAccessInWorkspace": {
+    "defaultMessage": "작업 공간 {workspaceName}에서 액세스 권한 부여",
+    "description": "Grant access in workspace wizard title"
+  },
+  "grantAccessLink": {
+    "defaultMessage": "액세스 권한 부여",
+    "description": "Grant access link text"
+  },
+  "grantAccessSuccessDescription": {
+    "defaultMessage": "선택된 그룹에 대해 역할 바인딩이 생성되었습니다.",
+    "description": "Success notification description when access is granted"
+  },
+  "grantAccessSuccessTitle": {
+    "defaultMessage": "액세스 권한이 성공적으로 부여되었습니다.",
+    "description": "Success notification title when access is granted"
+  },
+  "grantOrRemoveAccess": {
+    "defaultMessage": "아래에서 역할을 선택하거나 선택 해제하여 <b>{workspaceName}</b> 작업 공간 내 <b>{groupName}</b> 그룹의 액세스 권한을 부여하거나 제거합니다.",
+    "description": "Edit access modal instruction text"
+  },
+  "grantingAccessBold": {
+    "defaultMessage": "액세스 권한 부여",
+    "description": "Granting access bold text"
+  },
+  "grantingAccessDescription": {
+    "defaultMessage": "{bold}: 사용자 그룹과 특정 역할을 작업 공간에 할당하면 해당 그룹의 모든 구성원에게 작업 공간 내 서비스 및 자산에 대한 역할의 해당 권한이 부여됩니다.",
+    "description": "Granting access description"
+  },
+  "grantingAccessInWorkspacesHeading": {
+    "defaultMessage": "작업 공간에서 액세스 권한 부여",
+    "description": "Granting access in workspaces heading"
+  },
+  "granularPermissionsWillBeCopied": {
+    "defaultMessage": "세분화된 권한만 사용자 지정 역할로 복사됩니다(예: approval:requests:read). 와일드카드 권한은 사용자 지정 역할로 복사되지 않습니다(예: approval:*:read).",
+    "description": "Granular permissions will be copied message"
+  },
+  "group": {
+    "defaultMessage": "그룹",
+    "description": "Group singular"
+  },
+  "groupBeingCreated": {
+    "defaultMessage": "그룹을 생성하는 중입니다",
+    "description": "Creating group step title"
+  },
+  "groupCreatedSuccessfully": {
+    "defaultMessage": "새 그룹을 성공적으로 생성했습니다.",
+    "description": "Group created successfully message"
+  },
+  "groupDefinition": {
+    "defaultMessage": "그룹 정의",
+    "description": "Group definition label"
+  },
+  "groupDescription": {
+    "defaultMessage": "그룹 설명",
+    "description": "Group description label"
+  },
+  "groupDoesNotExist": {
+    "defaultMessage": "D가 {id}인 그룹이 존재하지 않습니다.",
+    "description": "Group with given ID does not exist message"
+  },
+  "groupName": {
+    "defaultMessage": "그룹 이름",
+    "description": "Group name label"
+  },
+  "groupNameTakenText": {
+    "defaultMessage": "1단계: 그룹 정보로 돌아가서 그룹별 그룹 이름을 선택하십시오.",
+    "description": "Group name taken error text"
+  },
+  "groupNameTakenTitle": {
+    "defaultMessage": "그룹 이름이 이미 사용됨",
+    "description": "Group name taken error title"
+  },
+  "groupNoRolesAssigned": {
+    "defaultMessage": "이 그룹에는 현재 할당된 역할이 없습니다.",
+    "description": "Message when group has no roles assigned"
+  },
+  "groupNoUsersAssigned": {
+    "defaultMessage": "이 그룹에는 현재 할당된 사용자가 없습니다.",
+    "description": "Message when group has no users assigned"
+  },
+  "groupNotFound": {
+    "defaultMessage": "그룹을 찾을 수 없음",
+    "description": "Group not found message"
+  },
+  "groupServiceAccountEmptyStateBody": {
+    "defaultMessage": "이 그룹에 대한 서비스 계정을 찾을 수 없습니다.",
+    "description": "No service accounts for this group message"
+  },
+  "groups": {
+    "defaultMessage": "그룹",
+    "description": "Groups plural"
+  },
+  "groupsServiceCardDescription": {
+    "defaultMessage": "최종 사용자와 서비스 계정 모두에 대한 사용자 그룹을 생성하세요. 이러한 그룹을 조직 구조에 맞게 맞춤 설정하세요.",
+    "description": "groups service card description"
+  },
+  "groupsServiceCardTitle": {
+    "defaultMessage": "그룹",
+    "description": "Groups service card title"
+  },
+  "iamLearningResourcesLink": {
+    "defaultMessage": "ID 및 액세스 관리 관련 모든 학습 자료를 확인하세요.",
+    "description": "Identity and Access Management Learning Resources link"
+  },
+  "inactive": {
+    "defaultMessage": "비활성화됨",
+    "description": "Inactive label"
+  },
+  "inheritedDrawerAlert": {
+    "defaultMessage": "상위 작업 공간에 대한 액세스 권한은 해당 작업 공간 내에서 수정해야 합니다.",
+    "description": "Warning alert in the drawer when showing inherited group roles"
+  },
+  "inheritedDrawerSubtitle": {
+    "defaultMessage": "여기에 나열된 역할은 상위 작업 공간에서 부여되었습니다.",
+    "description": "Subtitle in the drawer when showing inherited group roles"
+  },
+  "inheritedFrom": {
+    "defaultMessage": "상속 출처",
+    "description": "Inherited from column label"
+  },
+  "inheritedFromPopoverBody": {
+    "defaultMessage": "이 열에는 해당 역할이 처음 할당된 상위 작업 공간이 표시됩니다.",
+    "description": "Popover body for the Inherited from column info icon"
+  },
+  "inheritedFromPopoverHeader": {
+    "defaultMessage": "'상속 출처'에는 무엇이 표시되나요?",
+    "description": "Popover header for the Inherited from column info icon"
+  },
+  "insufficientPermissionsDescription": {
+    "defaultMessage": "이 작업을 수행할 권한이 없습니다. 관리자에게 문의하세요.",
+    "description": "Description for notification when user lacks permission"
+  },
+  "insufficientPermissionsTitle": {
+    "defaultMessage": "권한 부족",
+    "description": "Title for notification when user lacks permission"
+  },
+  "invGroupsLabel": {
+    "defaultMessage": "권한을 추가할 그룹 선택",
+    "description": "Type ahead label for inventory groups role permissions"
+  },
+  "invalidGroup": {
+    "defaultMessage": "잘못된 그룹",
+    "description": "Invalid group message"
+  },
+  "invalidRole": {
+    "defaultMessage": "잘못된 역할",
+    "description": "Invalid role message"
+  },
+  "invalidUser": {
+    "defaultMessage": "잘못된 사용자",
+    "description": "Invalid user message"
+  },
+  "inventoryGroupsAccessDescription": {
+    "defaultMessage": "아래 드롭다운 메뉴를 사용하여 선택한 권한을 적용할 인벤토리 그룹을 지정하세요.",
+    "description": "Description for adding correct group permissions to role."
+  },
+  "inventoryGroupsAccessTitle": {
+    "defaultMessage": "인벤토리 그룹 액세스 권한 정의",
+    "description": "Step for adding correct group permissions to role."
+  },
+  "inventoryGroupsTooltip": {
+    "defaultMessage": "다음 그룹에 권한 추가",
+    "description": "Tooltip for inventory group role permissions"
+  },
+  "inviteUsers": {
+    "defaultMessage": "사용자 초대",
+    "description": "Invite users"
+  },
+  "inviteUsersButton": {
+    "defaultMessage": "새 사용자 초대",
+    "description": "Invite users button text"
+  },
+  "inviteUsersCancelled": {
+    "defaultMessage": "사용자가 사용자 초대 프로세스를 취소했습니다.",
+    "description": "Invite users cancelled notification description"
+  },
+  "inviteUsersConflictDescription": {
+    "defaultMessage": "해당 사용자 이메일이 이미 존재합니다.",
+    "description": "Invite users conflict notification description"
+  },
+  "inviteUsersCustomerPortalPermissions": {
+    "defaultMessage": "고객 포털 액세스 권한",
+    "description": "Customer portal permissions title"
+  },
+  "inviteUsersDescription": {
+    "defaultMessage": "사용자를 초대하여 조직의 Red Hat 계정을 만들도록 하세요. 초대 메시지에는 참조용으로 초대자의 이름이 포함됩니다.",
+    "description": "Invite users modal description"
+  },
+  "inviteUsersErrorDescription": {
+    "defaultMessage": "사용자 초대에 실패했습니다.",
+    "description": "Invite users error notification description"
+  },
+  "inviteUsersErrorTitle": {
+    "defaultMessage": "모든 사용자 초대에 실패",
+    "description": "Invite users error notification title"
+  },
+  "inviteUsersFormDownloadSoftwareUpdatesFieldDescription": {
+    "defaultMessage": "사용자는 Red Hat 고객 포털에서 소프트웨어 및 업데이트를 다운로드할 수 있습니다.",
+    "description": "Invite users form download software and updates field description"
+  },
+  "inviteUsersFormDownloadSoftwareUpdatesFieldTitle": {
+    "defaultMessage": "소프트웨어 및 업데이트 다운로드",
+    "description": "Invite users form download software and updates field title"
+  },
+  "inviteUsersFormEmailsFieldDescription": {
+    "defaultMessage": "쉼표 또는 줄 바꿈으로 구분하여 최대 50개의 이메일 주소를 입력하세요.",
+    "description": "Invite users form emails field description"
+  },
+  "inviteUsersFormEmailsFieldError": {
+    "defaultMessage": "제공하신 이메일 주소 중 일부가 유효하지 않습니다.",
+    "description": "Invite users form emails field error message is one email address is not valid."
+  },
+  "inviteUsersFormEmailsFieldTitle": {
+    "defaultMessage": "초대하고 싶은 사용자들의 이메일 주소를 입력하세요.",
+    "description": "Invite users form emails field title"
+  },
+  "inviteUsersFormIsAdminFieldDescription": {
+    "defaultMessage": "조직 관리자 역할은 콘텐츠 및 기능에 대한 모든 액세스 권한을 가진 최고 수준의 권한입니다. 사용자를 관리할 수 있는 유일한 역할입니다.",
+    "description": "Invite users form is admin field description"
+  },
+  "inviteUsersFormIsAdminFieldTitle": {
+    "defaultMessage": "조직 관리자",
+    "description": "Invite users form is admin field title"
+  },
+  "inviteUsersFormManageSupportCasesFieldDescription": {
+    "defaultMessage": "사용자는 Red Hat 고객 포털에서 조직에 대한 지원 케이스를 생성하고 관리할 수 있습니다.",
+    "description": "Invite users form manage support cases field description"
+  },
+  "inviteUsersFormManageSupportCasesFieldTitle": {
+    "defaultMessage": "지원 케이스 관리",
+    "description": "Invite users form manage support cases field title"
+  },
+  "inviteUsersTitle": {
+    "defaultMessage": "새 사용자 초대",
+    "description": "Invite users modal title"
+  },
+  "itemAlreadyRemovedDescription": {
+    "defaultMessage": "다른 사용자가 이미 하나 이상의 항목을 삭제했습니다. 목록이 새로 고침되었습니다.",
+    "description": "Description for notification when item was already removed (race condition)"
+  },
+  "itemAlreadyRemovedTitle": {
+    "defaultMessage": "이미 삭제된 항목",
+    "description": "Title for notification when item was already removed (race condition)"
+  },
+  "key": {
+    "defaultMessage": "키",
+    "description": "Key label"
+  },
+  "labelDocumentation": {
+    "defaultMessage": "문서",
+    "description": "Documentation label"
+  },
+  "labelOtherResource": {
+    "defaultMessage": "기타 리소스",
+    "description": "Other resource label"
+  },
+  "labelQuickStart": {
+    "defaultMessage": "퀵스타트",
+    "description": "Quick Start label"
+  },
+  "lastModified": {
+    "defaultMessage": "최종 업데이트",
+    "description": "Last modified column label"
+  },
+  "lastName": {
+    "defaultMessage": "성",
+    "description": "Last name label"
+  },
+  "learnMore": {
+    "defaultMessage": "더 알아보기",
+    "description": "learn more link"
+  },
+  "loading": {
+    "defaultMessage": "로딩 중 ...",
+    "description": "Loading temporary label"
+  },
+  "loadingWorkspaces": {
+    "defaultMessage": "작업 공간 로드 중...",
+    "description": "Loading workspaces label"
+  },
+  "manageSupportCases": {
+    "defaultMessage": "지원 케이스 관리",
+    "description": "Manage Support Cases column header"
+  },
+  "maxCharactersWarning": {
+    "defaultMessage": "최대 {number, number}자까지 입력할 수 있습니다.",
+    "description": "Maximum number of characters message"
+  },
+  "member": {
+    "defaultMessage": "멤버",
+    "description": "Member text"
+  },
+  "members": {
+    "defaultMessage": "멤버",
+    "description": "Group members label"
+  },
+  "moveWorkspaceDisabledCurrentParent": {
+    "defaultMessage": "이 작업 공간은 이미 현재 상위 작업 공간입니다.",
+    "description": "Tooltip on the current parent workspace in the move destination tree"
+  },
+  "moveWorkspaceDisabledDescendant": {
+    "defaultMessage": "작업 공간을 그 아래로 이동할 수 없습니다.",
+    "description": "Tooltip on descendants of the workspace being moved"
+  },
+  "moveWorkspaceDisabledSelf": {
+    "defaultMessage": "이동 중인 작업 공간입니다.",
+    "description": "Tooltip on the workspace being moved in the destination tree"
+  },
+  "moveWorkspaceErrorDescription": {
+    "defaultMessage": "{workspace}을/를 이동하지 못했습니다.",
+    "description": "Move workspace error notification description"
+  },
+  "moveWorkspaceErrorTitle": {
+    "defaultMessage": "{name} 이동에 실패했습니다.",
+    "description": "Move workspace error notification title"
+  },
+  "moveWorkspaceSelectDestination": {
+    "defaultMessage": "새 상위 작업 공간을 선택하세요. 해당 작업 공간은 선택한 대상 작업 공간의 액세스 제어 설정을 상속받습니다.",
+    "description": "Instructions shown above the tree in the move workspace dialog"
+  },
+  "moveWorkspaceSuccessDescription": {
+    "defaultMessage": "{name}을/를 성공적으로 이동했습니다.",
+    "description": "Move workspace success notification description"
+  },
+  "moveWorkspaceSuccessTitle": {
+    "defaultMessage": "작업 공간 이동 중",
+    "description": "Move workspace success notification title"
+  },
+  "moveWorkspaceTitle": {
+    "defaultMessage": "\"{name}\" 이동",
+    "description": "Title for the move workspace dialog"
+  },
+  "myAccess": {
+    "defaultMessage": "내 액세스",
+    "description": "My Access page title"
+  },
+  "myAccessDescription": {
+    "defaultMessage": "Hybrid Cloud Console의 모든 그룹 및 작업 공간에 대한 권한을 확인하세요.",
+    "description": "My Access page subtitle"
+  },
+  "myGroups": {
+    "defaultMessage": "내 그룹",
+    "description": "My groups tab label"
+  },
+  "myUserAccess": {
+    "defaultMessage": "내 사용자 액세스",
+    "description": "My User Access label"
+  },
+  "myWorkspaces": {
+    "defaultMessage": "내 작업 공간",
+    "description": "My workspaces tab label"
+  },
+  "name": {
+    "defaultMessage": "이름",
+    "description": "Name column label"
+  },
+  "nameAlreadyTaken": {
+    "defaultMessage": "이름이 이미 사용되고 있습니다.",
+    "description": "Name has been already taken validation message"
+  },
+  "nameAndDescription": {
+    "defaultMessage": "이름 및 설명",
+    "description": "Name and description wizard step title"
+  },
+  "nameFilterPlaceholder": {
+    "defaultMessage": "이름으로 필터링",
+    "description": "placeholder for name filter"
+  },
+  "no": {
+    "defaultMessage": "없음",
+    "description": "No label"
+  },
+  "noAccountsInDefaultAccess": {
+    "defaultMessage": "보안 지침에 따라 서비스 계정은 기본 액세스 그룹에 자동으로 포함되지 않습니다. 액세스 권한을 부여하려면 해당 서비스 계정을 적절한 사용자 액세스 그룹에 수동으로 추가해야 합니다.",
+    "description": "No service accounts for Default Access group message"
+  },
+  "noAccountsInDefaultAdminAccess": {
+    "defaultMessage": "보안 지침에 따라 서비스 계정은 기본 관리자 액세스 그룹에 자동으로 포함되지 않습니다. 액세스 권한을 부여하려면 해당 서비스 계정을 적절한 사용자 액세스 그룹에 수동으로 추가해야 합니다.",
+    "description": "No service accounts for Default Admin Access group message"
+  },
+  "noCostManagementPermissions": {
+    "defaultMessage": "역할에 비용 관리 권한을 추가할 수 없습니다.",
+    "description": "No Cost management permissions message"
+  },
+  "noFilteredRoles": {
+    "defaultMessage": "필터 조건과 일치하는 역할이 없습니다. 결과를 표시하려면 모든 필터를 제거하거나 모두 지우세요.",
+    "description": "Empty state body when no roles match filters"
+  },
+  "noGroupAccounts": {
+    "defaultMessage": "이 그룹에는 서비스 계정이 없습니다.",
+    "description": "No service accounts in a group message"
+  },
+  "noGroupMembers": {
+    "defaultMessage": "이 그룹에는 멤버가 없음",
+    "description": "No members in a given group title"
+  },
+  "noGroupRoles": {
+    "defaultMessage": "이 그룹에는 역할이 없음",
+    "description": "No roles in a group message"
+  },
+  "noGroups": {
+    "defaultMessage": "그룹 없음",
+    "description": "No groups label"
+  },
+  "noGroupsAvailable": {
+    "defaultMessage": "사용 가능한 그룹이 없습니다",
+    "description": "Message when no groups are available for selection"
+  },
+  "noGroupsFound": {
+    "defaultMessage": "그룹을 찾을 수 없습니다",
+    "description": "Empty state title when no groups match filters"
+  },
+  "noGroupsFoundDescription": {
+    "defaultMessage": "현재 검색 조건과 일치하는 그룹이 없습니다.",
+    "description": "Empty state description when no groups match filters"
+  },
+  "noMatchingItemsFound": {
+    "defaultMessage": "일치하는 {items}을/를 찾을 수 없음",
+    "description": "No matching items found message"
+  },
+  "noPermissions": {
+    "defaultMessage": "권한 없음",
+    "description": "No permissions label"
+  },
+  "noPermissionsForInsights": {
+    "defaultMessage": "Insights에 대한 개별 권한이 없습니다.",
+    "description": "No individual permissions for Insights message"
+  },
+  "noRbacPermissions": {
+    "defaultMessage": "역할에 인벤토리 권한을 추가하려면 RBAC 권한이 필요합니다.",
+    "description": "No Rbac permissions message"
+  },
+  "noResourceDefinitions": {
+    "defaultMessage": "{permission} 권한에 대한 리소스 정의가 없음",
+    "description": "There are no resource definitions for permission message"
+  },
+  "noResourcesAvailableAll": {
+    "defaultMessage": "사용 가능한 리소스가 없습니다(모든 리소스에 적용).",
+    "description": "No resources available text in dropdown when permission applies to all"
+  },
+  "noResultsFound": {
+    "defaultMessage": "결과를 찾을 수 없음",
+    "description": "No results found message"
+  },
+  "noRolePermissions": {
+    "defaultMessage": "이 역할에는 권한이 없음",
+    "description": "No role permissions text"
+  },
+  "noRolesFound": {
+    "defaultMessage": "역할을 찾을 수 없습니다.",
+    "description": "Empty state title when no roles match filters"
+  },
+  "noRolesFoundDescription": {
+    "defaultMessage": "현재 검색 조건과 일치하는 역할이 없습니다.",
+    "description": "Empty state description when no roles match filters"
+  },
+  "noRolesSelected": {
+    "defaultMessage": "선택된 역할이 없습니다",
+    "description": "Message when no roles are selected"
+  },
+  "noServiceAccountsFound": {
+    "defaultMessage": "서비스 계정을 찾을 수 없음",
+    "description": "No service accounts message"
+  },
+  "noUserGroupsSelected": {
+    "defaultMessage": "선택된 사용자 그룹이 없습니다.",
+    "description": "Message when no user groups are selected"
+  },
+  "noWildcardPermissions": {
+    "defaultMessage": "와일드카드 권한(예: approval:*:*)은 이 표에 포함되어 있지 않으며 사용자 지정 역할에 추가할 수 없습니다.",
+    "description": "No wildcard permissions message"
+  },
+  "none": {
+    "defaultMessage": "없음",
+    "description": "None select option text"
+  },
+  "notApplicable": {
+    "defaultMessage": "해당없음",
+    "description": "Not applicable text for resource definitions"
+  },
+  "notSubscribed": {
+    "defaultMessage": "등록되지 않음",
+    "description": "Not subscribed label"
+  },
+  "onlyGranularPermissions": {
+    "defaultMessage": "사용자 정의 역할은 세분화된 권한만 지원",
+    "description": "Only granular permissions message"
+  },
+  "onlyGroupRolesVisible": {
+    "defaultMessage": "이 역할 목록에는 현재 그룹에 포함되지 않은 역할만 표시되도록 필터링되어 있습니다.",
+    "description": "Message warning that only roles in given role has been filtered"
+  },
+  "onlyNonUserGroupsVisible": {
+    "defaultMessage": "이 그룹 목록에는 사용자가 현재 멤버로 속해 있지 않은 그룹만 표시되도록 필터링되어 있습니다.",
+    "description": "Message warning that only groups that the user is not a member of has been filtered"
+  },
+  "operation": {
+    "defaultMessage": "작업",
+    "description": "Operation label"
+  },
+  "orgAdmin": {
+    "defaultMessage": "조직 관리자",
+    "description": "Org. Admin name"
+  },
+  "orgAdminHint": {
+    "defaultMessage": "'사용자 액세스'를 사용하여 다른 사용자 권한을 관리할 수 있음",
+    "description": "User Access Admin hint about permissions"
+  },
+  "orgAdminInheritedRoles": {
+    "defaultMessage": "이 그룹에는 모든 조직 관리자 사용자가 기본적으로 상속받는 역할이 포함되어 있습니다. 이 그룹 내의 역할은 Red Hat에서 관리 및 유지 관리하며 수정할 수 없습니다.",
+    "description": "Org. Admin inherited roles message"
+  },
+  "orgAdministrator": {
+    "defaultMessage": "조직 관리자",
+    "description": "Org. Administrator name"
+  },
+  "organization": {
+    "defaultMessage": "조직",
+    "description": "Organization label"
+  },
+  "organizationIdLabel": {
+    "defaultMessage": "조직 ID:",
+    "description": "Label for organization ID field"
+  },
+  "organizationNameLabel": {
+    "defaultMessage": "조직 이름:",
+    "description": "Label for organization name field"
+  },
+  "organizationWideAccessSubtitle": {
+    "defaultMessage": "사용자 및 그룹에 조직 수준의 액세스 권한을 부여합니다.",
+    "description": "Organization-Wide Access page subtitle"
+  },
+  "organizationWideAccessTitle": {
+    "defaultMessage": "조직 전체 액세스",
+    "description": "Organization-Wide Access page title"
+  },
+  "overview": {
+    "defaultMessage": "사용자 액세스",
+    "description": "Overview label"
+  },
+  "overviewHeroListItem1": {
+    "defaultMessage": "사용자별로 권한을 개별적으로 할당하는 대신 역할을 기반으로 사용자 액세스 권한을 관리하세요.",
+    "description": "Overview Hero first list item"
+  },
+  "overviewHeroListItem2": {
+    "defaultMessage": "역할과 해당 권한을 포함하는 그룹을 생성합니다.",
+    "description": "Overview Hero second list item"
+  },
+  "overviewHeroListItem3": {
+    "defaultMessage": "사용자를 해당 그룹에 할당하면 그룹 역할과 관련된 권한을 상속받을 수 있습니다.",
+    "description": "Overview Hero third list item"
+  },
+  "overviewHeroSubtitle": {
+    "defaultMessage": "Red Hat Hybrid Cloud Console은 역할 기반 액세스 제어(RBAC)를 사용합니다.",
+    "description": "Overview Hero section subtitle"
+  },
+  "overviewHeroTitle": {
+    "defaultMessage": "사용자 액세스 시작하기",
+    "description": "Overview Hero section title"
+  },
+  "overviewSubtitle": {
+    "defaultMessage": "사용자 액세스 기능을 통해 조직의 사용자와 리소스에 대한 액세스 관리를 간소화하여 권한 및 인증에 대한 안전하고 효율적으로 제어할 수 있습니다.",
+    "description": "Overview subtitle"
+  },
+  "overviewSupportingFeaturesSubtitle1": {
+    "defaultMessage": "기본 액세스 그룹에는 조직 내 인증된 모든 사용자가 포함됩니다. 이러한 사용자는 사전 정의된 역할 중 일부를 자동으로 상속받습니다. 기본 관리자 액세스 그룹에는 조직 내 조직 관리자 사용자만 포함됩니다.",
+    "description": "Overview Supporting Features subtitle"
+  },
+  "overviewSupportingFeaturesSubtitle2": {
+    "defaultMessage": "역할을 추가하거나 제거하기 위해 기본 액세스 그룹을 수정해야 하는 경우, 이 새 그룹은 사용자 지정 기본 액세스 그룹으로 변경됩니다.",
+    "description": "Overview Supporting Features subtitle"
+  },
+  "overviewSupportingFeaturesTitle": {
+    "defaultMessage": "기본 그룹 정보",
+    "description": "Overview Supporting Features title"
+  },
+  "owner": {
+    "defaultMessage": "소유자",
+    "description": "Owner column label"
+  },
+  "pageNotExists": {
+    "defaultMessage": "찾고 있는 페이지가 존재하지 않습니다.",
+    "description": "Placeholder text for non existing page"
+  },
+  "parentWorkspace": {
+    "defaultMessage": "상위 작업 공간",
+    "description": "Parent workspace label"
+  },
+  "parentWorkspacesInstructionalText": {
+    "defaultMessage": "이러한 사용자 그룹의 역할을 편집하려면 <b>'상속 대상'</b> 열에서 작업 공간 이름을 클릭하세요.",
+    "description": "Instructional text shown above the inherited group assignments table"
+  },
+  "parentWorkspacesPopoverBody": {
+    "defaultMessage": "하위 작업 공간은 상위 작업 공간에 할당된 모든 역할을 상속받습니다.",
+    "description": "Popover body for the parent workspaces tab info icon"
+  },
+  "parentWorkspacesPopoverHeader": {
+    "defaultMessage": "지정된 작업 공간에서 역할 관리",
+    "description": "Popover header for the parent workspaces tab info icon"
+  },
+  "permission": {
+    "defaultMessage": "권한",
+    "description": "Permission label"
+  },
+  "permissionNotDisplayedDescription": {
+    "defaultMessage": "해당 권한이 없거나 이미 이 역할에 추가되었습니다. 필터를 조정하고 다시 시도하세요. 참고: 와일드카드 권한(예: compliance:*:*)만 있는 애플리케이션은 이 표에 포함되지 않으며 사용자 지정 역할에 추가할 수 없습니다.",
+    "description": "Permission not displayed description message"
+  },
+  "permissionResourcesDetails": {
+    "defaultMessage": "권한이 사용되어야 하는 리소스에 대한 세부 정보가 필요한 경우 여기에 자세히 설명되어 있습니다.",
+    "description": "Permission resources details message"
+  },
+  "permissionStringDescription": {
+    "defaultMessage": "권한 문자열은 권한이 부여되는 애플리케이션 및 리소스 유형을 나타내는 다음 입력으로 구성됩니다.",
+    "description": "Permission string description text"
+  },
+  "permissionWillNotBeGrantedThroughRole": {
+    "defaultMessage": "<b>{permission}</b> 권한은 더 이상 <b>{role}</b> 역할을 통해 부여되지 않습니다.",
+    "description": "Permission will not be granted through role message"
+  },
+  "permissions": {
+    "defaultMessage": "권한",
+    "description": "Permissions label"
+  },
+  "permissionsAddedSuccessfully": {
+    "defaultMessage": "역할에 성공적으로 권한을 추가했습니다.",
+    "description": "Permissions added successfully message"
+  },
+  "permissionsWillNotBeGrantedThroughRole": {
+    "defaultMessage": "<b>{permissions}</b> 권한은 더 이상 <b>{role}</b> 역할을 통해 부여되지 않습니다.",
+    "description": "Permissions will not be granted through role message"
+  },
+  "pleaseChoose": {
+    "defaultMessage": "선택하십시오",
+    "description": "Select placehoder"
+  },
+  "quickStartLabel": {
+    "defaultMessage": "퀵스타트",
+    "description": "Quick start label"
+  },
+  "rbacGroups": {
+    "defaultMessage": "RBAC 그룹",
+    "description": "RBAC Groups error cather title"
+  },
+  "rbacUsers": {
+    "defaultMessage": "RBAC 사용자",
+    "description": "RBAC Users error cather title"
+  },
+  "readBlogPostLink": {
+    "defaultMessage": "블로그 게시물 읽기",
+    "description": "Read blog post link"
+  },
+  "recommendedContentItem1": {
+    "defaultMessage": "서비스에 대한 액세스를 팀 구성원으로 제한",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem2": {
+    "defaultMessage": "서비스별 세분화된 권한 구성",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem3": {
+    "defaultMessage": "팀에 대한 읽기 전용 권한 구성",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem4": {
+    "defaultMessage": "조직 전체의 권한 축소",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem5": {
+    "defaultMessage": "RBAC 사용자 액세스 구성 가이드",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem6": {
+    "defaultMessage": "RBAC API v.1.0.0",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem7": {
+    "defaultMessage": "콘솔 RBAC에 대한 Red Hat 블로그 게시물",
+    "description": "Recommended content"
+  },
+  "recommendedContentTitle": {
+    "defaultMessage": "추천 콘텐츠",
+    "description": "Recommended content section title"
+  },
+  "redHatOrganizationPlaceholder": {
+    "defaultMessage": "Red Hat 조직",
+    "description": "Placeholder text for organization name"
+  },
+  "remove": {
+    "defaultMessage": "삭제",
+    "description": "Remove button label"
+  },
+  "removeAccess": {
+    "defaultMessage": "액세스 제거",
+    "description": "Remove access action label"
+  },
+  "removeFromUserGroup": {
+    "defaultMessage": "사용자 그룹에서 제거",
+    "description": "Action column option to remove user from group"
+  },
+  "removeFromUserGroupWarningDescription": {
+    "defaultMessage": "선택된{plural}은/는 선택한 그룹을 통해 부여된 모든 액세스 권한을 잃게 됩니다.",
+    "description": "Warning description when removing user from groups"
+  },
+  "removeFromUserGroupWarningTitle": {
+    "defaultMessage": "이 작업을 수행하면 선택한 그룹에서 사용자가 제거됩니다.",
+    "description": "Warning title when removing user from groups"
+  },
+  "removeGroupError": {
+    "defaultMessage": "그룹을 삭제하는 동안 오류가 발생했습니다. 다시 시도해 주세요.",
+    "description": "Remove group error notification title"
+  },
+  "removeGroupFromOrganization": {
+    "defaultMessage": "조직에서 제거",
+    "description": "Remove group from organization action label"
+  },
+  "removeGroupFromOrganizationConfirmTitle": {
+    "defaultMessage": "조직에서 {groupName}을/를 제거하시겠습니까?",
+    "description": "Confirmation modal title when removing a group from an organization"
+  },
+  "removeGroupFromWorkspace": {
+    "defaultMessage": "작업 공간에서 제거",
+    "description": "Remove group from workspace action label"
+  },
+  "removeGroupFromWorkspaceConfirmBody": {
+    "defaultMessage": "{workspaceName}에서 이 그룹에 할당된 모든 역할이 제거됩니다. 이 작업은 취소할 수 없습니다.",
+    "description": "Confirmation modal body when removing a group from a workspace"
+  },
+  "removeGroupFromWorkspaceConfirmTitle": {
+    "defaultMessage": "작업 공간에서 {groupName}을/를 제거하시겠습니까?",
+    "description": "Confirmation modal title when removing a group from a workspace"
+  },
+  "removeGroupFromWorkspaceErrorTitle": {
+    "defaultMessage": "작업 공간에서 그룹을 제거하지 못했습니다.",
+    "description": "Error notification when removing group from workspace fails"
+  },
+  "removeGroupFromWorkspaceSuccessTitle": {
+    "defaultMessage": "작업 공간에서 그룹을 제거했습니다.",
+    "description": "Success notification when group is removed from workspace"
+  },
+  "removeGroupMemberErrorDescription": {
+    "defaultMessage": "사용자를 그룹에서 제거하는 동안 오류가 발생했습니다.",
+    "description": "Error notification description for single member removal"
+  },
+  "removeGroupMemberErrorTitle": {
+    "defaultMessage": "사용자를 제거하지 못했습니다.",
+    "description": "Error notification title for single member removal"
+  },
+  "removeGroupMemberSuccessDescription": {
+    "defaultMessage": "그룹에서 사용자를 성공적으로 제거했습니다.",
+    "description": "Success notification description for single member removal"
+  },
+  "removeGroupMemberSuccessTitle": {
+    "defaultMessage": "그룹에서 사용자를 제거했습니다.",
+    "description": "Success notification title for single member removal"
+  },
+  "removeGroupMembersErrorDescription": {
+    "defaultMessage": "멤버는 성공적으로 제거되지 않았습니다.",
+    "description": "Remove group members error notification description"
+  },
+  "removeGroupMembersErrorTitle": {
+    "defaultMessage": "그룹에서 멤버를 제거하는 데 실패했습니다.",
+    "description": "Remove group members error notification title"
+  },
+  "removeGroupMembersSuccessDescription": {
+    "defaultMessage": "멤버가 그룹에서 성공적으로 제거되었습니다.",
+    "description": "Remove group members success notification description"
+  },
+  "removeGroupMembersSuccessTitle": {
+    "defaultMessage": "그룹에서 멤버 제거 성공",
+    "description": "Remove group members success notification title"
+  },
+  "removeGroupRolesErrorDescription": {
+    "defaultMessage": "역할이 성공적으로 제거되지 않았습니다.",
+    "description": "Remove group roles error notification description"
+  },
+  "removeGroupRolesErrorTitle": {
+    "defaultMessage": "그룹에서 역할을 제거하는 데 실패",
+    "description": "Remove group roles error notification title"
+  },
+  "removeGroupRolesSuccessDescription": {
+    "defaultMessage": "역할이 그룹에서 성공적으로 제거되었습니다.",
+    "description": "Remove group roles success notification description"
+  },
+  "removeGroupRolesSuccessTitle": {
+    "defaultMessage": "그룹에서 역할을 성공적으로 제거",
+    "description": "Remove group roles success notification title"
+  },
+  "removeGroupServiceAccountErrorTitle": {
+    "defaultMessage": "그룹에서 서비스 계정을 제거하는 데 실패했습니다.",
+    "description": "Removal of  group service account error notification title"
+  },
+  "removeGroupServiceAccountSuccessTitle": {
+    "defaultMessage": "그룹에서 서비스 계정을 성공적으로 제거했습니다.",
+    "description": "Removal of group service account success notification title"
+  },
+  "removeGroupServiceAccountsErrorDescription": {
+    "defaultMessage": "{count, plural, other {오류로 인해 서비스 계정이 그룹에서 제거되지 않았습니다.}}",
+    "description": "Removal of  group service accounts error notification description"
+  },
+  "removeGroupServiceAccountsErrorTitle": {
+    "defaultMessage": "그룹에서 서비스 계정을 제거하는 데 실패했습니다.",
+    "description": "Removal of  group service accounts error notification title"
+  },
+  "removeGroupServiceAccountsQuestion": {
+    "defaultMessage": "{count, plural, other {서비스 계정을 제거하시겠습니까?}}",
+    "description": "Remove service accounts from group question label"
+  },
+  "removeGroupServiceAccountsSuccessDescription": {
+    "defaultMessage": "{count, plural, other {서비스 계정이 그룹에서 성공적으로 제거되었습니다.}}",
+    "description": "Removal of  group service accounts success notification description"
+  },
+  "removeGroupServiceAccountsSuccessTitle": {
+    "defaultMessage": "그룹에서 서비스 계정을 성공적으로 제거함",
+    "description": "Removal of group service accounts success notification title"
+  },
+  "removeGroupSuccess": {
+    "defaultMessage": "그룹을 성공적으로 삭제함",
+    "description": "Remove group success notification title"
+  },
+  "removeGroupsError": {
+    "defaultMessage": "그룹을 삭제하는 동안 오류가 발생했습니다. 다시 시도하세요.",
+    "description": "Remove groups error notification title"
+  },
+  "removeGroupsSuccess": {
+    "defaultMessage": "성공적으로 그룹이 삭제됨",
+    "description": "Remove groups success notification title"
+  },
+  "removeMember": {
+    "defaultMessage": "멤버 삭제",
+    "description": "Remove member"
+  },
+  "removeMemberQuestion": {
+    "defaultMessage": "멤버를 삭제하시겠습니까?",
+    "description": "Remove member question"
+  },
+  "removeMemberText": {
+    "defaultMessage": "구성원 <b>{name}</b>이/가 <b>{group}</b> 그룹에서 제거됩니다. 이 작업은 취소할 수 없습니다.",
+    "description": "Remove member text warning about irreversible action"
+  },
+  "removeMembersQuestion": {
+    "defaultMessage": "멤버를 삭제하시겠습니까?",
+    "description": "Remove members question"
+  },
+  "removeMembersText": {
+    "defaultMessage": "선택한 구성원 <b>{name}</b>명이 <b>{group}</b> 그룹에서 제거됩니다. 이 작업은 취소할 수 없습니다.",
+    "description": "Remove members plural text warning about irreversible action"
+  },
+  "removePermission": {
+    "defaultMessage": "권한 제거",
+    "description": "Remove permission label"
+  },
+  "removePermissionQuestion": {
+    "defaultMessage": "권한을 제거하시겠습니까?",
+    "description": "Remove permission question text"
+  },
+  "removePermissions": {
+    "defaultMessage": "권한 제거",
+    "description": "Remove permissions label"
+  },
+  "removePermissionsQuestion": {
+    "defaultMessage": "권한을 제거하시겠습니까?",
+    "description": "Remove permissions question text"
+  },
+  "removePolicySuccessDescription": {
+    "defaultMessage": "정책이 성공적으로 제거되었습니다.",
+    "description": "Remove policy success notification description"
+  },
+  "removePolicySuccessTitle": {
+    "defaultMessage": "성공적으로 정책 제거 중",
+    "description": "Remove policy success notification title"
+  },
+  "removeRole": {
+    "defaultMessage": "역할 제거",
+    "description": "Remove role label"
+  },
+  "removeRoleErrorDescription": {
+    "defaultMessage": "역할이 성공적으로 제거되지 않았습니다.",
+    "description": "Remove role error notification description"
+  },
+  "removeRoleErrorTitle": {
+    "defaultMessage": "역할 제거 실패",
+    "description": "Remove role error notification title"
+  },
+  "removeRoleModalText": {
+    "defaultMessage": "역할 <b>{role}</b>이/가 <b>{name}</b> 그룹에서 제거됩니다. 이 작업은 취소할 수 없습니다.",
+    "description": "Remove role message warning about irreversible action"
+  },
+  "removeRoleQuestion": {
+    "defaultMessage": "역할을 제거하시겠습니까?",
+    "description": "Remove role question label"
+  },
+  "removeRoleSuccessDescription": {
+    "defaultMessage": "역할이 성공적으로 제거되었습니다.",
+    "description": "Remove role success notification description"
+  },
+  "removeRoleSuccessTitle": {
+    "defaultMessage": "성공적으로 역할 제거 중",
+    "description": "Remove role success notification title"
+  },
+  "removeRoles": {
+    "defaultMessage": "역할 제거",
+    "description": "Remove roles label"
+  },
+  "removeRolesModalText": {
+    "defaultMessage": "선택한 역할 <b>{roles}</b>개가 <b>{name}</b> 그룹에서 제거됩니다. 이 작업은 취소할 수 없습니다.",
+    "description": "Remove roles message warning about irreversible action"
+  },
+  "removeRolesQuestion": {
+    "defaultMessage": "역할을 제거하시겠습니까?",
+    "description": "Remove roles question label"
+  },
+  "removeServiceAccounts": {
+    "defaultMessage": "{count, plural, other {서비스 계정 제거}}",
+    "description": "Remove service accounts button label"
+  },
+  "removeServiceAccountsText": {
+    "defaultMessage": "{count, plural, other {<b>#</b> 서비스 계정이 <b>{group}</b> 그룹에서 제거됩니다.}}",
+    "description": "Remove service accounts description"
+  },
+  "requester": {
+    "defaultMessage": "요청자",
+    "description": "Requester label"
+  },
+  "required": {
+    "defaultMessage": "필수 항목",
+    "description": "Required input label"
+  },
+  "resource": {
+    "defaultMessage": "리소스",
+    "description": "Resource label"
+  },
+  "resourceDefinition": {
+    "defaultMessage": "리소스 정의",
+    "description": "Resource definition label"
+  },
+  "resourceDefinitions": {
+    "defaultMessage": "리소스 정의",
+    "description": "Resource definitions label"
+  },
+  "resourceDefinitionsApplyToCostAndInventory": {
+    "defaultMessage": "리소스 정의는 비용 관리 및 인벤토리 권한에만 적용됩니다",
+    "description": "Resource definitions only apply to Cost Management and Inventory permissions message"
+  },
+  "resourceType": {
+    "defaultMessage": "리소스 유형",
+    "description": "Resource type label"
+  },
+  "resources": {
+    "defaultMessage": "리소스",
+    "description": "Resources label"
+  },
+  "resourcesAvailable": {
+    "defaultMessage": "권한에 사용 가능한 리소스",
+    "description": "Resources available for permission message"
+  },
+  "resourcesDefined": {
+    "defaultMessage": "권한에 정의된 리소스",
+    "description": "Resources defined for permission message"
+  },
+  "restoreDefaultAccessDescription": {
+    "defaultMessage": "<b>기본 액세스</b> 그룹을 복원하면 <b>사용자 지정 기본 액세스</b> 그룹이 제거됩니다. <b>사용자 지정 기본 액세스</b> 구성은 복구할 수 없습니다. 계속하시겠습니까?",
+    "description": "Restore Custom Default Access group description"
+  },
+  "restoreDefaultAccessInfo": {
+    "defaultMessage": "<b>기본 액세스</b> 그룹이 복원되고 <b>사용자 지정 기본 액세스</b> 그룹이 제거됩니다. <b>사용자 지정 기본 액세스</b>의 모든 구성이 삭제되며 복구할 수 없습니다.",
+    "description": "Restore Custom Default Access group info"
+  },
+  "restoreDefaultAccessQuestion": {
+    "defaultMessage": "기본 액세스 그룹을 복원하시겠습니까?",
+    "description": "Restore Default access group question"
+  },
+  "restoreToDefault": {
+    "defaultMessage": "기본값으로 복원",
+    "description": "Restore to default label"
+  },
+  "returnToStepNumber": {
+    "defaultMessage": "{number, number} 단계로 돌아가기",
+    "description": "Return to step wizard label"
+  },
+  "review": {
+    "defaultMessage": "검토",
+    "description": "Review label"
+  },
+  "reviewDescription": {
+    "defaultMessage": "이 단계는 현재 비어 있으며 구현 준비가 완료되었습니다.",
+    "description": "Review step description"
+  },
+  "reviewDetails": {
+    "defaultMessage": "세부 정보 검토",
+    "description": "Review details label"
+  },
+  "reviewNewWorkspace": {
+    "defaultMessage": "새 작업 공간 검토",
+    "description": "Review new workspace label"
+  },
+  "reviewRoleDetails": {
+    "defaultMessage": "역할의 세부 사항을 검토하고 확인하거나 클릭하여 뒤로 돌아가서 수정합니다.",
+    "description": "Review role details text"
+  },
+  "reviewWorkspaceDescription": {
+    "defaultMessage": "새 작업 공간을 만들기 전에 아래 정보를 검토하여 모두 올바른지 확인하세요.",
+    "description": "Review workspace description"
+  },
+  "role": {
+    "defaultMessage": "역할",
+    "description": "Role singular"
+  },
+  "roleAssignments": {
+    "defaultMessage": "역할 할당",
+    "description": "Rola assignments label"
+  },
+  "roleAssignmentsEmptyStateSubtitle": {
+    "defaultMessage": "이 필터 조건은 일치하는 역할 할당이 없습니다. 필터 입력값을 변경해 보세요.",
+    "description": "Empty state subtitle role bindings"
+  },
+  "roleCreatedSuccessfully": {
+    "defaultMessage": "새 역할이 성공적으로 생성되었습니다",
+    "description": "Role created successfully message"
+  },
+  "roleDescription": {
+    "defaultMessage": "역할 설명",
+    "description": "Role description label"
+  },
+  "roleName": {
+    "defaultMessage": "역할 이름",
+    "description": "Role name filter placeholder"
+  },
+  "roleNameTakenText": {
+    "defaultMessage": "1단계: 역할 생성으로 돌아가서 사용자 지정 역할에 대한 고유한 역할 이름을 선택하십시오.",
+    "description": "Role name taken error text"
+  },
+  "roleNameTakenTitle": {
+    "defaultMessage": "역할 이름이 이미 사용되고 있습니다",
+    "description": "Role name taken error title"
+  },
+  "roleServiceCardDescription": {
+    "defaultMessage": "미리 정의된 역할이 요구 사항에 맞는지 확인하세요. 적합한 역할이 없다면 특정 권한을 부여하는 사용자 지정 역할을 만드세요.",
+    "description": "role service card description"
+  },
+  "roleServiceCardTitle": {
+    "defaultMessage": "역할",
+    "description": "Role service card title"
+  },
+  "roleWilBeRemovedWithPermissions": {
+    "defaultMessage": "{count, plural, other {이 <strong>{name}</strong> 역할은 속해 있는 모든 그룹에서 제거되며, 해당 그룹의 구성원에게는 더 이상 이 역할의 권한이 부여되지 않습니다.}}",
+    "description": "Role will be removed with permissions message"
+  },
+  "roleWithNameExists": {
+    "defaultMessage": "이 이름의 역할이 이미 존재합니다.",
+    "description": "Role with name exists message"
+  },
+  "roles": {
+    "defaultMessage": "역할",
+    "description": "Roles plural"
+  },
+  "rolesAssignedInParentWorkspaces": {
+    "defaultMessage": "상위 작업 공간에 할당된 역할",
+    "description": "Tab title for roles assigned in parent workspaces"
+  },
+  "rolesAssignedInThisWorkspace": {
+    "defaultMessage": "이 작업 공간에 할당된 역할",
+    "description": "Tab title for roles assigned in current workspace"
+  },
+  "rolesBold": {
+    "defaultMessage": "역할",
+    "description": "Roles bold text"
+  },
+  "rolesDescription": {
+    "defaultMessage": "{bold}미리 정의된 역할(예: 뷰어, 편집자, 관리자)은 각 사용자 그룹의 요구 사항에 맞춰 서로 다른 수준의 액세스 권한을 제공합니다.",
+    "description": "Roles description in granting access section"
+  },
+  "rolesEmptyStateSubtitle": {
+    "defaultMessage": "이 필터 조건과 일치하는 역할이 없습니다. 필터 입력값을 변경해 보세요.",
+    "description": "Empty state subtitle Roles"
+  },
+  "rolesEmptyStateTitle": {
+    "defaultMessage": "역할을 찾을 수 없습니다.",
+    "description": "Empty state title Roles"
+  },
+  "save": {
+    "defaultMessage": "저장",
+    "description": "Save button text"
+  },
+  "saveChanges": {
+    "defaultMessage": "변경 사항 저장",
+    "description": "save changes button label"
+  },
+  "searchByApplicationPlaceholder": {
+    "defaultMessage": "애플리케이션별 검색",
+    "description": "search by application placeholder"
+  },
+  "searchByOperationPlaceholder": {
+    "defaultMessage": "작업별 검색",
+    "description": "search by operation placeholder"
+  },
+  "searchByResourceTypePlaceholder": {
+    "defaultMessage": "리소스 유형별 검색",
+    "description": "search by resource type placeholder"
+  },
+  "searchWorkspaces": {
+    "defaultMessage": "이름으로 작업 공간 검색",
+    "description": "Search workspaces placeholder text"
+  },
+  "seeLess": {
+    "defaultMessage": "일부 보기",
+    "description": "See less label"
+  },
+  "seeMore": {
+    "defaultMessage": "더 알아보기",
+    "description": "See more label"
+  },
+  "selectAll": {
+    "defaultMessage": "모두 선택 ({length, number})",
+    "description": "Select all button label"
+  },
+  "selectAppsToViewPermissions": {
+    "defaultMessage": "애플리케이션을 선택하여 개인 권한을 확인합니다.",
+    "description": "Select applications to view your personal permissions message"
+  },
+  "selectAtLeastOneRole": {
+    "defaultMessage": "하나 이상의 역할을 선택하세요",
+    "description": "Validation message for role selection"
+  },
+  "selectAtLeastOneRowToFilter": {
+    "defaultMessage": "이 필터를 활성화하려면 행을 하나 이상 선택하세요.",
+    "description": "Tooltip shown when selected toggle is disabled because no rows are selected"
+  },
+  "selectAtLeastOneUserGroup": {
+    "defaultMessage": "사용자 그룹을 하나 이상 선택하세요",
+    "description": "Validation message for user group selection"
+  },
+  "selectFeatures": {
+    "defaultMessage": "기능 선택",
+    "description": "Select features label"
+  },
+  "selectGroups": {
+    "defaultMessage": "그룹 선택",
+    "description": "Select groups label"
+  },
+  "selectGroupsToRemoveFrom": {
+    "defaultMessage": "제거할 그룹 선택",
+    "description": "Label for group selection"
+  },
+  "selectNone": {
+    "defaultMessage": "모두 선택 해제 (0)",
+    "description": "Select none button label"
+  },
+  "selectPage": {
+    "defaultMessage": "페이지 선택 ({length, number})",
+    "description": "Select page button label"
+  },
+  "selectParentWorkspace": {
+    "defaultMessage": "상위 작업 공간 선택",
+    "description": "Select parent workspace wizard step title"
+  },
+  "selectParentWorkspaceDescription": {
+    "defaultMessage": "상위 작업 공간을 선택하세요. 새 작업 공간은 선택한 상위 작업 공간에서 사용자 그룹 및 관련 역할과 같은 액세스 제어 설정을 상속합니다.",
+    "description": "Select parent workspace wizard step description"
+  },
+  "selectPermissionsForRole": {
+    "defaultMessage": "역할에 추가할 권한 선택",
+    "description": "Select permissions for role label"
+  },
+  "selectResources": {
+    "defaultMessage": "리소스 선택",
+    "description": "Select resources label"
+  },
+  "selectResourcesOptional": {
+    "defaultMessage": "리소스를 선택하세요(선택 사항 - 기본값은 모두).",
+    "description": "Placeholder when selecting resources is optional"
+  },
+  "selectRoles": {
+    "defaultMessage": "역할 선택",
+    "description": "Select roles step title"
+  },
+  "selectRolesDescription": {
+    "defaultMessage": "이 그룹에 연결할 역할을 하나 이상 선택하세요.",
+    "description": "Select roles step description"
+  },
+  "selectRolesForGroupText": {
+    "defaultMessage": "이 그룹에 추가할 하나 이상의 역할을 선택합니다.",
+    "description": "Select roles to be added to a group text"
+  },
+  "selectState": {
+    "defaultMessage": "상태 선택",
+    "description": "Select state label"
+  },
+  "selectUserGroups": {
+    "defaultMessage": "사용자 그룹 선택",
+    "description": "Select user groups step title"
+  },
+  "selectUserGroupsContentTitle": {
+    "defaultMessage": "액세스 권한을 부여할 사용자 그룹을 선택하세요.",
+    "description": "Select user groups content header title"
+  },
+  "selectUserGroupsDescription": {
+    "defaultMessage": "액세스 권한을 부여할 사용자 그룹을 선택하세요. 원하는 그룹이 목록에 없으면 새 그룹을 생성해야 합니다. <link>사용자 및 그룹</link>.",
+    "description": "Select user groups step description"
+  },
+  "selectUsersAndOrServiceAccounts": {
+    "defaultMessage": "사용자 및 서비스 계정 선택",
+    "description": "select users and/or service accounts label"
+  },
+  "selectWorkspaces": {
+    "defaultMessage": "작업 공간 선택",
+    "description": "Select workspaces label"
+  },
+  "selected": {
+    "defaultMessage": "선택됨",
+    "description": "Selected tab label"
+  },
+  "selectedPermissions": {
+    "defaultMessage": "선택한 권한",
+    "description": "Selected permissions label"
+  },
+  "selectedRoles": {
+    "defaultMessage": "선택된 역할",
+    "description": "Selected roles section title"
+  },
+  "selectedUserGroups": {
+    "defaultMessage": "선택된 사용자 그룹",
+    "description": "Selected user groups section title"
+  },
+  "serviceAccessTokenLabel": {
+    "defaultMessage": "토큰",
+    "description": "Label identifying a service access token principal"
+  },
+  "serviceAccount": {
+    "defaultMessage": "서비스 계정",
+    "description": "Service accounts singular"
+  },
+  "serviceAccounts": {
+    "defaultMessage": "서비스 계정",
+    "description": "Service accounts plural"
+  },
+  "serviceAccountsPage": {
+    "defaultMessage": "서비스 계정 관리 페이지",
+    "description": "Service accounts page message"
+  },
+  "setEarmark": {
+    "defaultMessage": "{bundle} 기능에 대한 용도 지정",
+    "description": "Set ear mark step label"
+  },
+  "status": {
+    "defaultMessage": "상태",
+    "description": "Status label"
+  },
+  "stay": {
+    "defaultMessage": "유지",
+    "description": "Stay button text"
+  },
+  "structuringWorkspacesDoc": {
+    "defaultMessage": "조직의 사용 사례에 맞춰 작업 공간 구성하기",
+    "description": "Structuring your workspaces documentation title"
+  },
+  "submit": {
+    "defaultMessage": "제출",
+    "description": "Submit button text"
+  },
+  "systemRolesCantBeModified": {
+    "defaultMessage": "시스템 역할은 수정할 수 없습니다.",
+    "description": "Tooltip message for disabled add permissions button on system roles"
+  },
+  "timeCreated": {
+    "defaultMessage": "생성된 시간",
+    "description": "Time created column label"
+  },
+  "toConfigureUserAccess": {
+    "defaultMessage": "애플리케이션에 대한 사용자 액세스를 구성하려면 다음을 수행합니다",
+    "description": "Empty state description 1st part"
+  },
+  "toManageUsersText": {
+    "defaultMessage": "사용자를 관리하려면 다음으로 이동하십시오",
+    "description": "To manage users text"
+  },
+  "totalAccountAvailability": {
+    "defaultMessage": "{billingAccount}부터 사용 가능한 총 용량: {count, number} 코어",
+    "description": "Total account availability text"
+  },
+  "triggerMyCatalog": {
+    "defaultMessage": "내 카탈로그 트리거",
+    "description": "Trigger my catalog text"
+  },
+  "triggerMyQuickstart": {
+    "defaultMessage": "퀵스타트 트리거",
+    "description": "Trigger my quickstart text"
+  },
+  "tryChangingFilters": {
+    "defaultMessage": "필터 설정을 변경해 보십시오.",
+    "description": "Message advising change of the filter settings"
+  },
+  "typeToRefineResults": {
+    "defaultMessage": "전체 {total, number}개 중 {shown, number}개 표시 — 입력하여 검색 결과를 구체화하세요",
+    "description": "Hint shown when dropdown results are capped"
+  },
+  "unableToLoadRoles": {
+    "defaultMessage": "역할을 불러올 수 없습니다",
+    "description": "Unable to load roles error title"
+  },
+  "unableToLoadUsers": {
+    "defaultMessage": "사용자를 불러올 수 없습니다",
+    "description": "Unable to load users error title"
+  },
+  "unauthorizedAccessBodyText": {
+    "defaultMessage": "이 페이지를 볼 수 있는 권한이 없습니다.",
+    "description": "Body text displayed on unauthorized access pages"
+  },
+  "unauthorizedAccessServiceName": {
+    "defaultMessage": "이 페이지",
+    "description": "Generic service name displayed on unauthorized access pages"
+  },
+  "understandActionIrreversible": {
+    "defaultMessage": "이 작업은 실행 취소할 수 없다는 것을 이해합니다.",
+    "description": "Understand action cannot be undone message"
+  },
+  "understandingAccessTitle": {
+    "defaultMessage": "액세스 이해",
+    "description": "Understanding access section title"
+  },
+  "ungroupedSystems": {
+    "defaultMessage": "그룹화되지 않은 시스템",
+    "description": "Ungrouped systems button label"
+  },
+  "unknownSubjectName": {
+    "defaultMessage": "알 수 없음",
+    "description": "Fallback text when subject name is not available"
+  },
+  "update": {
+    "defaultMessage": "업데이트",
+    "description": "Update button label"
+  },
+  "updateRoleBindingsErrorDescription": {
+    "defaultMessage": "역할 변경 사항을 저장하는 데 문제가 발생했습니다. 다시 시도해 주세요.",
+    "description": "Error notification description when role bindings update fails"
+  },
+  "updateRoleBindingsErrorTitle": {
+    "defaultMessage": "액세스 업데이트에 실패했습니다.",
+    "description": "Error notification title when role bindings update fails"
+  },
+  "updateRoleBindingsSuccessTitle": {
+    "defaultMessage": "액세스 권한이 성공적으로 업데이트되었습니다.",
+    "description": "Success notification title when role bindings are updated"
+  },
+  "user": {
+    "defaultMessage": "사용자",
+    "description": "User label"
+  },
+  "userAccessAdmin": {
+    "defaultMessage": "사용자 액세스 관리",
+    "description": "User Access Admin name"
+  },
+  "userAccessAdminHint": {
+    "defaultMessage": "'사용자 액세스'를 사용하여 다른 사용자 권한을 관리할 수 있음",
+    "description": "Org. Admin hint about permissions"
+  },
+  "userCapitalized": {
+    "defaultMessage": "사용자",
+    "description": "User singular (capitalized)"
+  },
+  "userDescription": {
+    "defaultMessage": "{username}의 역할, 그룹 및 권한입니다.",
+    "description": "User description text"
+  },
+  "userGroup": {
+    "defaultMessage": "사용자 그룹",
+    "description": "User group singular"
+  },
+  "userGroupName": {
+    "defaultMessage": "사용자 그룹 이름",
+    "description": "User group name column header"
+  },
+  "userGroups": {
+    "defaultMessage": "사용자 그룹",
+    "description": "User groups plural"
+  },
+  "userGroupsBold": {
+    "defaultMessage": "사용자 그룹",
+    "description": "User Groups bold text"
+  },
+  "userGroupsDescription": {
+    "defaultMessage": "{bold} 권한 관리를 간소화할 수 있도록 조직의 최종 사용자와 서비스 계정을 공통 기능(예: 개발, 보안, 운영 등)에 따라 그룹화하세요.",
+    "description": "User Groups description in granting access section"
+  },
+  "userGroupsEmptyStateSubtitle": {
+    "defaultMessage": "이 필터 조건과 일치하는 사용자 그룹이 없습니다. 필터 입력값을 변경해 보세요.",
+    "description": "Empty state subtitle User groups"
+  },
+  "userGroupsEmptyStateTitle": {
+    "defaultMessage": "사용자 그룹을 찾을 수 없습니다.",
+    "description": "Empty state title User groups"
+  },
+  "userNotFound": {
+    "defaultMessage": "사용자를 찾을 수 없음",
+    "description": "User not found text"
+  },
+  "userNotFoundDescription": {
+    "defaultMessage": "사용자 이름이 {username}인 사용자가 존재하지 않습니다.",
+    "description": "User not found description text"
+  },
+  "username": {
+    "defaultMessage": "사용자 이름",
+    "description": "Username label"
+  },
+  "users": {
+    "defaultMessage": "사용자",
+    "description": "Users plural label"
+  },
+  "usersAndUserGroups": {
+    "defaultMessage": "사용자 및 사용자 그룹",
+    "description": "Users and user groups label"
+  },
+  "usersAndUserGroupsActive": {
+    "defaultMessage": "활성",
+    "description": "User is active label"
+  },
+  "usersAndUserGroupsAdd": {
+    "defaultMessage": "추가",
+    "description": "Add label"
+  },
+  "usersAndUserGroupsAddUserDescription": {
+    "defaultMessage": "<b>{numUsers} {plural}</b>을/를 추가할 사용자 그룹을 선택하세요. 계정의 모든 사용자 그룹이 표시됩니다. 사용자 그룹을 관리하려면 사용자 그룹으로 이동하세요.",
+    "description": "Description within add user to user group modal"
+  },
+  "usersAndUserGroupsCancel": {
+    "defaultMessage": "취소",
+    "description": "Cancel add user label"
+  },
+  "usersAndUserGroupsCreateUserGroup": {
+    "defaultMessage": "사용자 그룹 생성",
+    "description": "Create user group label"
+  },
+  "usersAndUserGroupsDeleteUserGroup": {
+    "defaultMessage": "사용자 그룹 삭제",
+    "description": "Delete user group label"
+  },
+  "usersAndUserGroupsDeleteUserGroupCount": {
+    "defaultMessage": "{count, plural, =0 {사용자 그룹 삭제} other {사용자 그룹 삭제(# )}}",
+    "description": "Delete user group action label with selected count"
+  },
+  "usersAndUserGroupsDescription": {
+    "defaultMessage": "다음은 Red Hat 조직의 모든 사용자입니다. 사용자 그룹을 생성하여 작업 공간 전체에 대한 액세스 권한을 정의하세요.",
+    "description": "Users and user groups description"
+  },
+  "usersAndUserGroupsEditUserGroup": {
+    "defaultMessage": "사용자 그룹 편집",
+    "description": "Edit user group label"
+  },
+  "usersAndUserGroupsInactive": {
+    "defaultMessage": "비활성화됨",
+    "description": "User is inactive label"
+  },
+  "usersAndUserGroupsNo": {
+    "defaultMessage": "없음",
+    "description": "No isnt Org Admin label"
+  },
+  "usersAndUserGroupsNoDescription": {
+    "defaultMessage": "설명 없음",
+    "description": "No description label"
+  },
+  "usersAndUserGroupsRemoveFromGroup": {
+    "defaultMessage": "사용자 그룹에서 제거",
+    "description": "Remove from user group label"
+  },
+  "usersAndUserGroupsYes": {
+    "defaultMessage": "예",
+    "description": "Yes is Org Admin label"
+  },
+  "usersDescription": {
+    "defaultMessage": "Red Hat 조직의 모든 사용자입니다.",
+    "description": "Description text for user list"
+  },
+  "usersDescriptionAdmin": {
+    "defaultMessage": "조직 사용자를 관리하세요. 여기에서 새 사용자를 초대하고, 사용자 상태를 관리하고, '조직 관리자' 권한을 설정할 수 있습니다.",
+    "description": "Description text for user list shown to org admins"
+  },
+  "usersEmptyStateSubtitle": {
+    "defaultMessage": "이 필터 조건에 맞는 사용자가 없습니다. 필터 입력값을 변경해 보세요.",
+    "description": "Empty state subtitle Users"
+  },
+  "usersEmptyStateTitle": {
+    "defaultMessage": "사용자를 찾을 수 없음",
+    "description": "Empty state title Users"
+  },
+  "usersInheritedRoles": {
+    "defaultMessage": "이 그룹에는 기본적으로 조직의 모든 사용자가 상속하는 역할이 포함되어 있습니다.",
+    "description": "Users inherited roles message"
+  },
+  "usersToRemove": {
+    "defaultMessage": "제거할 사용자",
+    "description": "Label for users to remove list"
+  },
+  "value": {
+    "defaultMessage": "값",
+    "description": "Value label"
+  },
+  "viewAccessRequestsButton": {
+    "defaultMessage": "액세스 요청 보기",
+    "description": "View access requests button label"
+  },
+  "viewAllIAMLearningResources": {
+    "defaultMessage": "ID 및 액세스 관리 관련 모든 학습 리소스 보기",
+    "description": "View all IAM Learning resources link text"
+  },
+  "viewApiSiteLink": {
+    "defaultMessage": "API 사이트 보기",
+    "description": "View API site link"
+  },
+  "viewDefaultGroupsLink": {
+    "defaultMessage": "기본 그룹 보기",
+    "description": "View Default Groups link"
+  },
+  "viewDocumentation": {
+    "defaultMessage": "문서 보기",
+    "description": "View documentation link text"
+  },
+  "viewDocumentationLink": {
+    "defaultMessage": "문서 보기",
+    "description": "View Documentation link"
+  },
+  "viewGroupsBtn": {
+    "defaultMessage": "그룹 보기",
+    "description": "View groups button"
+  },
+  "viewGroupsButton": {
+    "defaultMessage": "그룹 보기",
+    "description": "View groups button label"
+  },
+  "viewResourceDefinitions": {
+    "defaultMessage": "<strong>{permission}</strong> 권한의 리소스 정의 보기",
+    "description": "View resource definitions message"
+  },
+  "viewRolesBtn": {
+    "defaultMessage": "역할 보기",
+    "description": "View roles button"
+  },
+  "viewRolesButton": {
+    "defaultMessage": "역할 보기",
+    "description": "View roles button label"
+  },
+  "viewYourDefaultGroups": {
+    "defaultMessage": "기본 그룹 보기",
+    "description": "View your default groups link text"
+  },
+  "viewerRole": {
+    "defaultMessage": "뷰어",
+    "description": "Viewer role label"
+  },
+  "visitServiceAccountsPage": {
+    "defaultMessage": "서비스 계정을 추가, 자격 증명 재설정 또는 삭제하려면 다음 페이지를 방문하세요.{link} .",
+    "description": "Visit service accounts page text"
+  },
+  "warning": {
+    "defaultMessage": "경고",
+    "description": "Waring label"
+  },
+  "whyNotSeeingAllPermissions": {
+    "defaultMessage": "내 모든 권한이 표시되지 않는 이유는 무엇입니까?",
+    "description": "Why am I not seeing all of my permissions message"
+  },
+  "workspace": {
+    "defaultMessage": "작업 공간",
+    "description": "Workspace singular label"
+  },
+  "workspaceAssignment": {
+    "defaultMessage": "작업 공간 할당",
+    "description": "column header for assigned user groups table"
+  },
+  "workspaceBillingAccountHelperText": {
+    "defaultMessage": "기본 결제 계정은 상위 작업 공간의 결제 계정을 기준으로 합니다. 필요에 따라 다른 결제 계정으로 변경할 수 있습니다. 이 변경 사항은 작업 공간 계층 구조와 무관합니다.",
+    "description": "Workspace billing account field helper text"
+  },
+  "workspaceDescription": {
+    "defaultMessage": "작업 공간 설명",
+    "description": "Create newworkspace action label"
+  },
+  "workspaceDescriptionMaxLength": {
+    "defaultMessage": "처음 {count, number}자가 설명 필드에 표시됩니다.",
+    "description": "Workspace description max length helper text"
+  },
+  "workspaceDetails": {
+    "defaultMessage": "작업 공간 세부 정보",
+    "description": "Workspace details label"
+  },
+  "workspaceDetailsDescription": {
+    "defaultMessage": "필드를 작성하여 작업 공간을 생성하세요.",
+    "description": "Workspace details step description"
+  },
+  "workspaceDetailsTitle": {
+    "defaultMessage": "작업 공간에 대한 세부 정보를 입력하세요",
+    "description": "Workspace details step title"
+  },
+  "workspaceEmptyStateSubtitle": {
+    "defaultMessage": "이 필터 조건에 맞는 작업 공간이 없습니다. 필터 입력값을 변경해 보세요.",
+    "description": "Empty State Subtitle Workspaces"
+  },
+  "workspaceEmptyStateTitle": {
+    "defaultMessage": "작업 공간을 찾을 수 없음",
+    "description": "Empty State Title Workspaces"
+  },
+  "workspaceHierarchyDoc": {
+    "defaultMessage": "작업 공간 계층 구조 및 상속 이해하기",
+    "description": "Understanding Workspace hierarchy and inheritance documentation title"
+  },
+  "workspaceInheritedFromChildAlert": {
+    "defaultMessage": "{parentWorkspaceName}에서 {childWorkspaceName}이/가 상속한 역할 바인딩을 보고 있습니다.",
+    "description": "Alert shown when navigating to parent workspace from child workspace role binding"
+  },
+  "workspaceName": {
+    "defaultMessage": "작업 공간 이름",
+    "description": "Workspace name label"
+  },
+  "workspaceNameTaken": {
+    "defaultMessage": "이미 사용 중인 작업 공간 이름",
+    "description": "Workspace name taken error title"
+  },
+  "workspaceNamingGuidelines": {
+    "defaultMessage": "“Production North America” 또는 “Project-X”와 같이 명확하고 설명적인 작업 공간 이름을 사용하여 자산을 정리하고, 액세스를 제어하고, 관리를 간소화하십시오.{link}",
+    "description": "Workspace naming guidelines hint"
+  },
+  "workspaceNavigationTooltip": {
+    "defaultMessage": "{workspaceName}(으)로 이동합니다.",
+    "description": "Tooltip shown when hovering over workspace links in drawer"
+  },
+  "workspaceNotEmptyWarning": {
+    "defaultMessage": "{count, plural, other {작업 공간은 비어 있어야 삭제할 수 있으며 하위 작업 공간이 없어야 합니다. 계속하려면 이 작업 공간의 자산을 다른 작업 공간으로 이동해야 합니다.}}",
+    "description": "Display text in delete modal when workspace is not empty"
+  },
+  "workspaceParentHelperText": {
+    "defaultMessage": "이 작업 공간은 사용자 그룹 및 관련 역할과 같은 액세스 제어 설정을 상위 작업 공간에서 상속받습니다.",
+    "description": "Workspace parent field helper text"
+  },
+  "workspacePendingTooltip": {
+    "defaultMessage": "이 작업 공간은 현재 설정 중이므로 아직 확인할 수 없습니다.",
+    "description": "Tooltip shown on workspace name when Kessel access has not synced yet"
+  },
+  "workspaceSelectorDisabledTooltip": {
+    "defaultMessage": "이 작업 공간에 대한 {permission} 권한이 없습니다.",
+    "description": "Tooltip shown on disabled workspace tree items when the user lacks the required permission"
+  },
+  "workspaceTreeViewError": {
+    "defaultMessage": "작업 공간을 불러오는 데 실패했습니다.",
+    "description": "Error loading workspaces in tree view"
+  },
+  "workspaceTreeViewNoSearchResults": {
+    "defaultMessage": "검색 조건에 맞는 작업 공간이 없습니다.",
+    "description": "Message when no workspaces match search"
+  },
+  "workspaceTreeViewNoWorkspaces": {
+    "defaultMessage": "표시할 작업 공간이 없습니다.",
+    "description": "Message when no workspaces are available"
+  },
+  "workspaces": {
+    "defaultMessage": "작업 공간",
+    "description": "Workspaces heading"
+  },
+  "workspacesAccessDescription": {
+    "defaultMessage": "아래 드롭다운 메뉴를 사용하여 선택한 권한을 적용할 작업 공간을 지정하세요.",
+    "description": "Description for adding correct workspaces permissions to role."
+  },
+  "workspacesAccessTitle": {
+    "defaultMessage": "작업 공간 액세스 정의",
+    "description": "Step for adding correct workspaces permissions to role."
+  },
+  "workspacesActionCreateSiblingWorkspace": {
+    "defaultMessage": "동일 수준의 작업 공간 생성",
+    "description": "Menu item Create sibling workspace"
+  },
+  "workspacesActionCreateSubWorkspace": {
+    "defaultMessage": "하위 작업 공간 생성",
+    "description": "Menu item Create sub-workspace"
+  },
+  "workspacesActionDeleteWorkspace": {
+    "defaultMessage": "작업 공간 삭제",
+    "description": "Menu item Delete workspace"
+  },
+  "workspacesActionEditWorkspace": {
+    "defaultMessage": "작업 공간 편집",
+    "description": "Menu item Edit workspace"
+  },
+  "workspacesActionGrantAccessToWorkspace": {
+    "defaultMessage": "작업 공간에 대한 액세스 권한 부여",
+    "description": "Menu item Grant access to workspace"
+  },
+  "workspacesActionMoveWorkspace": {
+    "defaultMessage": "작업 공간 이동",
+    "description": "Menu item Move workspace"
+  },
+  "workspacesAlertSwitchLabel": {
+    "defaultMessage": "작업 공간 활성화",
+    "description": "Enable workspaces"
+  },
+  "workspacesAlertTitle": {
+    "defaultMessage": "조직에 작업 공간 사용자 액세스 모델을 적용할 수 있는 자격이 있습니다.",
+    "description": "Title for workspaces alert on overview page"
+  },
+  "workspacesButton": {
+    "defaultMessage": "작업 공간",
+    "description": "Workspaces button label"
+  },
+  "workspacesDefinition": {
+    "defaultMessage": "작업 공간 정의",
+    "description": "Group workspaces label"
+  },
+  "workspacesDetailBreadcrumbTitle": {
+    "defaultMessage": "작업 공간 계층 구조:",
+    "description": "Workspace detail breadcrumb title"
+  },
+  "workspacesLabel": {
+    "defaultMessage": "권한을 추가할 작업 공간 선택",
+    "description": "Type ahead label for workspaces role permissions"
+  },
+  "workspacesLearnMore": {
+    "defaultMessage": "작업 공간에 대해 자세히 알아보기",
+    "description": "learn more link"
+  },
+  "workspacesOverviewPageSubtitle": {
+    "defaultMessage": "작업 공간을 사용하면 RHEL 호스트와 같은 관련 자산을 하나의 그룹으로 묶을 수 있습니다. 이를 통해 관리 및 사용자 액세스 제어를 간소화할 수 있습니다.",
+    "description": "workspaces page section subtitle"
+  },
+  "workspacesOverviewPageTitle": {
+    "defaultMessage": "작업 공간 시작하기",
+    "description": "workspaces page section title"
+  },
+  "workspacesOverviewSubtitle": {
+    "defaultMessage": "작업 공간을 사용하여 조직 내 사용자 액세스를 안전하게 관리하고 자산을 체계적으로 구성하세요. 세분화된 액세스 제어를 구현하여 권한 관리를 간소화하고 리소스에 효율적이고 안전하게 액세스할 수 있도록 하세요. 자산 및 역할 구성도를 확인하세요.",
+    "description": "Securely manage user access and organize assets within your organization using workspaces."
+  },
+  "workspacesServiceCardDescription": {
+    "defaultMessage": "조직 구조에 맞게 작업 공간을 구성하세요. 작업 공간은 상위 및 하위 관계로 이루어진 계층 구조로 구성할 수 있습니다. 상위 작업 공간에 할당된 권한은 하위 작업 공간에 자동으로 상속되므로 구성 시간을 절약할 수 있습니다.",
+    "description": "workspaces service card description"
+  },
+  "workspacesServiceCardTitle": {
+    "defaultMessage": "작업 공간",
+    "description": "Workspaces service card title"
+  },
+  "workspacesSubtitle": {
+    "defaultMessage": "작업 공간은 자산을 구성하고 액세스 관리를 간소화할 수 있는 유연한 계층적 방식을 제공합니다. 조직 구조에 맞게 작업 공간을 구성하세요.",
+    "description": "Workspaces subtitle"
+  },
+  "workspacesSuccessAlertTitle": {
+    "defaultMessage": "작업 공간 마이그레이션이 완료되었습니다. 이제 작업 공간을 관리할 수 있습니다!",
+    "description": "Title for success alert for workspaces enablement"
+  },
+  "workspacesTitle": {
+    "defaultMessage": "액세스 관리",
+    "description": "workspaces title"
+  },
+  "workspacesTooltip": {
+    "defaultMessage": "이 작업 공간에 권한을 추가하세요.",
+    "description": "Tooltip for workspaces role permissions"
+  },
+  "yes": {
+    "defaultMessage": "예",
+    "description": "Yes label"
+  },
+  "yourPermissions": {
+    "defaultMessage": "{name} 권한",
+    "description": "Your bundle permissions label"
+  },
+  "yourRoles": {
+    "defaultMessage": "{name} 역할",
+    "description": "Your bundle roles label"
+  }
+}
