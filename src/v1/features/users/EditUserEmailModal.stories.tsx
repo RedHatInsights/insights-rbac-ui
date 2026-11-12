@@ -17,6 +17,8 @@ const USER = {
 
 const updateEmailSpy = fn();
 const closeSpy = fn();
+/** Captures the RAW update-user-details body so the wire contract can be asserted (D12). */
+const updateBodySpy = fn();
 
 /**
  * Keeps the modal's `isOpen` under story control so the Cancel/Save close paths are observable,
@@ -54,6 +56,7 @@ const meta: Meta<typeof EditUserEmailModal> = {
   beforeEach: () => {
     updateEmailSpy.mockClear();
     closeSpy.mockClear();
+    updateBodySpy.mockClear();
   },
 };
 
@@ -94,6 +97,42 @@ export const SaveValidEmail: Story = {
     // The dialog closes on a successful save.
     await waitForModalClose();
     await expect(closeSpy).toHaveBeenCalled();
+  },
+};
+
+/**
+ * D12 (write contract half) — the save POST carries ONLY the email.
+ *
+ * `onUpdateEmail` collapses the request to `(userId, email)`, so it cannot see extra keys. The
+ * account API rejects an update-user-details body that also includes `id`/`username`/`roles`
+ * with 400 "Failed to read request", and a body that also carried `permissions` would overwrite
+ * the user's portal grants as a side effect of an email correction.
+ */
+export const SaveSendsOnlyTheEmailField: Story = {
+  parameters: {
+    msw: {
+      handlers: accountManagementHandlers({
+        onUpdateUserDetails: (userId, body) => {
+          updateBodySpy({ userId, body });
+        },
+      }),
+    },
+  },
+  play: async () => {
+    const user = userEvent.setup();
+    const newEmail = 'only.email@redhat.com';
+    const modal = await waitForModal();
+
+    await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, newEmail);
+    await user.click(modal.getByRole('button', { name: /save/i }));
+
+    await waitForNotification(/success updating user/i);
+    await waitFor(() => expect(updateBodySpy).toHaveBeenCalledTimes(1));
+
+    const { userId, body } = updateBodySpy.mock.calls[0][0] as { userId: string; body: Record<string, unknown> };
+    await expect(userId).toBe(USER.userId);
+    await expect(Object.keys(body)).toEqual(['email']);
+    await expect(body.email).toBe(newEmail);
   },
 };
 

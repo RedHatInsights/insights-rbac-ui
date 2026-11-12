@@ -19,7 +19,21 @@ import { resetStoryState } from '../_shared/helpers';
 import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
 import { clearAndType, clickTab, waitForContentReady, waitForDrawer, waitForModal } from '../../test-utils/interactionHelpers';
 import { verifySuccessNotification, waitForPageToLoad } from '../../test-utils/tableHelpers';
-import { accountManagementHandlers, createStatefulOrgAdminHandlers, createStatefulUserStatusHandlers, mockUsers, v2DefaultHandlers } from './_shared';
+import {
+  accountManagementHandlers,
+  createStatefulOrgAdminHandlers,
+  createStatefulUserStatusHandlers,
+  createSupportCasesHandlers,
+  mockUsers,
+  v2DefaultHandlers,
+} from './_shared';
+import { PAGINATION_TEST_SMALL_PER_PAGE, openPerPageMenu, selectPerPage } from '../../../.storybook/helpers/pagination-test-utils';
+
+/** Per-page option used by E4 — the largest the Users table offers. */
+const PAGINATION_TEST_LARGE_PER_PAGE = 50;
+
+/** First row of the seeded journey users — the "page has rendered" anchor. */
+const FIRST_JOURNEY_USER = mockUsers[0];
 
 const meta = {
   component: KesselAppEntryWithRouter,
@@ -758,6 +772,258 @@ Tests toggling a user's org admin status via the switch in the users table.
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
+    });
+  },
+};
+
+// =============================================================================
+// Manage Support Cases — journey coverage and the account-API rate-limit guard
+// =============================================================================
+
+const supportCasesToggleSpy = fn();
+const supportCasesToggleHandlers = createSupportCasesHandlers({
+  onToggleSupportCases: (userId, grant) => supportCasesToggleSpy({ userId, grant }),
+});
+
+/**
+ * E1 — Toggle Manage Support Cases through the real Users page.
+ *
+ * The journey handlers have seeded `journeyUserPermissions` since the bulk endpoint landed, but
+ * no journey story exercised it. This is the support-cases twin of `ToggleOrgAdmin`: the column
+ * only renders under `authModel && orgAdmin && !isITLess`, and the write is a read-modify-write
+ * POST against the account API.
+ */
+export const ToggleSupportCases: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests toggling a user's Manage Support Cases permission from the Users tab.
+
+**Expected behavior:**
+1. The Manage Support Cases column renders for an org admin with common-auth-model on
+2. A non-admin user's toggle starts unchecked (seeded permissions)
+3. Clicking it POSTs to the account API with the permission granted
+4. The switch reflects the new state
+        `,
+      },
+    },
+    msw: {
+      handlers: [...supportCasesToggleHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      supportCasesToggleSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Column renders and the target user starts without the permission', async () => {
+      await waitForPageToLoad(canvas, GINGER_SPICE.username);
+      await expect(canvas.findByText('Manage Support Cases')).resolves.toBeInTheDocument();
+
+      const supportCasesSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${GINGER_SPICE.username}`, 'i'),
+      });
+      await expect(supportCasesSwitch).not.toBeChecked();
+      await expect(supportCasesSwitch).not.toBeDisabled();
+    });
+
+    await step('Grant manage support cases', async () => {
+      const supportCasesSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${GINGER_SPICE.username}`, 'i'),
+      });
+      await user.click(supportCasesSwitch);
+    });
+
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(supportCasesToggleSpy).toHaveBeenCalledWith({
+            userId: String(GINGER_SPICE.external_source_id),
+            grant: true,
+          });
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify switch reflects the new state', async () => {
+      await waitFor(
+        () => {
+          const updatedSwitch = canvas.queryByRole('switch', {
+            name: new RegExp(`toggle manage support cases for ${GINGER_SPICE.username}`, 'i'),
+          });
+          expect(updatedSwitch).toBeInTheDocument();
+          expect(updatedSwitch).toBeChecked();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
+  },
+};
+
+const rateLimitSearchSpy = fn();
+const rateLimitDetailSpy = fn();
+const rateLimitHandlers = createSupportCasesHandlers({
+  onSearchUsers: (ids) => rateLimitSearchSpy(ids),
+  onGetUserDetail: (userId) => rateLimitDetailSpy(userId),
+});
+
+/** Page 2 at the small page size — derived from the seed so no username is hardcoded. */
+const PAGE_TWO_USER = mockUsers[PAGINATION_TEST_SMALL_PER_PAGE];
+
+/**
+ * Wait until the most recent bulk search carried exactly `count` ids. A page-size or page change
+ * re-renders before its search lands, so counting has to start from a known-settled call —
+ * otherwise the previous page's request is still in flight when the counter is cleared.
+ */
+async function waitForSettledSearch(spy: ReturnType<typeof fn>, count: number) {
+  await waitFor(
+    () => {
+      const lastCall = spy.mock.calls.at(-1)?.[0] as string[] | undefined;
+      expect(lastCall).toHaveLength(count);
+    },
+    { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+  );
+}
+
+/**
+ * E3 — Changing page fires exactly one bulk search and zero per-row GETs.
+ *
+ * The account API is capped at 180 req/min per org, so an N+1 here breaks the Users page for the
+ * whole organisation. Both list pages already assert a single request for the FIRST page; neither
+ * covers navigation, which is exactly where an N+1 resurfaces — `accountUserKeys.search` is
+ * derived from the id list, so every page change is a new key and a new request. Counting only
+ * the search would miss a reintroduced per-row GET running alongside it, so both are counted.
+ *
+ * Mounts the real page rather than `UsersTable`, so `useSupportCasesPermissions` — the
+ * orchestration actually under test — is in the loop.
+ */
+export const SupportCasesPageChangeIssuesOneRequest: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Rate-limit guard: navigating to the next page issues exactly one POST /users/search and zero GET /users/{id}. A per-row fetch would exhaust the org-wide 180 req/min account-API budget.',
+      },
+    },
+    msw: {
+      handlers: [...rateLimitHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      rateLimitSearchSpy.mockClear();
+      rateLimitDetailSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+      await waitForPageToLoad(canvas, FIRST_JOURNEY_USER.username);
+      await expect(canvas.findByText('Manage Support Cases')).resolves.toBeInTheDocument();
+    });
+
+    await step('Shrink the page size so a second page exists', async () => {
+      await openPerPageMenu(body);
+      await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+      await waitFor(() => expect(canvas.queryByText(PAGE_TWO_USER.username)).not.toBeInTheDocument());
+      await waitForSettledSearch(rateLimitSearchSpy, PAGINATION_TEST_SMALL_PER_PAGE);
+    });
+
+    await step('Navigate to page 2', async () => {
+      rateLimitSearchSpy.mockClear();
+      rateLimitDetailSpy.mockClear();
+
+      const nextButtons = await canvas.findAllByLabelText('Go to next page');
+      await user.click(nextButtons[0]);
+
+      await expect(canvas.findByText(PAGE_TWO_USER.username, undefined, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+    });
+
+    await step('Exactly one bulk search, zero per-row GETs', async () => {
+      await waitFor(() => expect(rateLimitSearchSpy).toHaveBeenCalledTimes(1));
+      expect(rateLimitSearchSpy).toHaveBeenCalledWith([String(PAGE_TWO_USER.external_source_id)]);
+      expect(rateLimitDetailSpy).not.toHaveBeenCalled();
+    });
+  },
+};
+
+const pageSizeSearchSpy = fn();
+const pageSizeDetailSpy = fn();
+const pageSizeHandlers = createSupportCasesHandlers({
+  onSearchUsers: (ids) => pageSizeSearchSpy(ids),
+  onGetUserDetail: (userId) => pageSizeDetailSpy(userId),
+});
+
+/**
+ * E4 — Raising the page size still fires exactly one request.
+ *
+ * A larger page means more ids in one body, never more requests. Starts at the small page size
+ * so the id set genuinely grows when the size is raised (otherwise the query key would be
+ * unchanged and the assertion vacuous).
+ */
+export const SupportCasesLargePageIssuesOneRequest: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Rate-limit guard: raising the page size issues exactly one POST /users/search carrying every id on the page, and zero GET /users/{id}.',
+      },
+    },
+    msw: {
+      handlers: [...pageSizeHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      pageSizeSearchSpy.mockClear();
+      pageSizeDetailSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+      await waitForPageToLoad(canvas, FIRST_JOURNEY_USER.username);
+      await expect(canvas.findByText('Manage Support Cases')).resolves.toBeInTheDocument();
+    });
+
+    await step('Start from the small page size', async () => {
+      await openPerPageMenu(body);
+      await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+      await waitFor(() => expect(canvas.queryByText(PAGE_TWO_USER.username)).not.toBeInTheDocument());
+      await waitForSettledSearch(pageSizeSearchSpy, PAGINATION_TEST_SMALL_PER_PAGE);
+    });
+
+    await step('Raise the page size to 50', async () => {
+      pageSizeSearchSpy.mockClear();
+      pageSizeDetailSpy.mockClear();
+
+      await openPerPageMenu(body);
+      await selectPerPage(body, PAGINATION_TEST_LARGE_PER_PAGE);
+
+      await expect(canvas.findByText(PAGE_TWO_USER.username, undefined, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+    });
+
+    await step('Exactly one bulk search for the whole page, zero per-row GETs', async () => {
+      await waitFor(() => expect(pageSizeSearchSpy).toHaveBeenCalledTimes(1));
+      expect(pageSizeSearchSpy.mock.calls[0][0]).toHaveLength(mockUsers.length);
+      expect(pageSizeDetailSpy).not.toHaveBeenCalled();
     });
   },
 };

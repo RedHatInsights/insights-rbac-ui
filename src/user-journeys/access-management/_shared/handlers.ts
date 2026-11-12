@@ -386,6 +386,32 @@ export const v2DefaultHandlers = [
 ];
 
 // =============================================================================
+// SUPPORT CASES (ACCOUNT API) HANDLERS
+// For stories that toggle manage-support-cases through the real list page, or
+// that count account-API traffic for the 180 req/min rate-limit guard.
+// =============================================================================
+
+interface SupportCasesHandlerOptions {
+  /** Called with (userId, grant) on each toggle POST. */
+  onToggleSupportCases?: (userId: string, grant: boolean) => void;
+  /** Called once per POST /users/search with the requested ids — one call per rendered page. */
+  onSearchUsers?: (ids: string[]) => void;
+  /** Called per GET /users/{id}. Must stay at zero: a per-row GET is the N+1 the bulk query replaced. */
+  onGetUserDetail?: (userId: string) => void;
+}
+
+/**
+ * Account-API handlers over a fresh, mutable copy of the journey support-cases permissions, so a
+ * toggle persists for the life of the story without leaking into the shared default handlers.
+ * Place these BEFORE v1DefaultHandlers / v2DefaultHandlers — MSW first-match ensures they win.
+ */
+export function createSupportCasesHandlers(options: SupportCasesHandlerOptions = {}) {
+  const permissions = new Map<string, string[]>(Array.from(journeyUserPermissions, ([id, granted]) => [id, [...granted]]));
+
+  return accountManagementHandlers({ userPermissions: permissions, ...options });
+}
+
+// =============================================================================
 // STATEFUL USER STATUS HANDLERS
 // For stories that test toggle mutations — the users GET handler returns
 // updated data after the IT API POST handler flips `is_active`.

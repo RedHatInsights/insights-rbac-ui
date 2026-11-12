@@ -13,6 +13,15 @@ export interface AccountManagementHandlerOptions {
   onToggleSupportCases?: (userId: string, grant: boolean) => void;
   /** Called with (userId, email) when an update-user-details POST carries an `email` field. */
   onUpdateEmail?: (userId: string, email: string) => void;
+  /**
+   * Called with the RAW parsed update-user-details POST body, before it is dispatched to the
+   * email / permissions branch. `onUpdateEmail` and `onToggleSupportCases` both collapse the
+   * request to a summary, so neither can express the wire contract the account API enforces:
+   * the body must carry exactly one key (`permissions` or `email`) — including `id`/`username`/
+   * `roles` makes the server reject it with 400 "Failed to read request"
+   * (see `useToggleManageSupportCasesMutation` / `useUpdateUserEmailMutation`).
+   */
+  onUpdateUserDetails?: (userId: string, body: unknown) => void;
   /** Called once per POST /users/search with the requested ids — lets stories assert the page bulk-fetches in a single request. */
   onSearchUsers?: (ids: string[]) => void;
   /** When provided, org admin POST/DELETE updates `is_org_admin` so the next principals refetch reflects the toggle */
@@ -21,6 +30,13 @@ export interface AccountManagementHandlerOptions {
   userPermissions?: ResettableMap<string, string[]> | Map<string, string[]>;
   /** Ids for which /users/search omits the `permissions` key (the API's omitted shape) — exercises the seeding guard. */
   omitSearchPermissionsForIds?: ReadonlyArray<string>;
+  /**
+   * When set, POST /users/search answers from this map instead of `userPermissions`, so a
+   * refetch returns the PRE-write state regardless of writes already applied. Models the
+   * account API's read-after-write inconsistency, which the cache-seeding guard in
+   * `useAccountUsersPermissionsQuery` exists to absorb.
+   */
+  searchPermissionsOverride?: ReadonlyMap<string, string[]> | Map<string, string[]>;
 }
 
 async function applyOrgAdminUpdate(
@@ -72,6 +88,7 @@ async function buildUsersSearchResponse(options: AccountManagementHandlerOptions
   options.onSearchUsers?.(ids);
 
   const omitPermissions = new Set((options.omitSearchPermissionsForIds ?? []).map(String));
+  const permissionsSource = options.searchPermissionsOverride ?? options.userPermissions;
   const result = ids.map((id) => {
     const user = options.users?.all().find((u) => String(u.external_source_id) === id);
     const entry: { user: { id: string; username: string; roles: string[] }; permissions?: string[] } = {
@@ -82,7 +99,7 @@ async function buildUsersSearchResponse(options: AccountManagementHandlerOptions
       },
     };
     if (!omitPermissions.has(id)) {
-      entry.permissions = options.userPermissions?.get(id) ?? [];
+      entry.permissions = permissionsSource?.get(id) ?? [];
     }
     return entry;
   });
@@ -96,6 +113,10 @@ async function buildUsersSearchResponse(options: AccountManagementHandlerOptions
  */
 async function applyUserDetailUpdate(options: AccountManagementHandlerOptions, userId: string, request: Request) {
   const body = (await request.json().catch(() => ({}))) as UpdateUserBody;
+
+  // Raw body first: the branches below only see their own field, so this is the one place a
+  // story can assert what actually went over the wire.
+  options.onUpdateUserDetails?.(userId, body);
 
   if (typeof body.email === 'string') {
     options.onUpdateEmail?.(userId, body.email);
@@ -298,6 +319,24 @@ export function supportCasesTogglePostErrorHandlers(status: number = 500) {
   const body = { error: 'Error' };
   // Negative lookahead excludes `/users/search` so only the toggle POST fails, not the bulk fetch.
   return [http.post(/account\/v1\/accounts\/[^/]+\/users\/(?!search$)[^/]+$/, () => HttpResponse.json(body, { status }))];
+}
+
+/**
+ * Only the support-cases toggle POST hangs (never resolves); GET and the bulk search are left
+ * to succeeding handlers, so the toggle still loads its initial state. List this BEFORE the
+ * success handlers. Holding the response open keeps the mutation `isPending` for the whole
+ * play function, which is what makes a double-click assertion deterministic.
+ */
+export function supportCasesTogglePostPendingHandlers(options: { onPost?: (userId: string, body: unknown) => void } = {}) {
+  // Negative lookahead excludes `/users/search` so only the toggle POST hangs, not the bulk fetch.
+  return [
+    http.post(/account\/v1\/accounts\/[^/]+\/users\/(?!search$)[^/]+$/, async ({ request }) => {
+      const userId = new URL(request.url).pathname.split('/').pop() ?? '';
+      options.onPost?.(userId, await request.json().catch(() => ({})));
+      await delay('infinite');
+      return new HttpResponse(null);
+    }),
+  ];
 }
 
 /** All account management endpoints delay forever (loading state) */
