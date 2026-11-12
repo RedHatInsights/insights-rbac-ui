@@ -313,10 +313,20 @@
       "phase": "pending"
     },
     "ko": {
-      "phase": "exporting",
+      "phase": "pr-created",
       "toolingCommitShas": [
         "95595140fa7f74f6e784914aa92f47e69a4533b5"
-      ]
+      ],
+      "validationErrors": [
+        "Downloaded ko catalog failed validation: ICU validation failed:\n  - formatjs-json message \"defaultAccessGroupEditWarning\" has invalid ICU syntax at pattern line 1, column 75: Unclosed tag (UNCLOSED_TAG)\n  - formatjs-json message \"defaultAccessGroupNameChanged\" has invalid ICU syntax at pattern line 1, column 80: Unclosed tag (UNCLOSED_TAG)\n  - formatjs-json message \"parentWorkspacesInstructionalText\" has invalid ICU syntax at pattern line 1, column 23: Unclosed tag (UNCLOSED_TAG)"
+      ],
+      "validationWarnings": [],
+      "pullRequestBodyDigest": "cd26d9aaf7fb85b5cc7ff4db5699f369e33fa837aa5b7bf75f137aa0864bbd8d",
+      "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2499",
+      "pullRequestBranch": "i18n/phrase-1967d67c222f7660-ko",
+      "pullRequestBatchKey": "1967d67c222f7660050238b446579d1e2427f17dfac994fd9353971c15fa55a9",
+      "pullRequestAssigneesPending": true,
+      "toolingCommitSha": "95595140fa7f74f6e784914aa92f47e69a4533b5"
     },
     "zh_cn": {
       "phase": "pr-created",
