@@ -162,8 +162,19 @@
     {
       "uid": "C7XLPsMHuUbFcF13oVFp09",
       "innerId": "43",
-      "status": "NEW",
-      "providers": [],
+      "status": "COMPLETED",
+      "providers": [
+        {
+          "type": "USER",
+          "id": "288744",
+          "uid": "IZsb0q3D4BMA8a2mNLjNj2",
+          "userName": "eukim",
+          "firstName": "Eun-Ju",
+          "lastName": "Kim",
+          "email": "eukim@redhat.com",
+          "active": true
+        }
+      ],
       "sourceLang": "en_us",
       "targetLang": "ko",
       "workflowLevel": 1,
