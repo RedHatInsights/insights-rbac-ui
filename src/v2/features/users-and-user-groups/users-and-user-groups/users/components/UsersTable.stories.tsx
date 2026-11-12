@@ -873,10 +873,9 @@ const RESOLVE_AS_ORG_ADMIN = 'Resolve identity as org admin';
 type IdentityPhase = 'pending' | 'non-admin' | 'org-admin';
 
 /**
- * Models `usePrincipalsAccess()` resolving after first paint. `Users.tsx:50` destructures only
- * `canInvite` and ignores `isLoading`, so the column is derived from an unresolved identity for
- * the first frames. The buttons stand in for that resolution: a timer would be flaky, and a
- * genuinely delayed identity is not injectable at the table layer.
+ * Drives `orgAdmin` through the three values it takes while identity resolves in the container
+ * (`Users.tsx` passes `usePrincipalsAccess().canInvite` straight down). The buttons make each
+ * transition explicit; a timer would be flaky.
  */
 const UsersTableWithLateIdentity: React.FC<Omit<React.ComponentProps<typeof UsersTableWithState>, 'orgAdmin'>> = (props) => {
   const [phase, setPhase] = useState<IdentityPhase>('pending');
@@ -901,11 +900,20 @@ const lateIdentityPermissions = createResettableMap<string, string[]>([
 ]);
 
 /**
- * A9 — regression guard. The column must be absent while identity is unresolved, stay absent
- * when it resolves to a non-admin, and only then appear for an org admin. This cannot currently
- * fail (`useIdentity` initialises `orgAdmin: false`), but it pins the safe default against
- * someone later defaulting the other way. Deliberately asserts presence/absence only — reserved
- * space and layout shift are not observable in a story interaction test.
+ * A9 — the column tracks `orgAdmin` across the whole identity-resolution sequence: absent while
+ * unresolved, absent for a resolved non-admin, present only for a resolved org admin. In
+ * particular it never appears and then disappears.
+ *
+ * SCOPE: this covers `UsersTable`'s prop-driven gating only. It does NOT prove that the
+ * container supplies a safe value while identity is in flight — `Users.tsx` reads
+ * `usePrincipalsAccess()` and ignores its `isLoading`, and nothing here exercises that hook.
+ * Today the container is safe only because `useIdentity` initialises `orgAdmin: false`; a change
+ * to that default would ship a column flash that this story would still pass. Covering it needs
+ * a delayed identity at the container layer, which the Storybook mock context cannot express
+ * yet — tracked as Q7 in `RHCLOUD-53295-53296-OPEN-QUESTIONS.md`.
+ *
+ * Asserts presence/absence only — reserved space and layout shift are not observable in a story
+ * interaction test.
  */
 export const SupportCasesColumnWaitsForIdentity: Story = {
   args: {
@@ -918,7 +926,8 @@ export const SupportCasesColumnWaitsForIdentity: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The Manage Support Cases column stays hidden until identity resolves to an org admin — it never flashes in on an unresolved identity.',
+        story:
+          'The Manage Support Cases column stays hidden until identity resolves to an org admin — it never flashes in on an unresolved identity.',
       },
     },
     msw: {

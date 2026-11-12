@@ -55,10 +55,14 @@ async function applyOrgAdminUpdate(
   });
 }
 
-/** Build the GET account-user-detail response (user info + portal permissions). */
+/**
+ * Build the GET account-user-detail response (user info + portal permissions).
+ *
+ * `onGetUserDetail` is deliberately NOT called here — callers record it before awaiting the
+ * network delay, so a story asserting "zero per-row GETs" cannot pass while GETs are still in
+ * flight.
+ */
 function buildUserDetailResponse(options: AccountManagementHandlerOptions, userId: string) {
-  options.onGetUserDetail?.(userId);
-
   const user = options.users?.all().find((u) => String(u.external_source_id) === userId);
   const permissions = options.userPermissions?.get(userId) ?? [];
 
@@ -232,8 +236,10 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
         return HttpResponse.json({ success: true });
       }),
 
-      // GET account user detail — returns user info + portal permissions
+      // GET account user detail — returns user info + portal permissions.
+      // Recorded before the delay so request counters are honest about in-flight requests.
       http.get(`${baseUrl}/account/v1/accounts/:accountId/users/:userId`, async ({ params }) => {
+        options.onGetUserDetail?.(String(params.userId));
         await delay(networkDelay);
         return buildUserDetailResponse(options, String(params.userId));
       }),
@@ -263,10 +269,12 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
       return HttpResponse.json({ success: true });
     }),
 
-    // Fallback: GET account user detail (regex — catches any origin)
+    // Fallback: GET account user detail (regex — catches any origin).
+    // Recorded before the delay so request counters are honest about in-flight requests.
     http.get(/account\/v1\/accounts\/[^/]+\/users\/[^/]+$/, async ({ request }) => {
-      await delay(networkDelay);
       const userId = new URL(request.url).pathname.split('/').pop() ?? '';
+      options.onGetUserDetail?.(userId);
+      await delay(networkDelay);
       return buildUserDetailResponse(options, userId);
     }),
 

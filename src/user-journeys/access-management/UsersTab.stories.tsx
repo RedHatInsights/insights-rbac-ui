@@ -781,9 +781,12 @@ Tests toggling a user's org admin status via the switch in the users table.
 // =============================================================================
 
 const supportCasesToggleSpy = fn();
-const supportCasesToggleHandlers = createSupportCasesHandlers({
+const { handlers: supportCasesToggleHandlers, permissions: supportCasesTogglePermissions } = createSupportCasesHandlers({
   onToggleSupportCases: (userId, grant) => supportCasesToggleSpy({ userId, grant }),
 });
+
+/** Accessible-name matcher for a row's support-cases switch. */
+const toggleNameFor = (username: string) => new RegExp(`toggle manage support cases for ${username}`, 'i');
 
 /**
  * E1 — Toggle Manage Support Cases through the real Users page.
@@ -811,6 +814,12 @@ Tests toggling a user's Manage Support Cases permission from the Users tab.
     msw: {
       handlers: [...supportCasesToggleHandlers, ...v2DefaultHandlers],
     },
+  },
+  // Reset before render: the bulk search fires on mount, before the play function, so a
+  // permission granted by a previous run would already be reflected in the first paint.
+  beforeEach: () => {
+    supportCasesTogglePermissions.reset();
+    supportCasesToggleSpy.mockClear();
   },
   play: async ({ canvasElement, step, args }) => {
     const canvas = within(canvasElement);
@@ -872,7 +881,7 @@ Tests toggling a user's Manage Support Cases permission from the Users tab.
 
 const rateLimitSearchSpy = fn();
 const rateLimitDetailSpy = fn();
-const rateLimitHandlers = createSupportCasesHandlers({
+const { handlers: rateLimitHandlers, permissions: rateLimitPermissions } = createSupportCasesHandlers({
   onSearchUsers: (ids) => rateLimitSearchSpy(ids),
   onGetUserDetail: (userId) => rateLimitDetailSpy(userId),
 });
@@ -919,6 +928,9 @@ export const SupportCasesPageChangeIssuesOneRequest: Story = {
       handlers: [...rateLimitHandlers, ...v2DefaultHandlers],
     },
   },
+  beforeEach: () => {
+    rateLimitPermissions.reset();
+  },
   play: async ({ canvasElement, step, args }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
@@ -956,6 +968,12 @@ export const SupportCasesPageChangeIssuesOneRequest: Story = {
     await step('Exactly one bulk search, zero per-row GETs', async () => {
       await waitFor(() => expect(rateLimitSearchSpy).toHaveBeenCalledTimes(1));
       expect(rateLimitSearchSpy).toHaveBeenCalledWith([String(PAGE_TWO_USER.external_source_id)]);
+
+      // Let the permission load fully settle before counting GETs. The switch only becomes
+      // enabled once the bulk response has seeded its cache entry, so this proves the whole
+      // fetch → seed → render cycle finished; asserting zero GETs any earlier would pass even
+      // if an N+1 were in flight.
+      await waitFor(() => expect(canvas.queryByRole('switch', { name: toggleNameFor(PAGE_TWO_USER.username) })).toBeEnabled());
       expect(rateLimitDetailSpy).not.toHaveBeenCalled();
     });
   },
@@ -963,7 +981,7 @@ export const SupportCasesPageChangeIssuesOneRequest: Story = {
 
 const pageSizeSearchSpy = fn();
 const pageSizeDetailSpy = fn();
-const pageSizeHandlers = createSupportCasesHandlers({
+const { handlers: pageSizeHandlers, permissions: pageSizePermissions } = createSupportCasesHandlers({
   onSearchUsers: (ids) => pageSizeSearchSpy(ids),
   onGetUserDetail: (userId) => pageSizeDetailSpy(userId),
 });
@@ -986,6 +1004,9 @@ export const SupportCasesLargePageIssuesOneRequest: Story = {
     msw: {
       handlers: [...pageSizeHandlers, ...v2DefaultHandlers],
     },
+  },
+  beforeEach: () => {
+    pageSizePermissions.reset();
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -1023,6 +1044,9 @@ export const SupportCasesLargePageIssuesOneRequest: Story = {
     await step('Exactly one bulk search for the whole page, zero per-row GETs', async () => {
       await waitFor(() => expect(pageSizeSearchSpy).toHaveBeenCalledTimes(1));
       expect(pageSizeSearchSpy.mock.calls[0][0]).toHaveLength(mockUsers.length);
+
+      // Settle the permission load before counting GETs — see the note in the page-change story.
+      await waitFor(() => expect(canvas.queryByRole('switch', { name: toggleNameFor(PAGE_TWO_USER.username) })).toBeEnabled());
       expect(pageSizeDetailSpy).not.toHaveBeenCalled();
     });
   },

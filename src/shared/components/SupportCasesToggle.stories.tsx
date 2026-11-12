@@ -22,18 +22,27 @@ const SupportCasesToggleHarness: React.FC<React.ComponentProps<typeof SupportCas
 };
 
 const REFETCH_BUTTON_LABEL = 'Refetch permissions';
+const REFETCH_STATUS_PREFIX = 'Refetches completed:';
 
 /**
  * B15 harness: same wiring as the list page, plus a control that forces the bulk permissions
  * query to refetch. Lets a play function replay the account API's read-after-write race without
  * touching timers — real elapsed time stays well inside the 30 s guard window.
+ *
+ * The completed-refetch counter is the synchronisation point. The handler's `onSearchUsers` spy
+ * fires while the response is being built, BEFORE the client has received it and run the
+ * cache-seeding loop — so a spy count can never prove the guard was exercised. Awaiting
+ * `refetch()` does: it resolves only after the query function (seeding loop included) has run.
  */
 const SupportCasesToggleRefetchHarness: React.FC<React.ComponentProps<typeof SupportCasesToggle>> = (props) => {
   const { isLoading, refetch } = useAccountUsersPermissionsQuery(props.userId ? [props.userId] : []);
+  const [completedRefetches, setCompletedRefetches] = React.useState(0);
+
   return (
     <>
       <SupportCasesToggle {...props} isPermissionsLoading={isLoading} />
-      <button type="button" onClick={() => void refetch()}>
+      <p>{`${REFETCH_STATUS_PREFIX} ${completedRefetches}`}</p>
+      <button type="button" onClick={() => void refetch().then(() => setCompletedRefetches((count) => count + 1))}>
         {REFETCH_BUTTON_LABEL}
       </button>
     </>
@@ -754,7 +763,13 @@ export const StaleRefetchDoesNotClobberToggle: Story = {
 
       await userEvent.click(await canvas.findByRole('button', { name: REFETCH_BUTTON_LABEL }));
 
-      await waitFor(() => expect(staleSearchSpy).toHaveBeenCalledTimes(2));
+      // Wait for the refetch to COMPLETE, not merely to have been requested: the counter only
+      // increments once the query function — including the cache-seeding loop the guard lives
+      // in — has finished. Asserting on the search spy instead would let the final assertion
+      // run before the guard had a chance to clobber anything, making it vacuous.
+      await expect(canvas.findByText(`${REFETCH_STATUS_PREFIX} 1`)).resolves.toBeInTheDocument();
+
+      expect(staleSearchSpy).toHaveBeenCalledTimes(2);
       // The stale response really did omit the grant — otherwise the assertion below is vacuous.
       expect(staleSearchPermissions.get(JOHN_ID)).not.toContain(PORTAL_MANAGE_CASES);
     });
