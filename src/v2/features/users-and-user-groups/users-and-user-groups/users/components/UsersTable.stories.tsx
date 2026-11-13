@@ -221,6 +221,14 @@ export const StandardView: Story = {
       await expect(canvas.findByText('John')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('Doe')).resolves.toBeInTheDocument();
     });
+
+    // A8 — this story runs with authModel off, which also gates the Manage Support Cases
+    // column. Without this assertion a gating regression would fail nothing here.
+    await step('Manage Support Cases column is absent when authModel is false', async () => {
+      const canvas = within(canvasElement);
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+      expect(canvas.queryByRole('switch', { name: /toggle manage support cases/i })).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -852,6 +860,104 @@ export const SupportCasesHiddenInITLess: Story = {
       await expect(canvas.findByText(johnUser.username)).resolves.toBeInTheDocument();
 
       expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+    });
+  },
+};
+
+// --- A9: the column must not flash in before identity resolves -------------
+
+const IDENTITY_STATUS_PREFIX = 'Identity:';
+const RESOLVE_AS_NON_ADMIN = 'Resolve identity as non-admin';
+const RESOLVE_AS_ORG_ADMIN = 'Resolve identity as org admin';
+
+type IdentityPhase = 'pending' | 'non-admin' | 'org-admin';
+
+/**
+ * Drives `orgAdmin` through the three values it takes while identity resolves in the container
+ * (`Users.tsx` passes `usePrincipalsAccess().canInvite` straight down). The buttons make each
+ * transition explicit; a timer would be flaky.
+ */
+const UsersTableWithLateIdentity: React.FC<Omit<React.ComponentProps<typeof UsersTableWithState>, 'orgAdmin'>> = (props) => {
+  const [phase, setPhase] = useState<IdentityPhase>('pending');
+
+  return (
+    <>
+      <p>{`${IDENTITY_STATUS_PREFIX} ${phase}`}</p>
+      <button type="button" onClick={() => setPhase('non-admin')}>
+        {RESOLVE_AS_NON_ADMIN}
+      </button>
+      <button type="button" onClick={() => setPhase('org-admin')}>
+        {RESOLVE_AS_ORG_ADMIN}
+      </button>
+      <UsersTableWithState {...props} orgAdmin={phase === 'org-admin'} />
+    </>
+  );
+};
+
+const lateIdentityPermissions = createResettableMap<string, string[]>([
+  [johnExternalId, ['portal_download']],
+  [janeExternalId, ['portal_manage_cases', 'portal_download']],
+]);
+
+/**
+ * A9 — the column tracks `orgAdmin` across the whole identity-resolution sequence: absent while
+ * unresolved, absent for a resolved non-admin, present only for a resolved org admin. In
+ * particular it never appears and then disappears.
+ *
+ * SCOPE: this covers `UsersTable`'s prop-driven gating only. It does NOT prove that the
+ * container supplies a safe value while identity is in flight — `Users.tsx` reads
+ * `usePrincipalsAccess()` and ignores its `isLoading`, and nothing here exercises that hook.
+ * Today the container is safe only because `useIdentity` initialises `orgAdmin: false`; a change
+ * to that default would ship a column flash that this story would still pass. Covering it needs
+ * a delayed identity at the container layer, which the Storybook mock context cannot express
+ * yet — tracked as Q7 in `RHCLOUD-53295-53296-OPEN-QUESTIONS.md`.
+ *
+ * Asserts presence/absence only — reserved space and layout shift are not observable in a story
+ * interaction test.
+ */
+export const SupportCasesColumnWaitsForIdentity: Story = {
+  args: {
+    ...defaultArgs,
+    authModel: true,
+    users: supportCasesUsers,
+    totalCount: supportCasesUsers.length,
+  },
+  render: ({ orgAdmin: _ignored, ...args }) => <UsersTableWithLateIdentity {...args} />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The Manage Support Cases column stays hidden until identity resolves to an org admin — it never flashes in on an unresolved identity.',
+      },
+    },
+    msw: {
+      handlers: [...accountManagementHandlers({ userPermissions: lateIdentityPermissions })],
+    },
+  },
+  beforeEach: () => {
+    lateIdentityPermissions.reset();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Identity unresolved — rows render, column does not', async () => {
+      await expect(canvas.findByText(johnUser.username)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(`${IDENTITY_STATUS_PREFIX} pending`)).resolves.toBeInTheDocument();
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+    });
+
+    await step('Identity resolves to a non-admin — still no column', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: RESOLVE_AS_NON_ADMIN }));
+
+      await expect(canvas.findByText(`${IDENTITY_STATUS_PREFIX} non-admin`)).resolves.toBeInTheDocument();
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+    });
+
+    await step('Identity resolves to an org admin — column appears', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: RESOLVE_AS_ORG_ADMIN }));
+
+      await expect(canvas.findByText('Manage Support Cases')).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('switch', { name: toggleNameFor(janeUser.username) })).resolves.toBeChecked();
     });
   },
 };
