@@ -276,7 +276,10 @@
       "toolingCommitSha": "7944643ffcd91f4d7521c80cdcb1e8a7126cc3a8"
     },
     "zh_cn": {
-      "phase": "exporting"
+      "phase": "exporting",
+      "toolingCommitShas": [
+        "c6b40dbfefb45d2904e79228bef7763a51b27a85"
+      ]
     }
   },
   "importAsyncRequestId": "1916244776"
