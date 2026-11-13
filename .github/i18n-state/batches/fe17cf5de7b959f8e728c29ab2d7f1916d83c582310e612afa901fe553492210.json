@@ -296,7 +296,8 @@
         "InsaneZein"
       ],
       "pullRequestSupersededCheckedAt": "2026-11-13T05:25:46.574Z",
-      "pullRequestSupersededNoticePosted": true
+      "pullRequestSupersededNoticePosted": true,
+      "pullRequestFinalized": true
     },
     "ja": {
       "phase": "pending"
