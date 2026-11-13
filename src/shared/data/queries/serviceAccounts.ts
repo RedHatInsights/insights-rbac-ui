@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { type ServiceAccount, fetchServiceAccounts } from '../api/serviceAccounts';
+import { type ServiceAccount, type ServiceAccountType, fetchServiceAccounts } from '../api/serviceAccounts';
 import { useAppServices } from '../../contexts/ServiceContext';
 
 // ============================================================================
@@ -9,7 +9,7 @@ import { useAppServices } from '../../contexts/ServiceContext';
 export const serviceAccountsKeys = {
   all: ['serviceAccounts'] as const,
   lists: () => [...serviceAccountsKeys.all, 'list'] as const,
-  list: (params: { page?: number; perPage?: number }) => [...serviceAccountsKeys.lists(), params] as const,
+  list: (params: { page?: number; perPage?: number; type?: ServiceAccountType }) => [...serviceAccountsKeys.lists(), params] as const,
 };
 
 // ============================================================================
@@ -23,22 +23,22 @@ export const serviceAccountsKeys = {
  *
  * @tag api-v1-external - Uses external SSO API
  */
-export function useServiceAccountsQuery(params?: { page?: number; perPage?: number }, options?: { enabled?: boolean }) {
+export function useServiceAccountsQuery(params?: { page?: number; perPage?: number; type?: ServiceAccountType }, options?: { enabled?: boolean }) {
   const { axios, getToken, ssoUrl } = useAppServices();
-  const { page = 1, perPage = 20 } = params ?? {};
+  const { page = 1, perPage = 20, type } = params ?? {};
 
   return useQuery({
-    queryKey: serviceAccountsKeys.list({ page, perPage }),
+    queryKey: serviceAccountsKeys.list({ page, perPage, type }),
     queryFn: async () => {
       const token = await getToken();
       if (!token) {
         throw new Error('Token is required to fetch service accounts');
       }
-      return fetchServiceAccounts({ axios, page, perPage, token, ssoUrl });
+      return fetchServiceAccounts({ axios, page, perPage, token, ssoUrl, type });
     },
     enabled: (options?.enabled ?? true) && !!ssoUrl,
   });
 }
 
 // Re-export types
-export type { ServiceAccount };
+export type { ServiceAccount, ServiceAccountType };

@@ -861,6 +861,11 @@ export default defineMessages({
     description: 'Description column label',
     defaultMessage: 'Description',
   },
+  type: {
+    id: 'type',
+    description: 'Type filter label',
+    defaultMessage: 'Type',
+  },
   clientId: {
     id: 'clientId',
     description: 'Client ID column label',
@@ -875,6 +880,11 @@ export default defineMessages({
     id: 'serviceAccessTokenLabel',
     description: 'Label identifying a service access token principal',
     defaultMessage: 'Token',
+  },
+  serviceAccessTokenType: {
+    id: 'serviceAccessTokenType',
+    description: 'Service access token type label for filter options',
+    defaultMessage: 'Service Access Token',
   },
   owner: {
     id: 'owner',
@@ -2527,6 +2537,11 @@ export default defineMessages({
     id: 'noFilteredRoles',
     description: 'Empty state body when no roles match filters',
     defaultMessage: 'No roles match the filter criteria. Remove all filters or clear all to show results.',
+  },
+  noFilteredServiceAccounts: {
+    id: 'noFilteredServiceAccounts',
+    description: 'Empty state body when no service accounts match filters',
+    defaultMessage: 'No service accounts match the filter criteria. Remove all filters or clear all to show results.',
   },
   configureRoles: {
     id: 'configureRoles',

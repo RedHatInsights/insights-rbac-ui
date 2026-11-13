@@ -5,10 +5,10 @@ import React, { Fragment, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
-import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
-import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoResults, TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { useServiceAccountsQuery } from '../../../../../../shared/data/queries/serviceAccounts';
-import type { ServiceAccount as ApiServiceAccount } from '../../../../../../shared/data/api/serviceAccounts';
+import type { ServiceAccount as ApiServiceAccount, ServiceAccountType } from '../../../../../../shared/data/api/serviceAccounts';
 import { getDateFormat } from '../../../../../../shared/helpers/stringUtilities';
 import messages from '../../../../../../Messages';
 import { PER_PAGE_OPTIONS } from '../../../../../../shared/helpers/pagination';
@@ -44,6 +44,22 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
     [intl, satEnabled],
   );
 
+  // Filter configuration — Type filter gated behind SAT flag
+  const filterConfig: FilterConfig[] = useMemo(() => {
+    if (!satEnabled) return [];
+    return [
+      {
+        type: 'select' as const,
+        id: 'type',
+        label: intl.formatMessage(messages.type),
+        options: [
+          { id: 'service_account', label: intl.formatMessage(messages.serviceAccount) },
+          { id: 'service_access_token', label: intl.formatMessage(messages.serviceAccessTokenType) },
+        ],
+      },
+    ];
+  }, [intl, satEnabled]);
+
   // useTableState for all state management
   const tableState = useTableState<typeof columns, ServiceAccount>({
     columns,
@@ -58,8 +74,16 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
   const page = Math.floor(tableState.apiParams.offset / tableState.apiParams.limit) + 1;
   const perPage = tableState.apiParams.limit;
 
+  // Extract type filter value; ignore stale values when flag is off.
+  // TableView normalizes select filters to checkbox filters, so the value
+  // arrives as an array (e.g. ["service_account"]). Extract the first element.
+  const typeFilterRaw = satEnabled ? tableState.apiParams.filters.type : undefined;
+  const typeFilter: ServiceAccountType | undefined = Array.isArray(typeFilterRaw)
+    ? (typeFilterRaw[0] as ServiceAccountType | undefined)
+    : (typeFilterRaw as ServiceAccountType | undefined);
+
   // Fetch service accounts via React Query
-  const { data: serviceAccountsData, isLoading, error } = useServiceAccountsQuery({ page, perPage });
+  const { data: serviceAccountsData, isLoading, error } = useServiceAccountsQuery({ page, perPage, type: typeFilter });
 
   // Map API response to add uuid field for row identification
   const serviceAccounts: ServiceAccount[] = useMemo(() => {
@@ -101,6 +125,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         error={error}
         getRowId={(sa) => sa.uuid}
         cellRenderers={cellRenderers}
+        filterConfig={filterConfig}
         selectable
         isRowSelectable={(sa) => !sa.assignedToSelectedGroup}
         emptyStateNoData={
@@ -110,6 +135,12 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
               <p>{intl.formatMessage(messages.groupServiceAccountEmptyStateBody)}</p>
             </div>
           </Fragment>
+        }
+        emptyStateNoResults={
+          <DefaultEmptyStateNoResults
+            title={intl.formatMessage(messages.noServiceAccountsFound)}
+            body={intl.formatMessage(messages.noFilteredServiceAccounts)}
+          />
         }
         variant="compact"
         ariaLabel="Service accounts list table"
