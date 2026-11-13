@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "key": "09c87b2b73f00a66e2cccbaa48b0d66914be1f2897f0e247595fd824be5fdb70",
+  "phase": "creating",
+  "repository": "RedHatInsights/insights-rbac-ui",
+  "baseRef": "master",
+  "sourceCommit": "f60f75a8c52d9ba7a0b19288f6720df8379007a8",
+  "sourceDigest": "45eb860465d363b8c6637fb48df5ae0fa5f852617d9b10f0ea5e5e84ac725084",
+  "config": {
+    "projectUid": "LFsYhKphLpXQ0WWa47VZ19",
+    "region": "eu",
+    "sourceCatalog": {
+      "path": "deploy/locales/translation-template.json",
+      "filename": "insights-rbac-ui.feo.en.json",
+      "adapter": "formatjs-json",
+      "locale": "en",
+      "useProjectFileImportSettings": true
+    },
+    "targetAdapter": "formatjs-json",
+    "frontendTemplate": {
+      "path": "deploy/frontend.yaml",
+      "generateSourceCatalog": true
+    },
+    "targetLocales": [
+      {
+        "phraseLocale": "fr",
+        "repositoryLocale": "fr",
+        "outputPath": "deploy/locales/fr.json"
+      },
+      {
+        "phraseLocale": "ja",
+        "repositoryLocale": "ja",
+        "outputPath": "deploy/locales/ja.json"
+      },
+      {
+        "phraseLocale": "ko",
+        "repositoryLocale": "ko",
+        "outputPath": "deploy/locales/ko.json"
+      },
+      {
+        "phraseLocale": "zh_cn",
+        "repositoryLocale": "zh-CN",
+        "outputPath": "deploy/locales/zh-CN.json"
+      }
+    ],
+    "completionPolicy": {
+      "default": "per-locale"
+    }
+  },
+  "createdAt": "2026-11-13T05:23:55.073Z",
+  "jobs": [],
+  "warningCount": 0,
+  "locales": {
+    "fr": {
+      "phase": "pending"
+    },
+    "ja": {
+      "phase": "pending"
+    },
+    "ko": {
+      "phase": "pending"
+    },
+    "zh_cn": {
+      "phase": "pending"
+    }
+  }
+}
