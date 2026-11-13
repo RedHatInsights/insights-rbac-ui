@@ -317,7 +317,8 @@
       "pullRequestAssignees": [
         "InsaneZein"
       ],
-      "pullRequestSupersededCheckedAt": "2026-11-13T05:26:34.384Z"
+      "pullRequestSupersededCheckedAt": "2026-11-13T05:26:34.384Z",
+      "pullRequestSupersededNoticePosted": true
     },
     "zh_cn": {
       "phase": "pr-created",
