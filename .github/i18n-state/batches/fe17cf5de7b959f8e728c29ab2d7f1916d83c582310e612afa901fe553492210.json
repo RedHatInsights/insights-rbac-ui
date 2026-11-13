@@ -300,10 +300,18 @@
       "pullRequestFinalized": true
     },
     "ja": {
-      "phase": "exporting",
+      "phase": "pr-created",
       "toolingCommitShas": [
         "eefca9a32cdcacb2dd4143dee1882961f3a7c4c2"
-      ]
+      ],
+      "validationErrors": [],
+      "validationWarnings": [],
+      "pullRequestBodyDigest": "11753f2c6c61ed1c707afa27a87b338cfffa8e77960029edcfa6e6adde209726",
+      "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2513",
+      "pullRequestBranch": "i18n/phrase-fe17cf5de7b959f8-ja",
+      "pullRequestBatchKey": "fe17cf5de7b959f8e728c29ab2d7f1916d83c582310e612afa901fe553492210",
+      "pullRequestAssigneesPending": true,
+      "toolingCommitSha": "eefca9a32cdcacb2dd4143dee1882961f3a7c4c2"
     },
     "ko": {
       "phase": "pr-created",
