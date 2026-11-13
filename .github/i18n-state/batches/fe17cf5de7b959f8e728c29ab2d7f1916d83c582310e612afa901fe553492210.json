@@ -313,7 +313,8 @@
       "toolingCommitSha": "eefca9a32cdcacb2dd4143dee1882961f3a7c4c2",
       "pullRequestAssignees": [
         "InsaneZein"
-      ]
+      ],
+      "pullRequestSupersededCheckedAt": "2026-11-13T12:30:11.392Z"
     },
     "ko": {
       "phase": "pr-created",
