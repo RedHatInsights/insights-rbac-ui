@@ -310,10 +310,20 @@
       "toolingCommitSha": "249ab72d3a0e4b21d78028fa5a527c088c55e1f0"
     },
     "ja": {
-      "phase": "exporting",
+      "phase": "pr-created",
       "toolingCommitShas": [
         "97d8949cc0154fec4db7d89f58a6deee66221fa0"
-      ]
+      ],
+      "validationErrors": [
+        "ICU argument mismatches: \"deleteCustomRoleModalBody\": source [count, name], target [count] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content), \"deleteUserGroupModalBody\": source [count, name], target [count] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content), \"deleteWorkspaceModalBody\": source [count, name], target [count] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content), \"removeServiceAccountsText\": source [count, group, name], target [count, group] (source renders {name} only in the \"one\" branch of plural {count}, which can be dropped in locales without that category; use an exact \"=N\" source branch for count-specific content)"
+      ],
+      "validationWarnings": [],
+      "pullRequestBodyDigest": "9a25adc875bbd0d013a8cf5734d6b98677270f8b2cbbe6ee1cd7c3da7c4e2e0a",
+      "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2509",
+      "pullRequestBranch": "i18n/phrase-1967d67c222f7660-ja",
+      "pullRequestBatchKey": "1967d67c222f7660050238b446579d1e2427f17dfac994fd9353971c15fa55a9",
+      "pullRequestAssigneesPending": true,
+      "toolingCommitSha": "97d8949cc0154fec4db7d89f58a6deee66221fa0"
     },
     "ko": {
       "phase": "pr-created",
