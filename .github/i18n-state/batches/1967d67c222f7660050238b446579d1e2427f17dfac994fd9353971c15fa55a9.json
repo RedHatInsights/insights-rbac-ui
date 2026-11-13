@@ -310,7 +310,7 @@
       "toolingCommitSha": "249ab72d3a0e4b21d78028fa5a527c088c55e1f0"
     },
     "ja": {
-      "phase": "pending"
+      "phase": "exporting"
     },
     "ko": {
       "phase": "pr-created",
