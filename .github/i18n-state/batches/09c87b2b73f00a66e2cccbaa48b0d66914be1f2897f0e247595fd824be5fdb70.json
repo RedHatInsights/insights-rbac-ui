@@ -260,7 +260,6 @@
       "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2510",
       "pullRequestBranch": "i18n/phrase-09c87b2b73f00a66-ja",
       "pullRequestBatchKey": "09c87b2b73f00a66e2cccbaa48b0d66914be1f2897f0e247595fd824be5fdb70",
-      "pullRequestAssigneesPending": true,
       "toolingCommitSha": "c784137e5ca33274a5732e939e13cae08c4b17f3"
     },
     "ko": {
