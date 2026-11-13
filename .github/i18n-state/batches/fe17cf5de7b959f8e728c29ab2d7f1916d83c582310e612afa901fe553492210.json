@@ -310,8 +310,10 @@
       "pullRequestUrl": "https://github.com/RedHatInsights/insights-rbac-ui/pull/2513",
       "pullRequestBranch": "i18n/phrase-fe17cf5de7b959f8-ja",
       "pullRequestBatchKey": "fe17cf5de7b959f8e728c29ab2d7f1916d83c582310e612afa901fe553492210",
-      "pullRequestAssigneesPending": true,
-      "toolingCommitSha": "eefca9a32cdcacb2dd4143dee1882961f3a7c4c2"
+      "toolingCommitSha": "eefca9a32cdcacb2dd4143dee1882961f3a7c4c2",
+      "pullRequestAssignees": [
+        "InsaneZein"
+      ]
     },
     "ko": {
       "phase": "pr-created",
