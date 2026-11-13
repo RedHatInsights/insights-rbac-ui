@@ -300,7 +300,10 @@
       "pullRequestFinalized": true
     },
     "ja": {
-      "phase": "exporting"
+      "phase": "exporting",
+      "toolingCommitShas": [
+        "eefca9a32cdcacb2dd4143dee1882961f3a7c4c2"
+      ]
     },
     "ko": {
       "phase": "pr-created",
