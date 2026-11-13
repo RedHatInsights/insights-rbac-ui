@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "key": "09c87b2b73f00a66e2cccbaa48b0d66914be1f2897f0e247595fd824be5fdb70",
-  "phase": "importing",
+  "phase": "ready",
   "repository": "RedHatInsights/insights-rbac-ui",
   "baseRef": "master",
   "sourceCommit": "f60f75a8c52d9ba7a0b19288f6720df8379007a8",
@@ -51,99 +51,187 @@
   "jobs": [
     {
       "uid": "f2RGRccbYQWw8R02gq2I32",
-      "status": "NEW",
+      "innerId": "61",
+      "status": "COMPLETED",
       "providers": [],
+      "sourceLang": "en_us",
       "targetLang": "zh_cn",
       "workflowLevel": 1,
       "workflowStep": {
         "name": "Translation",
         "id": "225677",
-        "uid": "Vm1j1nqsDSxM343cSZb17g",
         "order": 10,
-        "lqaEnabled": true
+        "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
       "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
-      "dateCreated": "2026-11-13T05:24:00+0000",
+      "wordsCount": 318,
+      "beginIndex": 0,
+      "endIndex": 114,
+      "isParentJobSplit": false,
       "updateSourceDate": null,
-      "imported": false,
-      "jobAssignedEmailTemplate": null,
-      "notificationIntervalInMinutes": 0,
+      "updateTargetDate": null,
+      "dateCreated": "2026-11-13T05:24:00+0000",
+      "jobReference": {
+        "uid": "5lmcEfI9ssG80qLPRiW9r2",
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
+      },
+      "project": {
+        "name": "hcc-ui",
+        "uid": "LFsYhKphLpXQ0WWa47VZ19"
+      },
+      "lastWorkflowLevel": 1,
+      "workUnit": null,
+      "importStatus": {
+        "status": "OK",
+        "errorMessage": null
+      },
+      "imported": true,
       "continuous": false,
-      "sourceFileUid": "ICFTmRcei0iYca0W5V93u7"
+      "continuousJobInfo": null,
+      "originalFileDirectory": "",
+      "allWorkflowStepsSplit": true,
+      "serverTaskId": "rlQCV3AZubeYuqLq_dc11"
     },
     {
       "uid": "GHqWTwCv3K8R3VBN0VDHR2",
-      "status": "NEW",
+      "innerId": "62",
+      "status": "COMPLETED",
       "providers": [],
+      "sourceLang": "en_us",
       "targetLang": "fr",
       "workflowLevel": 1,
       "workflowStep": {
         "name": "Translation",
         "id": "225677",
-        "uid": "Vm1j1nqsDSxM343cSZb17g",
         "order": 10,
-        "lqaEnabled": true
+        "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
       "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
-      "dateCreated": "2026-11-13T05:24:00+0000",
+      "wordsCount": 318,
+      "beginIndex": 0,
+      "endIndex": 114,
+      "isParentJobSplit": false,
       "updateSourceDate": null,
-      "imported": false,
-      "jobAssignedEmailTemplate": null,
-      "notificationIntervalInMinutes": 0,
+      "updateTargetDate": null,
+      "dateCreated": "2026-11-13T05:24:00+0000",
+      "jobReference": {
+        "uid": "xLmg2X51aglsbW6eHOFK21",
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
+      },
+      "project": {
+        "name": "hcc-ui",
+        "uid": "LFsYhKphLpXQ0WWa47VZ19"
+      },
+      "lastWorkflowLevel": 1,
+      "workUnit": null,
+      "importStatus": {
+        "status": "OK",
+        "errorMessage": null
+      },
+      "imported": true,
       "continuous": false,
-      "sourceFileUid": "ICFTmRcei0iYca0W5V93u7"
+      "continuousJobInfo": null,
+      "originalFileDirectory": "",
+      "allWorkflowStepsSplit": true,
+      "serverTaskId": "8ArUFDSe1PtUZQuR0_dc12"
     },
     {
       "uid": "8bsNUhOcFGHJ2dhZwHTNs3",
-      "status": "NEW",
+      "innerId": "63",
+      "status": "COMPLETED",
       "providers": [],
+      "sourceLang": "en_us",
       "targetLang": "ko",
       "workflowLevel": 1,
       "workflowStep": {
         "name": "Translation",
         "id": "225677",
-        "uid": "Vm1j1nqsDSxM343cSZb17g",
         "order": 10,
-        "lqaEnabled": true
+        "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
       "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
-      "dateCreated": "2026-11-13T05:24:00+0000",
+      "wordsCount": 318,
+      "beginIndex": 0,
+      "endIndex": 114,
+      "isParentJobSplit": false,
       "updateSourceDate": null,
-      "imported": false,
-      "jobAssignedEmailTemplate": null,
-      "notificationIntervalInMinutes": 0,
+      "updateTargetDate": null,
+      "dateCreated": "2026-11-13T05:24:00+0000",
+      "jobReference": {
+        "uid": "N9TusX8oUWFHdBX4t0Qef5",
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
+      },
+      "project": {
+        "name": "hcc-ui",
+        "uid": "LFsYhKphLpXQ0WWa47VZ19"
+      },
+      "lastWorkflowLevel": 1,
+      "workUnit": null,
+      "importStatus": {
+        "status": "OK",
+        "errorMessage": null
+      },
+      "imported": true,
       "continuous": false,
-      "sourceFileUid": "ICFTmRcei0iYca0W5V93u7"
+      "continuousJobInfo": null,
+      "originalFileDirectory": "",
+      "allWorkflowStepsSplit": true,
+      "serverTaskId": "fnQCV3AZubeYuqLq_dc12"
     },
     {
       "uid": "mZCCZP9UPoGb5pxUqbnMm0",
-      "status": "NEW",
+      "innerId": "64",
+      "status": "COMPLETED",
       "providers": [],
+      "sourceLang": "en_us",
       "targetLang": "ja",
       "workflowLevel": 1,
       "workflowStep": {
         "name": "Translation",
         "id": "225677",
-        "uid": "Vm1j1nqsDSxM343cSZb17g",
         "order": 10,
-        "lqaEnabled": true
+        "workflowLevel": 1
       },
       "filename": "insights-rbac-ui.feo.en.json",
       "fullFilename": "insights-rbac-ui.feo.en.json",
       "dateDue": null,
-      "dateCreated": "2026-11-13T05:24:00+0000",
+      "wordsCount": 318,
+      "beginIndex": 0,
+      "endIndex": 114,
+      "isParentJobSplit": false,
       "updateSourceDate": null,
-      "imported": false,
-      "jobAssignedEmailTemplate": null,
-      "notificationIntervalInMinutes": 0,
+      "updateTargetDate": null,
+      "dateCreated": "2026-11-13T05:24:00+0000",
+      "jobReference": {
+        "uid": "nAYtlLmz31My8WEzSahXX7",
+        "filename": "insights-rbac-ui.feo.en.json",
+        "fullFilename": "insights-rbac-ui.feo.en.json"
+      },
+      "project": {
+        "name": "hcc-ui",
+        "uid": "LFsYhKphLpXQ0WWa47VZ19"
+      },
+      "lastWorkflowLevel": 1,
+      "workUnit": null,
+      "importStatus": {
+        "status": "OK",
+        "errorMessage": null
+      },
+      "imported": true,
       "continuous": false,
-      "sourceFileUid": "ICFTmRcei0iYca0W5V93u7"
+      "continuousJobInfo": null,
+      "originalFileDirectory": "",
+      "allWorkflowStepsSplit": true,
+      "serverTaskId": "6wm71kdVQWrUZQuR0_dc11"
     }
   ],
   "warningCount": 0,
