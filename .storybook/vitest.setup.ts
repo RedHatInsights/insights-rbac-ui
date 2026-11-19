@@ -48,6 +48,11 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
     label: 'OrganizationManagement error testing (intentional)',
   },
 
+  // Invite modal's org_id guard (users.ts). The mutation throws deliberately so the modal
+  // surfaces an error rather than reporting success while silently dropping portal grants;
+  // the component logs it via console.error. Exercised by `MissingOrgIdSurfacesError`.
+  { pattern: /Failed to invite users:.*org_id is required/, label: 'Invite org_id guard (intentional)' },
+
   // Play function assertion errors re-logged to console.error by Storybook's runtime.
   // The play function itself already throws — the test runner reports that failure.
   // Without this ignore, postVisit double-counts the error with a less useful message.
