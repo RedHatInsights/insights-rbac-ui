@@ -921,6 +921,136 @@ export const NonAdminNoEmailEdit: Story = {
   },
 };
 
+/**
+ * D10 - No edit affordance in ITLess/FedRAMP.
+ *
+ * `User.tsx:82` gates on `orgAdmin && isCommonAuthModel && !isITLess && !!accountUserId`. The
+ * ITLess term matters most: the account API does not exist in FedRAMP, so an affordance that
+ * leaked through there would be a broken button, not a cosmetic issue.
+ */
+export const ITLessNoEmailEdit: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    routeUsername: mockEditableUser.username,
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': true,
+    },
+    msw: {
+      handlers: createDefaultHandlers(mockEditableUser),
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify no edit affordance in ITLess, even for an org admin', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      await expect(canvas.queryByRole('button', { name: /edit email address/i })).not.toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * D11 - No edit affordance when `platform.rbac.common-auth-model` is off. Completes the
+ * four-term gate alongside D9 (non-admin) and D10 (ITLess).
+ */
+export const CommonAuthModelOffNoEmailEdit: Story = {
+  tags: ['perm:org-admin'],
+  parameters: {
+    routeUsername: mockEditableUser.username,
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': false,
+      'platform.rbac.itless': false,
+    },
+    msw: {
+      handlers: createDefaultHandlers(mockEditableUser),
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify no edit affordance without the common-auth model', async () => {
+      await expect(await canvas.findByText(mockEditableUser.email)).toBeInTheDocument();
+      await expect(canvas.queryByRole('button', { name: /edit email address/i })).not.toBeInTheDocument();
+    });
+  },
+};
+
+// D12 - the account user object is shared between the email write and the support-cases
+// read-modify-write, so "editing the email changes nothing else" is a real risk, not a
+// theoretical one. Seed portal permissions so an unintended overwrite would be visible.
+const EMAIL_EDIT_SEED_PERMISSIONS = ['portal_download', 'portal_manage_cases'];
+const emailEditPermissions = new Map<string, string[]>([[mockEditableUser.external_source_id, [...EMAIL_EDIT_SEED_PERMISSIONS]]]);
+const emailEditBodySpy = fn();
+
+/**
+ * D12 - explicit AC on RHCLOUD-52168: "Editing the email address does not change the user's
+ * roles, group memberships, or permissions." Asserts the write carries only the email, and that
+ * the roles table and the stored portal permissions are untouched after the save.
+ */
+export const EditEmailLeavesRolesAndPermissionsUntouched: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model'],
+  parameters: {
+    ...editEmailParameters,
+    msw: {
+      handlers: [
+        ...createDefaultHandlers(mockEditableUser),
+        ...accountManagementHandlers({
+          userPermissions: emailEditPermissions,
+          onUpdateUserDetails: (userId, body) => {
+            emailEditBodySpy({ userId, body });
+          },
+        }),
+      ],
+    },
+  },
+  beforeEach: () => {
+    emailEditPermissions.set(mockEditableUser.external_source_id, [...EMAIL_EDIT_SEED_PERMISSIONS]);
+    emailEditBodySpy.mockClear();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    const newEmail = 'moved.address@redhat.com';
+
+    await step('Roles are listed before the edit', async () => {
+      await expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      await expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
+    });
+
+    await step('Save a new email address', async () => {
+      await user.click(await canvas.findByRole('button', { name: /edit email address/i }));
+
+      const modal = await waitForModal();
+      await clearAndType(user, () => modal.getByLabelText('Email address') as HTMLInputElement, newEmail);
+      await user.click(modal.getByRole('button', { name: /save/i }));
+
+      await waitForNotification(/success updating user/i);
+      await waitForModalClose();
+      await expect(await canvas.findByText(newEmail)).toBeInTheDocument();
+    });
+
+    await step('Request body carries the email change and nothing else', async () => {
+      await waitFor(() => expect(emailEditBodySpy).toHaveBeenCalledTimes(1));
+
+      const { userId, body } = emailEditBodySpy.mock.calls[0][0] as { userId: string; body: Record<string, unknown> };
+      expect(userId).toBe(mockEditableUser.external_source_id);
+      expect(Object.keys(body)).toEqual(['email']);
+      expect(body.email).toBe(newEmail);
+    });
+
+    await step('Roles and portal permissions are unchanged after the save', async () => {
+      await expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      await expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
+      expect(emailEditPermissions.get(mockEditableUser.external_source_id)).toEqual(EMAIL_EDIT_SEED_PERMISSIONS);
+    });
+  },
+};
+
 export const GroupLinkInExpandedRow: Story = {
   tags: ['perm:org-admin'],
   parameters: {

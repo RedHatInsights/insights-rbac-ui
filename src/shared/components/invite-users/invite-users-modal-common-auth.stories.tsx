@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import { accountManagementErrorHandlers, accountManagementHandlers } from '../../data/mocks/accountManagement.handlers';
-import { clearAndType, queryAlert } from '../../../test-utils/interactionHelpers';
+import { clearAndType, queryAlert, waitForNotification } from '../../../test-utils/interactionHelpers';
 import InviteUsers from './invite-users-modal-common-auth';
 
 // Emails used across the submit journeys. Kept as constants so the typed input and the
@@ -171,6 +171,153 @@ export const GrantsManageSupportCasesOnInvite: Story = {
 
     await step('fetchData is called to close + refresh', async () => {
       await waitFor(() => expect(fetchDataSpy).toHaveBeenCalledWith(true));
+    });
+  },
+};
+
+/**
+ * C5 — with no portal permission checked, `permissions` is omitted from the POST body entirely
+ * (`users.ts` spreads `...(permissions.length > 0 && { permissions })`), not sent as `[]`.
+ * Whether the invite API treats absent and empty identically is an open question with the API
+ * owner; this pins the shipped behaviour either way.
+ */
+export const OmitsPermissionsWhenNothingChecked: Story = {
+  play: async ({ step }) => {
+    const body = within(document.body);
+    const user = userEvent.setup();
+
+    await step('Reset spies', async () => {
+      inviteSpy.mockClear();
+      fetchDataSpy.mockClear();
+    });
+
+    await step('Fill emails only and submit', async () => {
+      await body.findByRole('dialog');
+      await clearAndType(user, () => body.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement, INVITE_EMAILS);
+
+      expect(body.getByRole('checkbox', { name: /manage support cases/i })).not.toBeChecked();
+      expect(body.getByRole('checkbox', { name: /organization administrators/i })).not.toBeChecked();
+
+      const submit = body.getByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submit).toBeEnabled());
+      await user.click(submit);
+    });
+
+    await step('POST body omits the permissions key', async () => {
+      await waitFor(() => expect(inviteSpy).toHaveBeenCalled());
+      const sentBody = inviteSpy.mock.calls[0][0] as Record<string, unknown>;
+      expect(Object.keys(sentBody)).not.toContain('permissions');
+      expect(Object.keys(sentBody)).not.toContain('roles');
+      expect(sentBody.emails).toEqual([INVITE_EMAIL_1, INVITE_EMAIL_2]);
+    });
+  },
+};
+
+/**
+ * C6 — the permissions array carries every checked portal grant, not just the first one.
+ * Needs the advanced-permissions flag so the Download field renders alongside support cases.
+ */
+export const GrantsMultiplePortalPermissions: Story = {
+  parameters: {
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.common-auth-model_advanced-permissions': true,
+      'platform.rbac.itless': false,
+    },
+  },
+  play: async ({ step }) => {
+    const body = within(document.body);
+    const user = userEvent.setup();
+
+    await step('Reset spies', async () => {
+      inviteSpy.mockClear();
+      fetchDataSpy.mockClear();
+    });
+
+    await step('Check both portal permissions and submit', async () => {
+      await body.findByRole('dialog');
+      await clearAndType(user, () => body.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement, INVITE_EMAILS);
+
+      await user.click(body.getByRole('checkbox', { name: /manage support cases/i }));
+      await user.click(body.getByRole('checkbox', { name: /download software and updates/i }));
+
+      const submit = body.getByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submit).toBeEnabled());
+      await user.click(submit);
+    });
+
+    await step('Both permission codes are present in one array', async () => {
+      await waitFor(() => expect(inviteSpy).toHaveBeenCalled());
+      const sentBody = inviteSpy.mock.calls[0][0] as { permissions?: string[] };
+      expect(sentBody.permissions).toEqual(expect.arrayContaining(['portal_manage_cases', 'portal_download']));
+      expect(sentBody.permissions).toHaveLength(2);
+    });
+  },
+};
+
+/**
+ * C7 — outside ITLess, an unavailable `org_id` must surface as an error.
+ *
+ * The legacy `/user/invite` fallback cannot carry portal permissions, so completing the invite
+ * through it would report success while silently dropping the requested grants. `users.ts`
+ * throws instead; nothing covered that guard until now.
+ */
+export const MissingOrgIdSurfacesError: Story = {
+  parameters: {
+    // No org_id on the identity — the state the guard exists for.
+    userIdentity: { internal: {} },
+  },
+  play: async ({ step }) => {
+    const body = within(document.body);
+    const user = userEvent.setup();
+
+    await step('Reset spies', async () => {
+      inviteSpy.mockClear();
+      fetchDataSpy.mockClear();
+    });
+
+    await step('Fill emails, check a portal grant and submit', async () => {
+      await body.findByRole('dialog');
+      await clearAndType(user, () => body.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement, INVITE_EMAILS);
+      await user.click(body.getByRole('checkbox', { name: /manage support cases/i }));
+
+      const submit = body.getByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submit).toBeEnabled());
+      await user.click(submit);
+    });
+
+    await step('Error is surfaced, no invite is sent, and the modal stays open', async () => {
+      await waitForNotification(/failed to send invitation/i);
+      expect(inviteSpy).not.toHaveBeenCalled();
+      expect(fetchDataSpy).not.toHaveBeenCalledWith(true);
+      expect(body.getByRole('dialog')).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * C8 — an invalid address blocks submit. The equivalent case exists for the legacy
+ * `InviteUsersModal` (a different component); this modal had none.
+ */
+export const InvalidEmailBlocksSubmit: Story = {
+  play: async ({ step }) => {
+    const body = within(document.body);
+    const user = userEvent.setup();
+
+    await step('Reset spies', async () => {
+      inviteSpy.mockClear();
+    });
+
+    await step('Type a malformed address', async () => {
+      await body.findByRole('dialog');
+      await clearAndType(user, () => body.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement, 'not-an-email');
+      await user.tab();
+    });
+
+    await step('Validation blocks submit and no invite is sent', async () => {
+      await expect(body.findByText(/are not valid/i)).resolves.toBeInTheDocument();
+      expect(body.getByRole('button', { name: /invite new users/i })).toBeDisabled();
+      expect(inviteSpy).not.toHaveBeenCalled();
     });
   },
 };
