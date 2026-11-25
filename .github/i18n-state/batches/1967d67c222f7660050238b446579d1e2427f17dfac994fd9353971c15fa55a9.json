@@ -308,7 +308,8 @@
     "ko": {
       "phase": "pr-created",
       "toolingCommitShas": [
-        "95595140fa7f74f6e784914aa92f47e69a4533b5"
+        "95595140fa7f74f6e784914aa92f47e69a4533b5",
+        "6719e55449ac6d2264fbb6e827e6bfd38a87754f"
       ],
       "validationErrors": [
         "Downloaded ko catalog failed validation: ICU validation failed:\n  - formatjs-json message \"defaultAccessGroupEditWarning\" has invalid ICU syntax at pattern line 1, column 75: Unclosed tag (UNCLOSED_TAG)\n  - formatjs-json message \"defaultAccessGroupNameChanged\" has invalid ICU syntax at pattern line 1, column 80: Unclosed tag (UNCLOSED_TAG)\n  - formatjs-json message \"parentWorkspacesInstructionalText\" has invalid ICU syntax at pattern line 1, column 23: Unclosed tag (UNCLOSED_TAG)"
