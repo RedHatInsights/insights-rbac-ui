@@ -1784,7 +1784,7 @@ export default defineMessages({
     id: 'removeServiceAccountsText',
     description: 'Remove service accounts description',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> service account will be removed from <b>{group}</b> group.} other {<b>#</b> service accounts will be removed from <b>{group}</b> group.}}',
+      '{count, plural, =1 {<b>{name}</b> service account will be removed from <b>{group}</b> group.} other {<b>#</b> service accounts will be removed from <b>{group}</b> group.}}',
   },
   remove: {
     id: 'remove',
@@ -3131,7 +3131,7 @@ export default defineMessages({
     id: 'deleteUserGroupModalBody',
     description: 'Modal body text for delete user group',
     defaultMessage:
-      '{count, plural, one {Deleting the <b>{name}</b> user group will impact user access configuration.} other {Deleting # user groups will impact user access configuration.}}',
+      '{count, plural, =1 {Deleting the <b>{name}</b> user group will impact user access configuration.} other {Deleting # user groups will impact user access configuration.}}',
   },
   addToUserGroup: {
     id: 'addToUserGroup',
@@ -3192,7 +3192,7 @@ export default defineMessages({
     id: 'deleteCustomRoleModalBody',
     description: 'Modal body text for deleting custom role',
     defaultMessage:
-      '{count, plural, one {Deleting the <b>{name}</b> role may remove access to certain user groups in your organization} other {Deleting # roles may remove access to certain user groups in your organization}}',
+      '{count, plural, =1 {Deleting the <b>{name}</b> role may remove access to certain user groups in your organization} other {Deleting # roles may remove access to certain user groups in your organization}}',
   },
   deleteRoleConfirm: {
     id: 'deleteRoleConfirm',
@@ -3233,7 +3233,7 @@ export default defineMessages({
     id: 'deleteWorkspaceModalBody',
     description: 'Modal body text for deleting a workspace',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> workspace and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} other {<b># workspaces</b> and all their data will be permanently deleted. All access granted to user groups via these workspaces will be removed.}}',
+      '{count, plural, =1 {<b>{name}</b> workspace and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} other {<b># workspaces</b> and all their data will be permanently deleted. All access granted to user groups via these workspaces will be removed.}}',
   },
   workspaceNotEmptyWarning: {
     id: 'workspaceNotEmptyWarning',
