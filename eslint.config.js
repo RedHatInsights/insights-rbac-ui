@@ -255,6 +255,7 @@ module.exports = defineConfig(
       'src/shared/components/navigation/AppTabs.tsx',
       'src/shared/components/navigation/ExternalLink.tsx',
       'src/shared/hooks/useAppNavigate.ts',
+      'src/shared/hooks/useChromeLocale.ts',
       'src/shared/hooks/useExternalLink.ts',
       'src/shared/hooks/usePlatformEnvironment.ts',
       'src/shared/hooks/usePlatformAuth.ts',

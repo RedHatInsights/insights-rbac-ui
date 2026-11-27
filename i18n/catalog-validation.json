@@ -38,5 +38,5 @@
       }
     }
   ],
-  "catalogDirectories": [{ "path": "locales" }, { "path": "deploy/locales" }]
+  "catalogDirectories": [{ "path": "locales" }, { "path": "messages" }, { "path": "deploy/locales" }]
 }
