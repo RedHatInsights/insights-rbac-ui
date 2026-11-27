@@ -360,6 +360,123 @@ objects:
             module: ./Iam
             routes:
               - pathname: /iam
+      locales:
+        ja:
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.audit-log.title: 監査ログ
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.roles.title: ロール
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.users-and-groups.title: ユーザーとグループ
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.routes.workspaces.title: ワークスペース
+          bundleSegments.iam.module-rbac-ui.navItems.access-management.title: アクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.my-access.title: マイアクセス
+          bundleSegments.iam.module-rbac-ui.navItems.my-user-access.title: マイユーザーアクセス
+          bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.organization-management.routes.organization-wide-access.title: 組織全体でのアクセス
+          bundleSegments.iam.module-rbac-ui.navItems.organization-management.title: 組織管理
+          bundleSegments.iam.module-rbac-ui.navItems.overview.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.overview.title: 概要
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.audit-log.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.audit-log.title: 監査ログ
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.groups.title: グループ
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.roles.title: ロール
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.user-access-overview.title: 概要
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users.product: アイデンティティーとアクセス管理
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.routes.users.title: ユーザー
+          bundleSegments.iam.module-rbac-ui.navItems.user-access.title: ユーザーアクセス
+          module.defaultDocumentTitle: ユーザーアクセス | アイデンティティーおよびアクセス管理
+          searchEntries.rbac-access-management.alt_title.access-management: アクセス管理
+          searchEntries.rbac-access-management.alt_title.iam: IAM
+          searchEntries.rbac-access-management.alt_title.rbac: RBAC
+          searchEntries.rbac-access-management.alt_title.roles: ロール
+          searchEntries.rbac-access-management.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-access-management.alt_title.workspaces: ワークスペース
+          searchEntries.rbac-access-management.description: ユーザー、グループ、ロール、ワークスペースを管理します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-access-management.title: アクセス管理
+          searchEntries.rbac-groups-v2.alt_title.group: グループ
+          searchEntries.rbac-groups-v2.alt_title.groups: グループ
+          searchEntries.rbac-groups-v2.alt_title.iam: IAM
+          searchEntries.rbac-groups-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-groups-v2.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-groups-v2.description: グループとそのロール割り当てを管理する (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-groups-v2.title: グループ
+          searchEntries.rbac-groups.alt_title.group: グループ
+          searchEntries.rbac-groups.alt_title.groups: グループ
+          searchEntries.rbac-groups.alt_title.iam: IAM
+          searchEntries.rbac-groups.alt_title.rbac: RBAC
+          searchEntries.rbac-groups.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-groups.description: グループとそのロール割り当てを管理する (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-groups.title: グループ
+          searchEntries.rbac-my-access-v2.alt_title.iam: IAM
+          searchEntries.rbac-my-access-v2.alt_title.my-access: マイアクセス
+          searchEntries.rbac-my-access-v2.alt_title.my-permissions: マイパーミッション
+          searchEntries.rbac-my-access-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-my-access-v2.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-my-access-v2.description: 現在のパーミッションおよびアクセスパーミッションを表示します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-my-access-v2.title: マイアクセス
+          searchEntries.rbac-my-access.alt_title.iam: IAM
+          searchEntries.rbac-my-access.alt_title.my-access: マイアクセス
+          searchEntries.rbac-my-access.alt_title.my-permissions: マイパーミッション
+          searchEntries.rbac-my-access.alt_title.rbac: RBAC
+          searchEntries.rbac-my-access.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-my-access.description: 現在のパーミッションおよびアクセスパーミッションを表示します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-my-access.title: マイユーザーアクセス
+          searchEntries.rbac-org-admin-v2.alt_title.iam: IAM
+          searchEntries.rbac-org-admin-v2.alt_title.org-administrator: 組織の管理者
+          searchEntries.rbac-org-admin-v2.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-org-admin-v2.description: 組織の管理者ユーザーを管理します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-org-admin-v2.title: 組織の管理者
+          searchEntries.rbac-org-admin.alt_title.iam: IAM
+          searchEntries.rbac-org-admin.alt_title.org-administrator: 組織の管理者
+          searchEntries.rbac-org-admin.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-org-admin.description: 組織の管理者ユーザーを管理します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-org-admin.title: 組織の管理者
+          searchEntries.rbac-roles-v2.alt_title.iam: IAM
+          searchEntries.rbac-roles-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-roles-v2.alt_title.role: ロール
+          searchEntries.rbac-roles-v2.alt_title.roles: ロール
+          searchEntries.rbac-roles-v2.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-roles-v2.description: 組織のカスタムロールを表示および管理します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-roles-v2.title: ロール
+          searchEntries.rbac-roles.alt_title.iam: IAM
+          searchEntries.rbac-roles.alt_title.rbac: RBAC
+          searchEntries.rbac-roles.alt_title.role: ロール
+          searchEntries.rbac-roles.alt_title.roles: ロール
+          searchEntries.rbac-roles.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-roles.description: 組織のカスタムロールを表示および管理します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-roles.title: ロール
+          searchEntries.rbac-users-v2.alt_title.iam: IAM
+          searchEntries.rbac-users-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-users-v2.alt_title.user: ユーザー
+          searchEntries.rbac-users-v2.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-users-v2.alt_title.users: ユーザー
+          searchEntries.rbac-users-v2.description: ユーザーおよびロールベースのアクセスパーミッションを管理します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-users-v2.title: ユーザー
+          searchEntries.rbac-users.alt_title.iam: IAM
+          searchEntries.rbac-users.alt_title.rbac: RBAC
+          searchEntries.rbac-users.alt_title.user: ユーザー
+          searchEntries.rbac-users.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-users.alt_title.users: ユーザー
+          searchEntries.rbac-users.description: ユーザーおよびロールベースのアクセスパーミッションを管理します (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-users.title: ユーザー
+          searchEntries.rbac-workspaces-v2.alt_title.iam: IAM
+          searchEntries.rbac-workspaces-v2.alt_title.rbac: RBAC
+          searchEntries.rbac-workspaces-v2.alt_title.user-access: ユーザーアクセス
+          searchEntries.rbac-workspaces-v2.alt_title.workspace: ワークスペース
+          searchEntries.rbac-workspaces-v2.alt_title.workspaces: ワークスペース
+          searchEntries.rbac-workspaces-v2.description: ワークスペースを使用してシステムを整理し、ユーザーごとにきめ細かいアクセス制御を行います (アイデンティティーおよびアクセス管理)。
+          searchEntries.rbac-workspaces-v2.title: ワークスペース
+          serviceTiles.iam.iam.groups-v2.title: グループ
+          serviceTiles.iam.iam.groups.title: グループ
+          serviceTiles.iam.iam.users-v2.description: 組織のサービスに対するロールベースアクセス制御 (RBAC) を管理します。
+          serviceTiles.iam.iam.users-v2.title: ユーザー
+          serviceTiles.iam.iam.users.description: 組織のサービスに対するロールベースアクセス制御 (RBAC) を管理します。
+          serviceTiles.iam.iam.users.title: ユーザー
 
 parameters:
   - name: ENV_NAME
