@@ -20,7 +20,7 @@ const meta: Meta<typeof ServiceAccountsList> = {
   ],
   args: { initialSelectedServiceAccounts: [], onSelect: fn() },
   parameters: {
-    featureFlags: { 'platform.service-accounts.sat': true },
+    featureFlags: { 'platform.service-accounts.sat': true, 'platform.service-accounts.type-filter': true },
     msw: { handlers: serviceAccountsHandlers([FIRST_SA, SAT_SERVICE_ACCOUNT]) },
   },
 };
@@ -28,7 +28,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const MixedServiceAccessTokens: Story = {
-  tags: ['ff:platform.service-accounts.sat'],
+  tags: ['ff:platform.service-accounts.sat', 'ff:platform.service-accounts.type-filter'],
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvas.findByText('Token')).resolves.toBeVisible();
@@ -40,7 +40,7 @@ export const MixedServiceAccessTokens: Story = {
 };
 
 export const TypeFilterServiceAccount: Story = {
-  tags: ['ff:platform.service-accounts.sat'],
+  tags: ['ff:platform.service-accounts.sat', 'ff:platform.service-accounts.type-filter'],
   play: async ({ canvasElement }) => {
     const user = userEvent.setup();
     const canvas = within(canvasElement);
@@ -56,7 +56,7 @@ export const TypeFilterServiceAccount: Story = {
 };
 
 export const TypeFilterServiceAccessToken: Story = {
-  tags: ['ff:platform.service-accounts.sat'],
+  tags: ['ff:platform.service-accounts.sat', 'ff:platform.service-accounts.type-filter'],
   play: async ({ canvasElement }) => {
     const user = userEvent.setup();
     const canvas = within(canvasElement);
@@ -70,7 +70,7 @@ export const TypeFilterServiceAccessToken: Story = {
 };
 
 export const TypeFilterClearPreservesSelection: Story = {
-  tags: ['ff:platform.service-accounts.sat'],
+  tags: ['ff:platform.service-accounts.sat', 'ff:platform.service-accounts.type-filter'],
   play: async ({ canvasElement, args }) => {
     const user = userEvent.setup();
     const canvas = within(canvasElement);
@@ -97,8 +97,53 @@ export const TypeFilterClearPreservesSelection: Story = {
   },
 };
 
+export const TypeFilterSwitchPreservesSelection: Story = {
+  tags: ['ff:platform.service-accounts.sat', 'ff:platform.service-accounts.type-filter'],
+  play: async ({ canvasElement, args }) => {
+    const user = userEvent.setup();
+    const canvas = within(canvasElement);
+    // Select a regular service account first
+    await selectTableRow(user, canvas, FIRST_SA.name);
+    await waitFor(() => expect(args.onSelect).toHaveBeenCalledWith([expect.objectContaining({ clientId: FIRST_SA.clientId })]));
+    // Filter by "Service account" — only regular SA shown
+    await toggleCheckboxFilterOption(user, canvas, 'Filter by type...', 'Service account');
+    await waitFor(() => expect(canvas.queryByText(SAT_SERVICE_ACCOUNT.name)).not.toBeInTheDocument());
+    await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
+    // Switch to "Service Access Token" — single-choice enforced, previous value replaced
+    await toggleCheckboxFilterOption(user, canvas, 'Filter by type...', 'Service Access Token');
+    await waitFor(() => expect(canvas.queryByText(FIRST_SA.name)).not.toBeInTheDocument());
+    await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
+    // Close the filter dropdown before clearing
+    const filterToggle = await canvas.findByRole('button', { name: 'Filter by type...' });
+    await user.click(filterToggle);
+    // Clear all filters — both types visible again
+    const clearAll = await canvas.findByText('Clear filters');
+    await user.click(clearAll);
+    await expect(canvas.findByText(FIRST_SA.name)).resolves.toBeVisible();
+    await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.name)).resolves.toBeVisible();
+    // Verify selection persisted through the filter round-trip
+    const cell = await canvas.findByText(FIRST_SA.name);
+    const row = cell.closest('tr') as HTMLElement;
+    const checkbox = within(row).getByRole('checkbox');
+    expect(checkbox).toBeChecked();
+  },
+};
+
+export const TypeFilterFlagOff: Story = {
+  parameters: {
+    featureFlags: { 'platform.service-accounts.sat': true, 'platform.service-accounts.type-filter': false },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // SAT display features still work (Token badge, combined clientId column)
+    await expect(canvas.findByText('Token')).resolves.toBeVisible();
+    // But the Type filter is not available
+    await expect(canvas.queryByRole('button', { name: /filter by type/i })).not.toBeInTheDocument();
+  },
+};
+
 export const TypeFilterEmptyResults: Story = {
-  tags: ['ff:platform.service-accounts.sat'],
+  tags: ['ff:platform.service-accounts.sat', 'ff:platform.service-accounts.type-filter'],
   parameters: {
     msw: { handlers: serviceAccountsHandlers([FIRST_SA]) },
   },
@@ -113,13 +158,13 @@ export const TypeFilterEmptyResults: Story = {
 };
 
 export const FlagOff: Story = {
-  parameters: { featureFlags: { 'platform.service-accounts.sat': false } },
+  parameters: { featureFlags: { 'platform.service-accounts.sat': false, 'platform.service-accounts.type-filter': false } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.findByText(SAT_SERVICE_ACCOUNT.clientId)).resolves.toBeVisible();
     await expect(canvas.queryByText('Token')).not.toBeInTheDocument();
-    // Type filter not visible when flag is off
-    await expect(canvas.queryByRole('button', { name: 'Type' })).not.toBeInTheDocument();
+    // Type filter not visible when both flags are off
+    await expect(canvas.queryByRole('button', { name: /filter by type/i })).not.toBeInTheDocument();
   },
 };
 

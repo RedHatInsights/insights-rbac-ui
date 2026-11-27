@@ -1,7 +1,7 @@
-import { useServiceAccessTokens } from '../../../../../../capabilities/useServiceAccountsFlag';
+import { useServiceAccessTokens, useServiceAccountTypeFilter } from '../../../../../../capabilities/useServiceAccountsFlag';
 import { ServiceAccountName } from '../../../../../../shared/components/service-account-name/ServiceAccountName';
 import { getServiceAccountIdentifier } from '../../../../../../shared/utilities/serviceAccount';
-import React, { Fragment, useEffect, useMemo } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
@@ -31,6 +31,7 @@ const columns = ['name', 'description', 'clientId', 'owner', 'timeCreated'] as c
 export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ initialSelectedServiceAccounts, onSelect }) => {
   const intl = useIntl();
   const satEnabled = useServiceAccessTokens();
+  const typeFilterEnabled = useServiceAccountTypeFilter();
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -44,9 +45,10 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
     [intl, satEnabled],
   );
 
-  // Filter configuration — Type filter gated behind SAT flag
+  // Filter configuration — Type filter gated behind its own flag so it
+  // can land disabled until the SSO filtering contract is verified.
   const filterConfig: FilterConfig[] = useMemo(() => {
-    if (!satEnabled) return [];
+    if (!typeFilterEnabled) return [];
     return [
       {
         type: 'select' as const,
@@ -58,7 +60,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         ],
       },
     ];
-  }, [intl, satEnabled]);
+  }, [intl, typeFilterEnabled]);
 
   // useTableState for all state management
   const tableState = useTableState<typeof columns, ServiceAccount>({
@@ -77,10 +79,31 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
   // Extract type filter value; ignore stale values when flag is off.
   // TableView normalizes select filters to checkbox filters, so the value
   // arrives as an array (e.g. ["service_account"]). Extract the first element.
-  const typeFilterRaw = satEnabled ? tableState.apiParams.filters.type : undefined;
+  const typeFilterRaw = typeFilterEnabled ? tableState.apiParams.filters.type : undefined;
   const typeFilter: ServiceAccountType | undefined = Array.isArray(typeFilterRaw)
-    ? (typeFilterRaw[0] as ServiceAccountType | undefined)
+    ? (typeFilterRaw[typeFilterRaw.length - 1] as ServiceAccountType | undefined)
     : (typeFilterRaw as ServiceAccountType | undefined);
+
+  // Enforce single-choice: when the user checks a second option in the
+  // checkbox-style dropdown, collapse the selection to only the most
+  // recently added value so the filter behaves like a radio group.
+  const prevTypeRef = useRef(typeFilter);
+  const onFiltersChange = useCallback(
+    (filters: Record<string, string | string[]>) => {
+      const raw = filters.type;
+      if (Array.isArray(raw) && raw.length > 1) {
+        // Keep only the value that was not previously selected.
+        const newest = raw.find((v) => v !== prevTypeRef.current) ?? raw[raw.length - 1];
+        tableState.onFiltersChange({ ...filters, type: [newest] });
+      } else {
+        tableState.onFiltersChange(filters);
+      }
+    },
+    [tableState],
+  );
+  useEffect(() => {
+    prevTypeRef.current = typeFilter;
+  }, [typeFilter]);
 
   // Fetch service accounts via React Query
   const { data: serviceAccountsData, isLoading, error } = useServiceAccountsQuery({ page, perPage, type: typeFilter });
@@ -146,6 +169,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         ariaLabel="Service accounts list table"
         ouiaId={ouiaId}
         {...tableState}
+        onFiltersChange={onFiltersChange}
       />
     </div>
   );
