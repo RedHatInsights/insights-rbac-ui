@@ -4,5 +4,5 @@
     "path": "locales/translation-template.json",
     "filename": "insights-rbac-ui.ui.en.json"
   },
-  "targetOutputPath": "locales/{locale}.json"
+  "targetOutputPath": "messages/{locale}.json"
 }
