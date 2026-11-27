@@ -1784,7 +1784,7 @@ export default defineMessages({
     id: 'removeServiceAccountsText',
     description: 'Remove service accounts description',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> service account will be removed from <b>{group}</b> group.} other {<b>#</b> service accounts will be removed from <b>{group}</b> group.}}',
+      '{count, plural, =1 {<b>{name}</b> service account will be removed from <b>{group}</b> group.} other {<b>#</b> service accounts will be removed from <b>{group}</b> group.}}',
   },
   remove: {
     id: 'remove',
@@ -2423,70 +2423,6 @@ export default defineMessages({
     id: 'inventoryGroupsTooltip',
     description: 'Tooltip for inventory group role permissions',
     defaultMessage: 'Add permission to these groups.',
-  },
-  workspacesAlertSwitchLabel: {
-    id: 'workspacesAlertSwitchLabel',
-    description: 'Enable workspaces',
-    defaultMessage: 'Enable workspaces',
-  },
-  workspacesAlertTitle: {
-    id: 'workspacesAlertTitle',
-    description: 'Title for workspaces alert on overview page',
-    defaultMessage: 'You are qualified to opt into the workspace user access model for your organization.',
-  },
-  workspacesSuccessAlertTitle: {
-    id: 'workspacesSuccessAlertTitle',
-    description: 'Title for success alert for workspaces enablement',
-    defaultMessage: 'Your workspace migration is complete and ready to manage!',
-  },
-  enableWorkspacesWizardTitle: {
-    id: 'enableWorkspacesWizardTitle',
-    description: 'Title for Enable Workspaces wizard',
-    defaultMessage: 'Enable workspaces',
-  },
-  enableWorkspacesWizardDesc: {
-    id: 'enableWorkspacesWizardDesc',
-    description: 'Description for Enable Workspaces wizard',
-    defaultMessage: 'Enable "workspaces" for your organization to enhance access management (assets, roles, users, groups, etc.)',
-  },
-  enableWorkspacesWizardBodyPart1: {
-    id: 'enableWorkspacesWizardBodyPart1',
-    description: 'First part of the Enable Workspaces wizard body',
-    defaultMessage:
-      'Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline\
-       permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.',
-  },
-  enableWorkspacesWizardBodyPart2: {
-    id: 'enableWorkspacesWizardBodyPart2',
-    description: 'Second part of the Enable Workspaces wizard body',
-    defaultMessage:
-      'Configure workspaces to fit your organizational structure. They can be structured in a hierarchy (parent-child\
-          relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you configuration\
-          time. Learn more about workspace hierarchy and use cases for them in your organization.',
-  },
-  enableWorkspacesWizardBodyPart2Header: {
-    id: 'enableWorkspacesWizardBodyPart2Header',
-    description: 'Header for second part of the Enable Workspaces wizard body',
-    defaultMessage: 'Workspaces: ',
-  },
-  enableWorkspacesWizardBodyPart3: {
-    id: 'enableWorkspacesWizardBodyPart3',
-    description: 'Third part of the Enable Workspaces wizard body',
-    defaultMessage:
-      "Create user groups of both end users and service accounts. Tailor these groups to mirror your\
-          organization's structure. Explore predefined roles to see if they fit your needs. If not, create custom roles with specific\
-          permissions. Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can\
-          access what, and the actions they're allowed to perform. Learn more about access management.",
-  },
-  enableWorkspacesWizardBodyPart3Header: {
-    id: 'enableWorkspacesWizardBodyPart3Header',
-    description: 'Header for third part of the Enable Workspaces wizard body',
-    defaultMessage: 'Groups, roles, and role bindings: ',
-  },
-  enableWorkspacesWizardCheckboxLabel: {
-    id: 'enableWorkspacesWizardCheckboxLabel',
-    description: 'Checkbox label for Enable Workspaces wizard',
-    defaultMessage: 'By checking this box, I acknowledge that this action cannot be undone.',
   },
   workspacesTooltip: {
     id: 'workspacesTooltip',
@@ -3195,7 +3131,7 @@ export default defineMessages({
     id: 'deleteUserGroupModalBody',
     description: 'Modal body text for delete user group',
     defaultMessage:
-      '{count, plural, one {Deleting the <b>{name}</b> user group will impact user access configuration.} other {Deleting # user groups will impact user access configuration.}}',
+      '{count, plural, =1 {Deleting the <b>{name}</b> user group will impact user access configuration.} other {Deleting # user groups will impact user access configuration.}}',
   },
   addToUserGroup: {
     id: 'addToUserGroup',
@@ -3256,7 +3192,7 @@ export default defineMessages({
     id: 'deleteCustomRoleModalBody',
     description: 'Modal body text for deleting custom role',
     defaultMessage:
-      '{count, plural, one {Deleting the <b>{name}</b> role may remove access to certain user groups in your organization} other {Deleting # roles may remove access to certain user groups in your organization}}',
+      '{count, plural, =1 {Deleting the <b>{name}</b> role may remove access to certain user groups in your organization} other {Deleting # roles may remove access to certain user groups in your organization}}',
   },
   deleteRoleConfirm: {
     id: 'deleteRoleConfirm',
@@ -3297,7 +3233,7 @@ export default defineMessages({
     id: 'deleteWorkspaceModalBody',
     description: 'Modal body text for deleting a workspace',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> workspace and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} other {<b># workspaces</b> and all their data will be permanently deleted. All access granted to user groups via these workspaces will be removed.}}',
+      '{count, plural, =1 {<b>{name}</b> workspace and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} other {<b># workspaces</b> and all their data will be permanently deleted. All access granted to user groups via these workspaces will be removed.}}',
   },
   workspaceNotEmptyWarning: {
     id: 'workspaceNotEmptyWarning',
